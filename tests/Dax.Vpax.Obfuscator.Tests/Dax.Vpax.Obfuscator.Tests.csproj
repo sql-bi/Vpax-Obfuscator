@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Dax.Vpax.Obfuscator\Dax.Vpax.Obfuscator.csproj" />
+  </ItemGroup>
+
+</Project>
