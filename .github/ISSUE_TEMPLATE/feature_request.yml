@@ -1,0 +1,26 @@
+name: 💡 Feature Request
+labels: ["enhancement", "untriaged"]
+description: Suggest an idea for this project
+body:
+  - type: markdown
+    attributes:
+      value: Before submitting a feature request, please check if there is an existing issue for the feature you are requesting. If one exists, provide any additional information in the comments instead of creating a new issue. 
+  - type: textarea
+    id: the-feature-request
+    attributes:
+      label: The feature request
+      description: Write a clear and concise description of what the feature or problem is.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed solution
+      description: Describe the solution you'd like. A clear description of what you want to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Please include any other context, like screenshots or mockups, if applicable.

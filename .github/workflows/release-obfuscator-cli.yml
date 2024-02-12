@@ -1,0 +1,41 @@
+name: release-obfuscator-cli
+on:
+  workflow_dispatch:
+env:
+  PROJECT: Dax.Vpax.Obfuscator.CLI
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: setup dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: global.json
+    - name: nbgv
+      uses: dotnet/nbgv@v0.4
+      id: nbgv
+      with:
+        path: src/${{ env.PROJECT }}
+    - name: dotnet publish
+      run: dotnet publish 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj' -c Release -r win-x86 --sc -p:PublishSingleFile=true
+    - name: nuget sign
+      run: echo "::warning::(TODO) code signing."
+    - name: git tag
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com # from 'https://api.github.com/users/github-actions[bot]'
+        git tag -a $RELEASE_TAG -m $RELEASE_TAG
+        git push origin $RELEASE_TAG --tags
+      env:
+        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
+    - name: gh release create
+      run: gh release create ${{ env.RELEASE_TAG }} 'src/artifacts/publish/${{ env.PROJECT }}/release_win-x86/${{ env.PROJECT }}.exe' --title ${{ env.RELEASE_TAG }} --generate-notes --draft
+      env:
+        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

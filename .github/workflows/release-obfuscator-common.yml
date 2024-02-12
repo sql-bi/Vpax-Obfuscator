@@ -1,0 +1,54 @@
+name: release-obfuscator-common
+on:
+  workflow_dispatch:
+env:
+  PROJECT: Dax.Vpax.Obfuscator.Common
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: setup dotnet
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: global.json
+    - name: nbgv
+      uses: dotnet/nbgv@v0.4
+      id: nbgv
+      with:
+        path: src/${{ env.PROJECT }}
+    - name: dotnet pack
+      run: dotnet pack -c Release 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj'
+    - name: nuget sign
+      run: echo "::warning::(TODO) code signing."
+    - name: upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.PROJECT }}_nuget
+        path: ${{ env.ARTIFACT_PATH }}
+        if-no-files-found: error
+      env:
+        ARTIFACT_PATH: src/artifacts/package/release/${{ env.PROJECT }}.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg
+    - name: create git tag
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com # from 'https://api.github.com/users/github-actions[bot]'
+        git tag -a $RELEASE_TAG -m $RELEASE_TAG
+        git push origin $RELEASE_TAG --tags
+      env:
+        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.NuGetPackageVersion }}
+    - name: nuget push
+      run: echo "::warning::(TOFIX) enable nuget push."
+    - name: create release
+      run: |
+        PRERELEASE_FLAG=""
+        if [[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]]; then PRERELEASE_FLAG="--prerelease"; fi
+        gh release create ${{ env.RELEASE_TAG }} --title ${{ env.RELEASE_TAG }} --generate-notes --draft $PRERELEASE_FLAG
+      env:
+        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.NuGetPackageVersion }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
