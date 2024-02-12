@@ -35,7 +35,9 @@ jobs:
       env:
         RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
     - name: gh release create
-      run: gh release create ${{ env.RELEASE_TAG }} 'src/artifacts/publish/${{ env.PROJECT }}/release_win-x86/${{ env.PROJECT }}.exe' --title ${{ env.RELEASE_TAG }} --generate-notes --draft
+      run: |
+        PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
+        gh release create ${{ env.RELEASE_TAG }} 'src/artifacts/publish/${{ env.PROJECT }}/release_win-x86/${{ env.PROJECT }}.exe' --title ${{ env.RELEASE_TAG }} --generate-notes --draft $PRERELEASE_FLAG
       env:
         RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

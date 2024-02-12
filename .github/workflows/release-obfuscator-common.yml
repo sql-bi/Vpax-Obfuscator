@@ -46,8 +46,7 @@ jobs:
       run: echo "::warning::(TOFIX) enable nuget push."
     - name: create release
       run: |
-        PRERELEASE_FLAG=""
-        if [[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]]; then PRERELEASE_FLAG="--prerelease"; fi
+        PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
         gh release create ${{ env.RELEASE_TAG }} --title ${{ env.RELEASE_TAG }} --generate-notes --draft $PRERELEASE_FLAG
       env:
         RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.NuGetPackageVersion }}

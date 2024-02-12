@@ -45,7 +45,9 @@ jobs:
     - name: nuget push
       run: echo "::warning::(TOFIX) enable nuget push."
     - name: create release
-      run: gh release create ${{ env.RELEASE_TAG }} --title ${{ env.RELEASE_TAG }} --generate-notes --draft
+      run: |
+        PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
+        gh release create ${{ env.RELEASE_TAG }} --title ${{ env.RELEASE_TAG }} --generate-notes --draft $PRERELEASE_FLAG
       env:
         RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.NuGetPackageVersion }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
