@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;netcoreapp3.1;net6.0;net8.0</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>Vpax Obfuscator</Title>
+    <Description>A library enabling the obfuscation of VertiPaq Analyzer files.</Description>
+    <PackageProjectUrl>https://github.com/sql-bi/Vpax-Obfuscator/tree/main/src/Dax.Vpax.Obfuscator</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dax.Vpax.Obfuscator.Common\Dax.Vpax.Obfuscator.Common.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\TabularEditor.Dax.Tokenizer\TabularEditor.Dax.Tokenizer.csproj" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Dax.Vpax" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dax.Vpax.Obfuscator.Tests" />
+  </ItemGroup>
+
+  <!-- Include DLL from project reference in NuGet package -->
+  <ItemGroup>
+    <!-- net462 -->
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net462\Dax.Vpax.Obfuscator.Common.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\net462\</PackagePath>
+    </_PackageFiles>
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net462\TabularEditor.Dax.Tokenizer.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\net462\</PackagePath>
+    </_PackageFiles>
+    <!-- netcoreapp3.1 -->
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_netcoreapp3.1\Dax.Vpax.Obfuscator.Common.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\netcoreapp3.1\</PackagePath>
+    </_PackageFiles>
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_netcoreapp3.1\TabularEditor.Dax.Tokenizer.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\netcoreapp3.1\</PackagePath>
+    </_PackageFiles>
+    <!-- net6.0 -->
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net6.0\Dax.Vpax.Obfuscator.Common.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\net6.0\</PackagePath>
+    </_PackageFiles>
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net6.0\TabularEditor.Dax.Tokenizer.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\net6.0\</PackagePath>
+    </_PackageFiles>
+    <!-- net8.0 -->
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net8.0\Dax.Vpax.Obfuscator.Common.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\net8.0\</PackagePath>
+    </_PackageFiles>
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net8.0\TabularEditor.Dax.Tokenizer.dll">
+      <BuildAction>None</BuildAction>
+      <PackagePath>lib\net8.0\</PackagePath>
+    </_PackageFiles>
+  </ItemGroup>
+
+</Project>

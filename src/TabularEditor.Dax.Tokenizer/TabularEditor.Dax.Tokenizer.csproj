@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Tabular Editor ApS</Authors>
+    <Company>Tabular Editor ApS</Company>
+    <Product>Dax Tokenizer</Product>
+    <PackageProjectUrl>https://github.com/sql-bi/Vpax-Obfuscator/tree/main/src/TabularEditor.Dax.Tokenizer</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" />
+  </ItemGroup>
+
+</Project>
