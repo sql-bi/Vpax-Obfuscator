@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using System.Reflection;
 using Dax.Metadata;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Extensions;
@@ -17,17 +17,16 @@ internal sealed partial class DaxModelObfuscator
         if (model.IsObfuscated()) throw new InvalidOperationException("The model has already been obfuscated.");
 
         var dictionaryId = Guid.NewGuid().ToString("D");
-        if (dictionary != null) {
+        if (dictionary != null)
+        {
             if (!ObfuscationDictionary.IsValidId(dictionary.Id)) throw new InvalidOperationException("The dictionary identifier is not valid.");
             dictionaryId = dictionary.Id;
         }
 
-        var obfuscatorAssembly = GetType().Assembly;
-
         _model = model;
         _model.ObfuscatorDictionaryId = dictionaryId;
-        _model.ObfuscatorLib = obfuscatorAssembly.GetName().Name;
-        _model.ObfuscatorLibVersion = FileVersionInfo.GetVersionInfo(obfuscatorAssembly.Location).ProductVersion;
+        _model.ObfuscatorLib = GetType().Assembly.GetName().Name;
+        _model.ObfuscatorLibVersion = GetType().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? throw new InvalidOperationException("The assembly informational version is not available.");
         _obfuscator = new DaxTextObfuscator();
         _texts = new DaxTextCollection(dictionary);
     }
@@ -63,7 +62,7 @@ internal sealed partial class DaxModelObfuscator
 
     private void ObfuscateIdentifiers(Measure measure)
     {
-        var measureText = Obfuscate(measure.MeasureName);
+        var measureText = Obfuscate(measure.MeasureName) ?? throw new InvalidOperationException($"The measure name is not valid [{measure.MeasureName}].");
         CreateKpiMeasure(measure.KpiTargetExpression, "Goal");
         CreateKpiMeasure(measure.KpiStatusExpression, "Status");
         CreateKpiMeasure(measure.KpiTrendExpression, "Trend");
@@ -133,7 +132,6 @@ internal sealed partial class DaxModelObfuscator
 
     private void Obfuscate(CalculationGroup calculationGroup)
     {
-        // TOFIX: should not be null
         if (calculationGroup == null)
             return;
 
@@ -142,11 +140,6 @@ internal sealed partial class DaxModelObfuscator
             Obfuscate(calculationItem.ItemName);
             Obfuscate(calculationItem.ItemExpression);
             Obfuscate(calculationItem.Description);
-
-            // TODO: (review) do we need to obfuscate these?
-            //calculationItem.ErrorMessage
-            //calculationItem.FormatStringDefinition
-            //calculationItem.FormatStringErrorMessage
         }
     }
 
@@ -161,11 +154,11 @@ internal sealed partial class DaxModelObfuscator
         Obfuscate(tablePermission.FilterExpression);
     }
 
-    private DaxText Obfuscate(DaxName name)
+    private DaxText? Obfuscate(DaxName name)
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 
-        var text = ObfuscateText(new DaxText(name.Name));
+        var text = ObfuscateText(new DaxText(name!.Name));
         name.Name = text.ObfuscatedValue;
         return text;
     }
@@ -174,7 +167,7 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(note?.Note)) return;
 
-        var text = ObfuscateText(new DaxText(note.Note));
+        var text = ObfuscateText(new DaxText(note!.Note));
         note.Note = text.ObfuscatedValue;
     }
 
@@ -182,6 +175,6 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(expression?.Expression)) return;
 
-        expression.Expression = ObfuscateExpression(expression.Expression);
+        expression!.Expression = ObfuscateExpression(expression.Expression);
     }
 }
