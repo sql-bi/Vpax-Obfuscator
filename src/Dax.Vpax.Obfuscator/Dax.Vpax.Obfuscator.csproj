@@ -18,6 +18,7 @@
   
   <ItemGroup>
     <PackageReference Include="Dax.Vpax" />
+    <PackageReference Include="Antlr4.Runtime.Standard" />
   </ItemGroup>
 
   <ItemGroup>
