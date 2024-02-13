@@ -158,7 +158,7 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 
-        var text = ObfuscateText(new DaxText(name.Name));
+        var text = ObfuscateText(new DaxText(name!.Name));
         name.Name = text.ObfuscatedValue;
         return text;
     }
@@ -167,7 +167,7 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(note?.Note)) return;
 
-        var text = ObfuscateText(new DaxText(note.Note));
+        var text = ObfuscateText(new DaxText(note!.Note));
         note.Note = text.ObfuscatedValue;
     }
 
@@ -175,6 +175,6 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(expression?.Expression)) return;
 
-        expression.Expression = ObfuscateExpression(expression.Expression);
+        expression!.Expression = ObfuscateExpression(expression.Expression);
     }
 }
