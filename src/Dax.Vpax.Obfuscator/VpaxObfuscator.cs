@@ -6,10 +6,6 @@ namespace Dax.Vpax.Obfuscator;
 
 public sealed class VpaxObfuscator : IVpaxObfuscator
 {
-#pragma warning disable CS0436 // Type conflicts with imported type
-    public static string Version = ThisAssembly.AssemblyInformationalVersion;
-#pragma warning restore CS0436 // Type conflicts with imported type
-
     /// <inheritdoc/>
     public ObfuscationDictionary Obfuscate(Stream stream)
         => ObfuscateImpl(stream, dictionary: null);

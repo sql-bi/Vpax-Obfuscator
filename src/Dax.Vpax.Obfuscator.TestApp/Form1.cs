@@ -1,3 +1,4 @@
+using System.Reflection;
 using Dax.Vpax.Obfuscator.Common;
 
 namespace Dax.Vpax.Obfuscator.TestApp
@@ -7,7 +8,7 @@ namespace Dax.Vpax.Obfuscator.TestApp
         public Form1()
         {
             InitializeComponent();
-            Text = $"VPAX Obfuscator v{VpaxObfuscator.Version}";
+            Text = $"VPAX Obfuscator v{typeof(VpaxObfuscator).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}";
         }
 
         private void buttonObfuscate_Click(object sender, EventArgs e)
