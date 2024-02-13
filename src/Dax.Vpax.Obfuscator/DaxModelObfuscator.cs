@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using System.Reflection;
 using Dax.Metadata;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Extensions;
@@ -17,17 +17,16 @@ internal sealed partial class DaxModelObfuscator
         if (model.IsObfuscated()) throw new InvalidOperationException("The model has already been obfuscated.");
 
         var dictionaryId = Guid.NewGuid().ToString("D");
-        if (dictionary != null) {
+        if (dictionary != null)
+        {
             if (!ObfuscationDictionary.IsValidId(dictionary.Id)) throw new InvalidOperationException("The dictionary identifier is not valid.");
             dictionaryId = dictionary.Id;
         }
 
-        var obfuscatorAssembly = GetType().Assembly;
-
         _model = model;
         _model.ObfuscatorDictionaryId = dictionaryId;
-        _model.ObfuscatorLib = obfuscatorAssembly.GetName().Name;
-        _model.ObfuscatorLibVersion = FileVersionInfo.GetVersionInfo(obfuscatorAssembly.Location).ProductVersion;
+        _model.ObfuscatorLib = GetType().Assembly.GetName().Name;
+        _model.ObfuscatorLibVersion = GetType().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? throw new InvalidOperationException("The assembly informational version is not available.");
         _obfuscator = new DaxTextObfuscator();
         _texts = new DaxTextCollection(dictionary);
     }
