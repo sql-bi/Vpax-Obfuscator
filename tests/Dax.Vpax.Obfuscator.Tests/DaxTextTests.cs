@@ -7,13 +7,13 @@ public class DaxTextTests
     [Fact]
     public void ctor_NullValue_Throws()
     {
-        Assert.Throws<ArgumentNullException>(() => new DaxText(value: null));
+        Assert.Throws<ArgumentNullException>(() => new DaxText(value: null!));
     }
 
     [Fact]
     public void ctor_NullObfuscatedValue_Throws()
     {
-        Assert.Throws<ArgumentNullException>(() => new DaxText(value: "abc", obfuscatedValue: null));
+        Assert.Throws<ArgumentNullException>(() => new DaxText(value: "abc", obfuscatedValue: null!));
     }
 
     [Fact]
