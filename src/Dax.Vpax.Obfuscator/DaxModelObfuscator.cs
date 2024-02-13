@@ -62,7 +62,7 @@ internal sealed partial class DaxModelObfuscator
 
     private void ObfuscateIdentifiers(Measure measure)
     {
-        var measureText = Obfuscate(measure.MeasureName);
+        var measureText = Obfuscate(measure.MeasureName) ?? throw new InvalidOperationException($"The measure name is not valid [{measure.MeasureName}].");
         CreateKpiMeasure(measure.KpiTargetExpression, "Goal");
         CreateKpiMeasure(measure.KpiStatusExpression, "Status");
         CreateKpiMeasure(measure.KpiTrendExpression, "Trend");
@@ -132,7 +132,6 @@ internal sealed partial class DaxModelObfuscator
 
     private void Obfuscate(CalculationGroup calculationGroup)
     {
-        // TOFIX: should not be null
         if (calculationGroup == null)
             return;
 
@@ -141,11 +140,6 @@ internal sealed partial class DaxModelObfuscator
             Obfuscate(calculationItem.ItemName);
             Obfuscate(calculationItem.ItemExpression);
             Obfuscate(calculationItem.Description);
-
-            // TODO: (review) do we need to obfuscate these?
-            //calculationItem.ErrorMessage
-            //calculationItem.FormatStringDefinition
-            //calculationItem.FormatStringErrorMessage
         }
     }
 
@@ -160,7 +154,7 @@ internal sealed partial class DaxModelObfuscator
         Obfuscate(tablePermission.FilterExpression);
     }
 
-    private DaxText Obfuscate(DaxName name)
+    private DaxText? Obfuscate(DaxName name)
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 
