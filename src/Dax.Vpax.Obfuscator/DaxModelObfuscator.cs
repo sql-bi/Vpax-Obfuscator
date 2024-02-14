@@ -176,6 +176,7 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(expression?.Expression)) return;
 
-        expression!.Expression = ObfuscateExpression(expression.Expression);
+        var value = ObfuscateExpression(expression!.Expression);
+        expression.Expression = value;
     }
 }

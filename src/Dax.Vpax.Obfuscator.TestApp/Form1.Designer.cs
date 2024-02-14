@@ -35,6 +35,7 @@
             checkBoxIncrementalFileObfuscation = new CheckBox();
             openFileDialog1 = new OpenFileDialog();
             openDictionaryFileDialog = new OpenFileDialog();
+            buttonDeobfuscate = new Button();
             SuspendLayout();
             // 
             // buttonObfuscate
@@ -92,11 +93,22 @@
             openDictionaryFileDialog.DefaultExt = "*.dictionary.json";
             openDictionaryFileDialog.Filter = "Obfucator Dictionary file|*.dictionary.json";
             // 
+            // buttonDeobfuscate
+            // 
+            buttonDeobfuscate.Location = new Point(37, 231);
+            buttonDeobfuscate.Name = "buttonDeobfuscate";
+            buttonDeobfuscate.Size = new Size(133, 44);
+            buttonDeobfuscate.TabIndex = 4;
+            buttonDeobfuscate.Text = "Deobfuscate File";
+            buttonDeobfuscate.UseVisualStyleBackColor = true;
+            buttonDeobfuscate.Click += buttonDeobfuscate_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(515, 249);
+            ClientSize = new Size(515, 304);
+            Controls.Add(buttonDeobfuscate);
             Controls.Add(checkBoxIncrementalFileObfuscation);
             Controls.Add(buttonObfuscateDirectory);
             Controls.Add(checkBoxOverwriteDictionary);
@@ -120,5 +132,6 @@
         private CheckBox checkBoxIncrementalFileObfuscation;
         private OpenFileDialog openFileDialog1;
         private OpenFileDialog openDictionaryFileDialog;
+        private Button buttonDeobfuscate;
     }
 }

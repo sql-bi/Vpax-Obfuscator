@@ -26,6 +26,22 @@ public sealed class ObfuscationDictionary
     public string Id { get; }
     public IReadOnlyList<ObfuscationText> Texts { get; }
 
+    public string GetValue(string obfuscated)
+    {
+        if (_obfuscated.TryGetValue(obfuscated, out var text))
+            return text.Value;
+
+        throw new KeyNotFoundException($"The obfuscated value was not found in the dictionary [{obfuscated}].");
+    }
+
+    public string GetObfuscated(string value)
+    {
+        if (_plaintexts.TryGetValue(value, out var text))
+            return text.Obfuscated;
+
+        throw new KeyNotFoundException($"The value was not found in the dictionary [{value}].");
+    }
+
     public bool TryGetValue(string obfuscated, [NotNullWhen(true)] out string? value)
     {
         if (_obfuscated.TryGetValue(obfuscated, out var text)) {
