@@ -26,7 +26,7 @@ internal sealed partial class DaxModelObfuscator
 
         _model = model;
         _model.ObfuscatorDictionaryId = dictionaryId;
-        _model.ObfuscatorLib = GetType().Assembly.GetName().Name;
+        _model.ObfuscatorLib = "Dax.Vpax.Obfuscator"; // hard-coded
         _model.ObfuscatorLibVersion = GetType().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? throw new InvalidOperationException("The assembly informational version is not available.");
         _obfuscator = new DaxTextObfuscator();
         _texts = new DaxTextCollection(dictionary);
