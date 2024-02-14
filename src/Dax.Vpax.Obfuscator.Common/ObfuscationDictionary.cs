@@ -84,13 +84,4 @@ public sealed class ObfuscationDictionary
             return serializer.Deserialize<ObfuscationDictionary>(reader) ?? throw new InvalidOperationException("The deserialized dictionary is null.");
         }
     }
-
-    internal static bool IsValidId(string value)
-    {
-        if (value == null) return false;
-        if (!Guid.TryParseExact(value, "D", out var guid)) return false;
-        if (guid == Guid.Empty) return false;
-
-        return true;
-    }
 }

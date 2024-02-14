@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Dax.Metadata;
 using Dax.Vpax.Obfuscator.Common;
+using Dax.Vpax.Obfuscator.Common.Extensions;
 using Dax.Vpax.Obfuscator.Extensions;
 
 namespace Dax.Vpax.Obfuscator;
@@ -19,7 +20,7 @@ internal sealed partial class DaxModelObfuscator
         var dictionaryId = Guid.NewGuid().ToString("D");
         if (dictionary != null)
         {
-            if (!ObfuscationDictionary.IsValidId(dictionary.Id)) throw new InvalidOperationException("The dictionary identifier is not valid.");
+            if (!dictionary.Id.IsValidDictionaryId()) throw new InvalidOperationException("The dictionary identifier is not valid.");
             dictionaryId = dictionary.Id;
         }
 
