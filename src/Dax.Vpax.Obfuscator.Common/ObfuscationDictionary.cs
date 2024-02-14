@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using Dax.Vpax.Obfuscator.Common.Extensions;
 using Newtonsoft.Json;
 
 namespace Dax.Vpax.Obfuscator.Common;
@@ -12,8 +13,7 @@ public sealed class ObfuscationDictionary
     [JsonConstructor]
     internal ObfuscationDictionary(string id, ObfuscationText[] texts)
     {
-        if (id == null) throw new ArgumentNullException("The dictionary identifier cannot be null.", nameof(id));
-        if (!IsValidId(id)) throw new ArgumentException("The dictionary identifier is not valid.", nameof(id));
+        if (!id.IsValidDictionaryId()) throw new ArgumentException("The dictionary identifier is not valid.", nameof(id));
 
         Id = id;
         Texts = texts.OrderBy((t) => t.Value).ToArray();
