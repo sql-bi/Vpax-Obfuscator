@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Dax.Vpax.Obfuscator" />
+    <InternalsVisibleTo Include="Dax.Vpax.Obfuscator.Tests" />
     <InternalsVisibleTo Include="Dax.Vpax.Obfuscator.Common.Tests" />
   </ItemGroup>
 
