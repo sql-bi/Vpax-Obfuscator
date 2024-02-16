@@ -1,54 +1,117 @@
-﻿using Dax.Vpax.Obfuscator.Common;
-using System.CommandLine;
+﻿using System.CommandLine;
+using Dax.Vpax.Obfuscator.Common;
 
 namespace Dax.Vpax.Obfuscator.CLI;
 
 internal class Program
 {
-    public static int Main(string[] args)
-    {
-        var command = BuildCommand();
-        return command.Invoke(args);
-    }
+    public static int Main(string[] args) => BuildCommand().Invoke(args);
 
     private static RootCommand BuildCommand()
     {
-        var fileOption = new Option<FileInfo>("--file")
+        var allowOverwriteOption = new Option<bool>(name: "--allow-overwrite")
         {
-            Description = "The full path to the VPAX file to obfuscate.",
-            IsRequired = true,
-        };
-        fileOption.AddAlias("-f");
-
-        var dictionaryOption = new Option<FileInfo>("--dictionary")
-        {
-            Description = "The full path to the JSON dictionary file to use for obfuscation.",
+            Description = "Allow output files to be overwritten. If not provided, the command will fail if an output file already exists.",
             IsRequired = false,
         };
-        dictionaryOption.AddAlias("-d");
-
-        var rootCommand = new RootCommand("VertiPaq-Analyzer obfuscator.");
-        rootCommand.AddOption(fileOption);
-        rootCommand.AddOption(dictionaryOption);
-        rootCommand.SetHandler(Obfuscate, fileOption, dictionaryOption);
-
-        return rootCommand;
+        var command = new RootCommand("VertiPaq-Analyzer obfuscator CLI");
+        command.AddGlobalOption(allowOverwriteOption);
+        command.AddCommand(BuildCommandObfuscate(allowOverwriteOption));
+        command.AddCommand(BuildCommandDeobfuscate(allowOverwriteOption));
+        return command;
     }
 
-    private static void Obfuscate(FileInfo vpaxFile, FileInfo dictionaryFile)
+    private static Command BuildCommandObfuscate(Option<bool> allowOverwriteOption)
     {
-        var buffer = File.ReadAllBytes(vpaxFile.FullName);
-        using var stream = new MemoryStream();
-        stream.Write(buffer, 0, buffer.Length);
+        var vpaxOption = new Option<FileInfo>(name: "--vpax")
+        {
+            Description = "Path to the unobfuscated VPAX file.",
+            IsRequired = true,
+        };
+        var dictionaryOption = new Option<FileInfo>(name: "--dictionary")
+        {
+            Description = "Path to the dictionary file to be used for incremental obfuscation. If not provided, a new dictionary will be created.",
+            IsRequired = false,
+        };
+        var outputVpaxOption = new Option<FileInfo>(name: "--output-vpax")
+        {
+            Description = "Path to write the obfuscated VPAX file.",
+            IsRequired = true,
+        };
+        var outputDictionaryOption = new Option<FileInfo>(name: "--output-dictionary")
+        {
+            Description = "Path to write the obfuscation dictionary file.",
+            IsRequired = true,
+        };
 
+        var command = new Command("obfuscate", "Obfuscate the DaxModel.json file and delete all other contents from a VPAX file.");
+        command.AddOption(vpaxOption);
+        command.AddOption(dictionaryOption);
+        command.AddOption(outputVpaxOption);
+        command.AddOption(outputDictionaryOption);
+        command.SetHandler(Obfuscate, vpaxOption, dictionaryOption, outputVpaxOption, outputDictionaryOption, allowOverwriteOption);
+        return command;
+    }
+
+    private static Command BuildCommandDeobfuscate(Option<bool> allowOverwriteOption)
+    {
+        var vpaxOption = new Option<FileInfo>(name: "--vpax")
+        {
+            Description = "Path to the obfuscated VPAX file.",
+            IsRequired = true,
+        };
+        var dictionaryOption = new Option<FileInfo>(name: "--dictionary")
+        {
+            Description = "Path to the dictionary file.",
+            IsRequired = true,
+        };
+        var outputVpaxOption = new Option<FileInfo>(name: "--output-vpax")
+        {
+            Description = "Path to write the deobfuscated VPAX file.",
+            IsRequired = true,
+        };
+        var command = new Command("deobfuscate", "Deobfuscate the DaxModel.json file from an obfuscated VPAX file using the provided dictionary.");
+        command.AddOption(vpaxOption); 
+        command.AddOption(dictionaryOption);
+        command.AddOption(outputVpaxOption);
+        command.SetHandler(Deobfuscate, vpaxOption, dictionaryOption, outputVpaxOption, allowOverwriteOption);
+        return command;
+    }
+
+    private static void Obfuscate(FileInfo vpaxFile, FileInfo? dictionaryOption, FileInfo outputVpaxFile, FileInfo outputDictionaryFile, bool allowOverwrite)
+    {
+        using var stream = Read(vpaxFile);
         var obfuscator = new VpaxObfuscator();
-        var dictionary = dictionaryFile != null
-            ? obfuscator.Obfuscate(stream, ObfuscationDictionary.ReadFrom(dictionaryFile.FullName))
+        var outputDictionary = dictionaryOption is not null
+            ? obfuscator.Obfuscate(stream, dictionary: ObfuscationDictionary.ReadFrom(dictionaryOption.FullName))
             : obfuscator.Obfuscate(stream);
 
-        var path = Path.Combine(vpaxFile.DirectoryName!, Path.ChangeExtension(vpaxFile.Name, ".dictionary.json"));
-        dictionary.WriteTo(path, overwrite: false, indented: true);
+        outputDictionary.WriteTo(outputDictionaryFile.FullName, overwrite: allowOverwrite, indented: true);
+        Write(stream, outputVpaxFile, allowOverwrite);
+    }
 
-        File.WriteAllBytes(vpaxFile.FullName, stream.ToArray());
+    private static void Deobfuscate(FileInfo vpaxFile, FileInfo dictionaryFile, FileInfo outputVpaxFile, bool allowOverwrite)
+    {
+        using var stream = Read(vpaxFile);
+        var obfuscator = new VpaxObfuscator();
+
+        obfuscator.Deobfuscate(stream, dictionary: ObfuscationDictionary.ReadFrom(dictionaryFile.FullName));
+        Write(stream, outputVpaxFile, allowOverwrite);
+    }
+
+    private static MemoryStream Read(FileInfo file)
+    {
+        var buffer = File.ReadAllBytes(file.FullName);
+        var stream = new MemoryStream();
+        stream.Write(buffer, 0, buffer.Length);
+        return stream;
+    }
+
+    private static void Write(MemoryStream stream, FileInfo file, bool allowOverwrite)
+    {
+        var bytes = stream.ToArray();
+        var mode = allowOverwrite ? FileMode.Create : FileMode.CreateNew;
+        using var fileStream = new FileStream(file.FullName, mode, FileAccess.Write, FileShare.Read);
+        fileStream.Write(bytes, 0, bytes.Length);
     }
 }
