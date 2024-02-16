@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
+    <AssemblyName>VpaxObfuscator</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
