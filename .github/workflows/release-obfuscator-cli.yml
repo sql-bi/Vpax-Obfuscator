@@ -23,8 +23,8 @@ jobs:
       with:
         path: src/${{ env.PROJECT }}
     - name: dotnet publish
-      run: dotnet publish 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj' -c Release -r win-x86 --sc -p:PublishSingleFile=true
-    - name: nuget sign
+      run: dotnet publish 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj' -o . -c Release -r win-x86 --sc -p:PublishSingleFile=true
+    - name: code signing
       run: echo "::warning::(TODO) code signing."
     - name: git tag
       run: |
@@ -37,7 +37,7 @@ jobs:
     - name: gh release create
       run: |
         PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
-        gh release create ${{ env.RELEASE_TAG }} 'src/artifacts/publish/${{ env.PROJECT }}/release_win-x86/${{ env.PROJECT }}.exe' --title ${{ env.RELEASE_TAG }} --generate-notes --draft $PRERELEASE_FLAG
+        gh release create ${{ env.RELEASE_TAG }} 'vpax-obfuscator.exe#Obfuscator CLI x86 net6.0' --title ${{ env.RELEASE_TAG }} --generate-notes --draft $PRERELEASE_FLAG
       env:
         RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
