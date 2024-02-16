@@ -18,7 +18,7 @@ public sealed class VpaxObfuscator : IVpaxObfuscator
     public void Deobfuscate(Stream stream, ObfuscationDictionary dictionary)
         => DeobfuscateImpl(stream, dictionary);
 
-    private ObfuscationDictionary ObfuscateImpl(Stream stream, ObfuscationDictionary? dictionary)
+    private static ObfuscationDictionary ObfuscateImpl(Stream stream, ObfuscationDictionary? dictionary)
     {
         if (stream == null) throw new ArgumentNullException(nameof(stream));
 
@@ -37,7 +37,7 @@ public sealed class VpaxObfuscator : IVpaxObfuscator
         return result;
     }
 
-    private void DeobfuscateImpl(Stream stream, ObfuscationDictionary dictionary)
+    private static void DeobfuscateImpl(Stream stream, ObfuscationDictionary dictionary)
     {
         if (stream == null) throw new ArgumentNullException(nameof(stream));
         if (dictionary == null) throw new ArgumentNullException(nameof(dictionary));
