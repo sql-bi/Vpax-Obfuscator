@@ -5,7 +5,7 @@ internal sealed partial class DaxModelObfuscator
     internal DaxText ObfuscateText(DaxText text)
     {
         if (Texts.TryGet(text, out var obfuscatedText))
-            return obfuscatedText;
+            return obfuscatedText ?? throw new InvalidOperationException($"Obfuscated text is null. {text.Value}");
 
         _ = _obfuscator.Obfuscate(text);
 
@@ -15,7 +15,7 @@ internal sealed partial class DaxModelObfuscator
             _ = _obfuscator.Obfuscate(text, ++retryCount);
 
         if (retryCount >= retryLimit)
-            throw new InvalidOperationException($"Failed to obfuscate text >> {text.Value} | {text.ObfuscatedValue}");
+            throw new InvalidOperationException($"Failed to obfuscate text. {text.Value} | {text.ObfuscatedValue}");
 
         Texts.Add(text); // << throws in case of unresolved collision (duplicate value/obfuscated value)
         return text;

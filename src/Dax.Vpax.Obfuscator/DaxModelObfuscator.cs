@@ -16,16 +16,9 @@ internal sealed partial class DaxModelObfuscator
     {
         if (model.IsObfuscated()) throw new InvalidOperationException("The model has already been obfuscated.");
 
-        var dictionaryId = Guid.NewGuid().ToString("D");
-        if (dictionary != null)
-        {
-            if (!ObfuscationDictionary.IsValidId(dictionary.Id)) throw new InvalidOperationException("The dictionary identifier is not valid.");
-            dictionaryId = dictionary.Id;
-        }
-
         _model = model;
-        _model.ObfuscatorDictionaryId = dictionaryId;
-        _model.ObfuscatorLib = GetType().Assembly.GetName().Name;
+        _model.ObfuscatorDictionaryId = dictionary != null ? dictionary.Id : Guid.NewGuid().ToString("D");
+        _model.ObfuscatorLib = "Dax.Vpax.Obfuscator"; // hard-coded
         _model.ObfuscatorLibVersion = GetType().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? throw new InvalidOperationException("The assembly informational version is not available.");
         _obfuscator = new DaxTextObfuscator();
         _texts = new DaxTextCollection(dictionary);
@@ -175,6 +168,7 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(expression?.Expression)) return;
 
-        expression!.Expression = ObfuscateExpression(expression.Expression);
+        var value = ObfuscateExpression(expression!.Expression);
+        expression.Expression = value;
     }
 }

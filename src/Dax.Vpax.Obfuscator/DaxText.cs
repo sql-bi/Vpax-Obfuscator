@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 
 namespace Dax.Vpax.Obfuscator;
 
@@ -26,4 +27,6 @@ internal sealed class DaxText
     public string Value { get; }
     public string ObfuscatedValue { get; internal set; }
     public bool IsObfuscatedAsDaxKeyword => DaxTextObfuscator.DaxKeywords.Contains(ObfuscatedValue ?? throw new InvalidOperationException("ObfuscatedValue is null"));
+
+    public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0} | {1}", Value, ObfuscatedValue);
 }

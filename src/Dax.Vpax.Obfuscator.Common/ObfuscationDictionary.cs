@@ -10,10 +10,10 @@ public sealed class ObfuscationDictionary
     private readonly Dictionary<string, ObfuscationText> _obfuscated;
 
     [JsonConstructor]
-    internal ObfuscationDictionary(string id, ObfuscationText[] texts)
+    public ObfuscationDictionary(string id, ObfuscationText[] texts)
     {
-        if (id == null) throw new ArgumentNullException("The dictionary identifier cannot be null.", nameof(id));
-        if (!IsValidId(id)) throw new ArgumentException("The dictionary identifier is not valid.", nameof(id));
+        if (id == null || !Guid.TryParseExact(id, "D", out var guid) || guid == Guid.Empty)
+            throw new ArgumentException("The dictionary identifier is not valid.", nameof(id));
 
         Id = id;
         Texts = texts.OrderBy((t) => t.Value).ToArray();
@@ -26,9 +26,26 @@ public sealed class ObfuscationDictionary
     public string Id { get; }
     public IReadOnlyList<ObfuscationText> Texts { get; }
 
+    public string GetValue(string obfuscated)
+    {
+        if (_obfuscated.TryGetValue(obfuscated, out var text))
+            return text.Value;
+
+        throw new KeyNotFoundException($"The obfuscated value was not found in the dictionary [{obfuscated}].");
+    }
+
+    public string GetObfuscated(string value)
+    {
+        if (_plaintexts.TryGetValue(value, out var text))
+            return text.Obfuscated;
+
+        throw new KeyNotFoundException($"The value was not found in the dictionary [{value}].");
+    }
+
     public bool TryGetValue(string obfuscated, [NotNullWhen(true)] out string? value)
     {
-        if (_obfuscated.TryGetValue(obfuscated, out var text)) {
+        if (_obfuscated.TryGetValue(obfuscated, out var text))
+        {
             value = text.Value;
             return true;
         }
@@ -39,7 +56,8 @@ public sealed class ObfuscationDictionary
 
     public bool TryGetObfuscated(string value, [NotNullWhen(true)] out string? obfuscated)
     {
-        if (_plaintexts.TryGetValue(value, out var text)) {
+        if (_plaintexts.TryGetValue(value, out var text))
+        {
             obfuscated = text.Obfuscated;
             return true;
         }
@@ -79,18 +97,10 @@ public sealed class ObfuscationDictionary
     public static ObfuscationDictionary ReadFrom(Stream stream, bool leaveOpen = false)
     {
         using (var streamReader = new StreamReader(stream, encoding: Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen))
-        using (var reader = new JsonTextReader(streamReader)) {
+        using (var reader = new JsonTextReader(streamReader))
+        {
             var serializer = JsonSerializer.Create();
             return serializer.Deserialize<ObfuscationDictionary>(reader) ?? throw new InvalidOperationException("The deserialized dictionary is null.");
         }
-    }
-
-    internal static bool IsValidId(string value)
-    {
-        if (value == null) return false;
-        if (!Guid.TryParseExact(value, "D", out var guid)) return false;
-        if (guid == Guid.Empty) return false;
-
-        return true;
     }
 }
