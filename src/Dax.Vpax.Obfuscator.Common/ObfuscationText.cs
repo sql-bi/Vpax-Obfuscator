@@ -5,10 +5,10 @@ namespace Dax.Vpax.Obfuscator.Common;
 public sealed class ObfuscationText
 {
     [JsonConstructor]
-    internal ObfuscationText(string value, string obfuscated)
+    public ObfuscationText(string value, string obfuscated)
     {
-        Value = value;
-        Obfuscated = obfuscated;
+        Value = value ?? throw new ArgumentNullException(nameof(value));
+        Obfuscated = obfuscated ?? throw new ArgumentNullException(nameof(obfuscated));
     }
 
     public string Value { get; }

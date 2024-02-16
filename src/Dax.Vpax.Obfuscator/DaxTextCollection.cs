@@ -24,6 +24,8 @@ internal sealed class DaxTextCollection: ICollection<DaxText>
 
     public void Add(DaxText item)
     {
+        if (item.ObfuscatedValue == null) throw new InvalidOperationException("The obfuscated value is null.");
+
         _plaintexts.Add(item, item);
         _obfuscated.Add(item, item);
     }
@@ -36,7 +38,7 @@ internal sealed class DaxTextCollection: ICollection<DaxText>
 
     public IEnumerator<DaxText> GetEnumerator() => _plaintexts.Values.GetEnumerator();
 
-    public bool TryGet(DaxText text, out DaxText obfuscatedText) => _plaintexts.TryGetValue(text, out obfuscatedText);
+    public bool TryGet(DaxText text, out DaxText? obfuscatedText) => _plaintexts.TryGetValue(text, out obfuscatedText);
 
     public bool Remove(DaxText item) => throw new NotSupportedException();
 

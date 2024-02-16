@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Dax.Vpax.Obfuscator.Common.Extensions;
 using Newtonsoft.Json;
 
 namespace Dax.Vpax.Obfuscator.Common;
@@ -11,9 +10,10 @@ public sealed class ObfuscationDictionary
     private readonly Dictionary<string, ObfuscationText> _obfuscated;
 
     [JsonConstructor]
-    internal ObfuscationDictionary(string id, ObfuscationText[] texts)
+    public ObfuscationDictionary(string id, ObfuscationText[] texts)
     {
-        if (!id.IsValidDictionaryId()) throw new ArgumentException("The dictionary identifier is not valid.", nameof(id));
+        if (id == null || !Guid.TryParseExact(id, "D", out var guid) || guid == Guid.Empty)
+            throw new ArgumentException("The dictionary identifier is not valid.", nameof(id));
 
         Id = id;
         Texts = texts.OrderBy((t) => t.Value).ToArray();
@@ -44,7 +44,8 @@ public sealed class ObfuscationDictionary
 
     public bool TryGetValue(string obfuscated, [NotNullWhen(true)] out string? value)
     {
-        if (_obfuscated.TryGetValue(obfuscated, out var text)) {
+        if (_obfuscated.TryGetValue(obfuscated, out var text))
+        {
             value = text.Value;
             return true;
         }
@@ -55,7 +56,8 @@ public sealed class ObfuscationDictionary
 
     public bool TryGetObfuscated(string value, [NotNullWhen(true)] out string? obfuscated)
     {
-        if (_plaintexts.TryGetValue(value, out var text)) {
+        if (_plaintexts.TryGetValue(value, out var text))
+        {
             obfuscated = text.Obfuscated;
             return true;
         }
@@ -95,7 +97,8 @@ public sealed class ObfuscationDictionary
     public static ObfuscationDictionary ReadFrom(Stream stream, bool leaveOpen = false)
     {
         using (var streamReader = new StreamReader(stream, encoding: Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen))
-        using (var reader = new JsonTextReader(streamReader)) {
+        using (var reader = new JsonTextReader(streamReader))
+        {
             var serializer = JsonSerializer.Create();
             return serializer.Deserialize<ObfuscationDictionary>(reader) ?? throw new InvalidOperationException("The deserialized dictionary is null.");
         }
