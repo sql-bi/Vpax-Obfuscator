@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Dax.Metadata;
 using Dax.Vpax.Obfuscator.Tests.TestUtils;
-using TabularEditor.Dax.Tokenizer;
+using Dax.Tokenizer;
 using Xunit;
 
 namespace Dax.Vpax.Obfuscator.Tests;

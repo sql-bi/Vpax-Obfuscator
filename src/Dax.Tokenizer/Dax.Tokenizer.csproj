@@ -9,7 +9,7 @@
     <Authors>Tabular Editor ApS</Authors>
     <Company>Tabular Editor ApS</Company>
     <Product>Dax Tokenizer</Product>
-    <PackageProjectUrl>https://github.com/sql-bi/Vpax-Obfuscator/tree/main/src/TabularEditor.Dax.Tokenizer</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/sql-bi/Vpax-Obfuscator/tree/main/src/Dax.Tokenizer</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

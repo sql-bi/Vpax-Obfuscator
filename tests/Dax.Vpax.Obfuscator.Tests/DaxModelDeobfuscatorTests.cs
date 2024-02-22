@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using Dax.Metadata;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Tests.TestUtils;
-using TabularEditor.Dax.Tokenizer;
+using Dax.Tokenizer;
 using Xunit;
 
 namespace Dax.Vpax.Obfuscator.Tests;

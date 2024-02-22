@@ -1,4 +1,4 @@
-﻿namespace TabularEditor.Dax.Tokenizer
+﻿namespace Dax.Tokenizer
 {
     public enum DaxLocale
     {

@@ -1,7 +1,7 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 
-namespace TabularEditor.Dax.Tokenizer
+namespace Dax.Tokenizer
 {
     public class DaxCharStream : ICharStream
     {

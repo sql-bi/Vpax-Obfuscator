@@ -1,3 +1,0 @@
-# TabularEditor.Dax.Tokenizer
-
-TODO

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.1.32414.318
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Vpax.Obfuscator.Common", "src\Dax.Vpax.Obfuscator.Common\Dax.Vpax.Obfuscator.Common.csproj", "{80F06AB5-55E7-4190-9ADB-0724B9AD5509}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TabularEditor.Dax.Tokenizer", "src\TabularEditor.Dax.Tokenizer\TabularEditor.Dax.Tokenizer.csproj", "{D1B0052F-6048-4FFC-A7F3-93DD27351077}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Tokenizer", "src\Dax.Tokenizer\Dax.Tokenizer.csproj", "{D1B0052F-6048-4FFC-A7F3-93DD27351077}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Vpax.Obfuscator.Common.Tests", "tests\Dax.Vpax.Obfuscator.Common.Tests\Dax.Vpax.Obfuscator.Common.Tests.csproj", "{1887308A-AB4C-40D4-B13A-B5240D4E90F6}"
 EndProject

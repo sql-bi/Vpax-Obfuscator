@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dax.Vpax.Obfuscator.Common\Dax.Vpax.Obfuscator.Common.csproj" PrivateAssets="all" />
-    <ProjectReference Include="..\TabularEditor.Dax.Tokenizer\TabularEditor.Dax.Tokenizer.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\Dax.Tokenizer\Dax.Tokenizer.csproj" PrivateAssets="all" />
   </ItemGroup>
   
   <ItemGroup>
@@ -32,7 +32,7 @@
       <BuildAction>None</BuildAction>
       <PackagePath>lib\net462\</PackagePath>
     </_PackageFiles>
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net462\TabularEditor.Dax.Tokenizer.dll">
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net462\Dax.Tokenizer.dll">
       <BuildAction>None</BuildAction>
       <PackagePath>lib\net462\</PackagePath>
     </_PackageFiles>
@@ -41,7 +41,7 @@
       <BuildAction>None</BuildAction>
       <PackagePath>lib\netcoreapp3.1\</PackagePath>
     </_PackageFiles>
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_netcoreapp3.1\TabularEditor.Dax.Tokenizer.dll">
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_netcoreapp3.1\Dax.Tokenizer.dll">
       <BuildAction>None</BuildAction>
       <PackagePath>lib\netcoreapp3.1\</PackagePath>
     </_PackageFiles>
@@ -50,7 +50,7 @@
       <BuildAction>None</BuildAction>
       <PackagePath>lib\net6.0\</PackagePath>
     </_PackageFiles>
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net6.0\TabularEditor.Dax.Tokenizer.dll">
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net6.0\Dax.Tokenizer.dll">
       <BuildAction>None</BuildAction>
       <PackagePath>lib\net6.0\</PackagePath>
     </_PackageFiles>
@@ -59,7 +59,7 @@
       <BuildAction>None</BuildAction>
       <PackagePath>lib\net8.0\</PackagePath>
     </_PackageFiles>
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net8.0\TabularEditor.Dax.Tokenizer.dll">
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net8.0\Dax.Tokenizer.dll">
       <BuildAction>None</BuildAction>
       <PackagePath>lib\net8.0\</PackagePath>
     </_PackageFiles>

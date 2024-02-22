@@ -17,7 +17,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace TabularEditor.Dax.Tokenizer {
+namespace Dax.Tokenizer {
 #pragma warning disable 3021
 using System;
 using System.IO;

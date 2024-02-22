@@ -1,6 +1,6 @@
 ﻿using Dax.Vpax.Obfuscator.Extensions;
 using System.Text;
-using TabularEditor.Dax.Tokenizer;
+using Dax.Tokenizer;
 
 namespace Dax.Vpax.Obfuscator;
 
