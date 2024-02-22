@@ -1,6 +1,6 @@
 ﻿using Antlr4.Runtime;
 
-namespace TabularEditor.Dax.Tokenizer
+namespace Dax.Tokenizer
 {
     public sealed partial class DaxToken
     {
