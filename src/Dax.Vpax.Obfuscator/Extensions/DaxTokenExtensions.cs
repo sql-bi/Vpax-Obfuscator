@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using TabularEditor.Dax.Tokenizer;
+using Dax.Tokenizer;
 
 namespace Dax.Vpax.Obfuscator.Extensions;
 
