@@ -8,12 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dax.Vpax.Obfuscator" />
     <PackageReference Include="System.CommandLine" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Dax.Vpax.Obfuscator.Common\Dax.Vpax.Obfuscator.Common.csproj" />
-    <ProjectReference Include="..\Dax.Vpax.Obfuscator\Dax.Vpax.Obfuscator.csproj" />
   </ItemGroup>
 
 </Project>
