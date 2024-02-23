@@ -33,7 +33,10 @@ public sealed class VpaxObfuscator : IVpaxObfuscator
         var texts = obfuscator.Texts.Select((t) => new ObfuscationText(t.Value, t.ObfuscatedValue)).ToArray();
         var result = new ObfuscationDictionary(id: model.ObfuscatorDictionaryId, texts);
 
-        VpaxTools.ExportVpax(stream, model, viewVpa: null, database: null);
+        // Update DaxModelVersion to the current version before exporting the obfuscated model.
+        model.DaxModelVersion = Metadata.Model.CurrentDaxModelVersion;
+
+        VpaxTools.ExportVpax(stream, model, viewVpa: null, database: null); 
         return result;
     }
 
