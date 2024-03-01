@@ -47,8 +47,8 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void DeobfuscateExpression_TableConstructorColumnName_IsNotDeobfuscatedBecauseItIsNotObfuscated_SingleColumnTest()
     {
-        var expression = """ SELECTCOLUMNS({ (0) }, "XXX", [Value]) """;
-        var expected   = """ SELECTCOLUMNS({ (0) }, "@c1", [Value]) """;
+        var expression = """ SELECTCOLUMNS({0}, "XXX", [Value]) """;
+        var expected   = """ SELECTCOLUMNS({0}, "@c1", [Value]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
@@ -62,8 +62,8 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void DeobfuscateExpression_TableConstructorColumnName_IsNotDeobfuscatedBecauseItIsNotObfuscated_MultipleColumnsTest()
     {
-        var expression = """ SELECTCOLUMNS({ (1,2,3) }, "XXX", [Value1], "YYY", [value2], "ZZZ", [VALUE3]) """;
-        var expected   = """ SELECTCOLUMNS({ (1,2,3) }, "@c1", [Value1], "@c2", [value2], "@c3", [VALUE3]) """;
+        var expression = """ SELECTCOLUMNS({(1,2,3)}, "XXX", [Value1], "YYY", [value2], "ZZZ", [VALUE3]) """;
+        var expected   = """ SELECTCOLUMNS({(1,2,3)}, "@c1", [Value1], "@c2", [value2], "@c3", [VALUE3]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
@@ -79,12 +79,11 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void DeobfuscateExpression_ExtensionColumnNameMultipleReferencesWithDifferentCasings_ReturnsSameDeobfuscatedValue()
     {
-        var expression = """ SUMX(ADDCOLUMNS(Date, "XXXXXXX", 1), [XXXXXXX]) """;
-        var expected   = """ SUMX(ADDCOLUMNS(Date, "@column", 1), [@COLUMN]) """;
+        var expression = """ SUMX(ADDCOLUMNS({}, "XXXXXXX", 1), [XXXXXXX]) """;
+        var expected   = """ SUMX(ADDCOLUMNS({}, "@column", 1), [@COLUMN]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
-            new ObfuscationText("Date", "Date"),
             new ObfuscationText("@column", "XXXXXXX"),
         ]);
         var actual = deobfuscator.DeobfuscateExpression(expression);
@@ -95,12 +94,11 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void DeobfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsDeobfuscatedColumnNameParts()
     {
-        var expression = """ SUMX(ADDCOLUMNS(Date, "XXXX[Y]", 1), XXXX[Y]) """;
-        var expected   = """ SUMX(ADDCOLUMNS(Date, "rate[%]", 1), rate[%]) """;
+        var expression = """ SUMX(ADDCOLUMNS({}, "XXXX[Y]", 1), XXXX[Y]) """;
+        var expected   = """ SUMX(ADDCOLUMNS({}, "rate[%]", 1), rate[%]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
-            new ObfuscationText("Date", "Date"),
             new ObfuscationText("rate", "XXXX"),
             new ObfuscationText("%", "Y"),
         ]);
@@ -112,12 +110,11 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void DeobfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsDeobfuscatedColumnNamePartsPreservingQuotationMarkEscapeChar()
     {
-        var expression = """ SELECTCOLUMNS(ADDCOLUMNS(Date, "XXX[Y""Y]", 1), XXX[Y"Y]) """;
-        var expected   = """ SELECTCOLUMNS(ADDCOLUMNS(Date, "aaa[b""c]", 1), aaa[b"c]) """;
+        var expression = """ SELECTCOLUMNS(ADDCOLUMNS({}, "XXX[Y""Y]", 1), XXX[Y"Y]) """;
+        var expected   = """ SELECTCOLUMNS(ADDCOLUMNS({}, "aaa[b""c]", 1), aaa[b"c]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
-            new ObfuscationText("Date", "Date"),
             new ObfuscationText("aaa", "XXX"),
             new ObfuscationText("b\"c", "Y\"Y"),
         ]);
@@ -175,8 +172,8 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void ObfuscateExpression_ValueExtensionColumnName_IsNotObfuscated()
     {
-        var expression = """ SELECTCOLUMNS ( { 1 }, "XXXXXXXXXX", ''[Value]) """;
-        var expected   = """ SELECTCOLUMNS ( { 1 }, "__Measures", ''[Value]) """;
+        var expression = """ SELECTCOLUMNS({0}, "XXXXXXXXXX", ''[Value]) """;
+        var expected   = """ SELECTCOLUMNS({0}, "__Measures", ''[Value]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
