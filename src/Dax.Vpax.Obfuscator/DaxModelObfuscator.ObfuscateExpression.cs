@@ -38,8 +38,9 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.COLUMN_OR_MEASURE when token.IsReservedExtensionColumn():
                     tokenText = token.Replace(expression, tokenText);
                     break;
-                case DaxToken.STRING_LITERAL when token.IsExtensionColumnName():
-                    tokenText = ReplaceExtensionColumnName(token);
+                case DaxToken.COLUMN_OR_MEASURE when token.IsFullyQualifiedColumnName():
+                case DaxToken.STRING_LITERAL when token.IsFullyQualifiedColumnName():
+                    tokenText = ReplaceFullyQualifiedColumnName(token);
                     break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
                 case DaxToken.TABLE:
@@ -57,14 +58,21 @@ internal sealed partial class DaxModelObfuscator
 
         return builder.ToString();
 
-        string ReplaceExtensionColumnName(DaxToken token)
+        string ReplaceFullyQualifiedColumnName(DaxToken token)
         {
-            var (tableName, columnName) = token.GetExtensionColumnNameParts();
-            var tableText = ObfuscateText(new DaxText(tableName));
-            var columnText = ObfuscateText(new DaxText(columnName));
+            var (tableName, columnName) = token.GetFullyQualifiedColumnNameParts();
+            var table = ObfuscateText(new DaxText(tableName)).ObfuscatedValue;
+            var column = ObfuscateText(new DaxText(columnName)).ObfuscatedValue;
 
-            var value = $"{tableText.ObfuscatedValue.DaxEscape()}[{columnText.ObfuscatedValue.DaxEscape()}]";
-            return token.Replace(expression, value, escape: true);
+            var escape = token.Type == DaxToken.STRING_LITERAL;
+            if (escape)
+            {
+                table = table.DaxEscape();
+                column = column.DaxEscape();
+            }
+
+            var value = $"{table}[{column}]";
+            return token.Replace(expression, value, escape);
         }
     }
 }
