@@ -38,8 +38,7 @@ internal sealed partial class DaxModelDeobfuscator
                 case DaxToken.COLUMN_OR_MEASURE when token.IsReservedExtensionColumn():
                     tokenText = token.Replace(expression, tokenText);
                     break;
-                case DaxToken.COLUMN_OR_MEASURE when token.IsFullyQualifiedColumnName():
-                case DaxToken.STRING_LITERAL when token.IsFullyQualifiedColumnName():
+                case DaxToken.STRING_LITERAL when token.IsExtensionColumnName():
                     tokenText = ReplaceExtensionColumnName(token);
                     break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
@@ -60,19 +59,12 @@ internal sealed partial class DaxModelDeobfuscator
 
         string ReplaceExtensionColumnName(DaxToken token)
         {
-            var (tableName, columnName) = token.GetFullyQualifiedColumnNameParts();
-            var table = _dictionary.GetValue(tableName);
-            var column = _dictionary.GetValue(columnName);
+            var (tableName, columnName) = token.GetExtensionColumnNameParts();
+            tableName = _dictionary.GetValue(tableName);
+            columnName = _dictionary.GetValue(columnName);
 
-            var escape = token.Type == DaxToken.STRING_LITERAL;
-            if (escape)
-            {
-                table = table.DaxEscape();
-                column = column.DaxEscape();
-            }
-
-            var value = $"{table}[{column}]";
-            return token.Replace(expression, value, escape);
+            var value = $"{tableName.DaxEscape()}[{columnName.DaxEscape()}]";
+            return token.Replace(expression, value, escape: true);
         }
     }
 }

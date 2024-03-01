@@ -5,8 +5,8 @@ namespace Dax.Vpax.Obfuscator.Extensions;
 
 internal static class DaxTokenExtensions
 {
-    public static bool IsFullyQualifiedColumnName(this DaxToken token)
-        => token.Text.EndsWith("]") && token.Text.IndexOf('[') > 0;
+    public static bool IsExtensionColumnName(this DaxToken token)
+        => token.Type == DaxToken.STRING_LITERAL && token.Text.EndsWith("]") && token.Text.IndexOf('[') > 0;
 
     public static bool IsVariable(this DaxToken token)
         => token.Type == DaxToken.TABLE_OR_VARIABLE && !IsFunction(token);
@@ -44,9 +44,9 @@ internal static class DaxTokenExtensions
         return false;
     }
 
-    public static (string tableName, string columnName) GetFullyQualifiedColumnNameParts(this DaxToken token)
+    public static (string tableName, string columnName) GetExtensionColumnNameParts(this DaxToken token)
     {
-        Debug.Assert(token.IsFullyQualifiedColumnName());
+        Debug.Assert(token.IsExtensionColumnName());
 
         var openIndex = token.Text.IndexOf('[');
         var closeIndex = token.Text.LastIndexOf(']');
