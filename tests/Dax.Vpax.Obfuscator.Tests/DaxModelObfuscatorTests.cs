@@ -68,7 +68,7 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ExtensionColumnNameWithDifferentCasings_ReturnsSameObfuscatedValue()
+    public void ObfuscateExpression_ExtensionColumnNameMultipleReferencesWithDifferentCasings_ReturnsSameObfuscatedValue()
     {
         var expression = """ SUMX(ADDCOLUMNS(Date, "@column", 1), [@COLUMN]) """;
         var expected   = """ SUMX(ADDCOLUMNS(Date, "XXXXXXX", 1), [XXXXXXX]) """;
@@ -81,13 +81,13 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ExtensionColumnName_ReturnsObfuscatedTableNameAndColumnNameParts()
+    public void ObfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsObfuscatedColumnNameParts()
     {
-        var expression = """ SUMX(ADDCOLUMNS(Date, "__rate[%]", 1), __rate[%]) """;
-        var expected   = """ SUMX(ADDCOLUMNS(Date, "XXXXXX[Y]", 1), XXXXXX[Y]) """;
+        var expression = """ SUMX(ADDCOLUMNS(Date, "rate[%]", 1), rate[%]) """;
+        var expected   = """ SUMX(ADDCOLUMNS(Date, "XXXX[Y]", 1), XXXX[Y]) """;
 
         var obfuscator = new DaxModelObfuscator(new Model());
-        obfuscator.Texts.Add(new DaxText("__rate", "XXXXXX"));
+        obfuscator.Texts.Add(new DaxText("rate", "XXXX"));
         obfuscator.Texts.Add(new DaxText("%", "Y"));
         var actual = obfuscator.ObfuscateExpression(expression);
 
@@ -95,7 +95,7 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ExtensionColumnName_ReturnsObfuscatedValuePreservingEscapeChar()
+    public void ObfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsObfuscatedColumnNamePartsPreservingQuotationMarkEscapeChar()
     {
         var expression = """ SELECTCOLUMNS(ADDCOLUMNS(Date, "aaa[b""c]", 1), aaa[b"c]) """;
         var expected   = """ SELECTCOLUMNS(ADDCOLUMNS(Date, "XXX[Y""Y]", 1), XXX[Y"Y]) """;
@@ -122,7 +122,7 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ColumnNameWithEscapeSquareBracket_ReturnsObfuscatedValuePreservingEscapeChar()
+    public void ObfuscateExpression_ColumnName_ReturnsObfuscatedValuePreservingSquareBracketEscapeChar()
     {
         var expression = "RELATED( Sales[Rate[%]]] )";
         var expected   = "RELATED( XXXXX[YYYYYY]]] )";
