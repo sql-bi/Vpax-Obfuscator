@@ -90,8 +90,8 @@
             // 
             // openDictionaryFileDialog
             // 
-            openDictionaryFileDialog.DefaultExt = "*.dictionary.json";
-            openDictionaryFileDialog.Filter = "Obfucator Dictionary file|*.dictionary.json";
+            openDictionaryFileDialog.DefaultExt = "*.vpax.dict";
+            openDictionaryFileDialog.Filter = "Obfucator Dictionary file|*.vpax.dict";
             // 
             // buttonDeobfuscate
             // 

@@ -77,7 +77,7 @@ namespace Dax.Vpax.Obfuscator.TestApp
                 ? obfuscator.Obfuscate(stream, ObfuscationDictionary.ReadFrom(dictionaryFile.FullName))
                 : obfuscator.Obfuscate(stream);
 
-            var dictionaryPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".dictionary.json"));
+            var dictionaryPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".vpax.dict"));
             var vpaxPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".obfuscated.vpax"));
 
             dictionary.WriteTo(dictionaryPath, overwrite: checkBoxOverwriteDictionary.Checked, indented: true);
