@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Linq.Expressions;
-using Dax.Metadata;
+﻿using Dax.Metadata;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Tests.TestUtils;
-using Dax.Tokenizer;
 using Xunit;
 
 namespace Dax.Vpax.Obfuscator.Tests;
@@ -51,8 +47,8 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void DeobfuscateExpression_TableConstructorColumnName_IsNotDeobfuscatedBecauseItIsNotObfuscated_SingleColumnTest()
     {
-        var expression = """ SELECTCOLUMNS({ (0) }, "XXX", [Value]) """;
-        var expected   = """ SELECTCOLUMNS({ (0) }, "@c1", [Value]) """;
+        var expression = """ SELECTCOLUMNS({0}, "XXX", [Value]) """;
+        var expected   = """ SELECTCOLUMNS({0}, "@c1", [Value]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
@@ -66,8 +62,8 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void DeobfuscateExpression_TableConstructorColumnName_IsNotDeobfuscatedBecauseItIsNotObfuscated_MultipleColumnsTest()
     {
-        var expression = """ SELECTCOLUMNS({ (1,2,3) }, "XXX", [Value1], "YYY", [value2], "ZZZ", [VALUE3]) """;
-        var expected   = """ SELECTCOLUMNS({ (1,2,3) }, "@c1", [Value1], "@c2", [value2], "@c3", [VALUE3]) """;
+        var expression = """ SELECTCOLUMNS({(1,2,3)}, "XXX", [Value1], "YYY", [value2], "ZZZ", [VALUE3]) """;
+        var expected   = """ SELECTCOLUMNS({(1,2,3)}, "@c1", [Value1], "@c2", [value2], "@c3", [VALUE3]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
@@ -81,14 +77,13 @@ public class DaxModelDeobfuscatorTests
     }
 
     [Fact]
-    public void DeobfuscateExpression_ExtensionColumnNameWithDifferentCasings_ReturnsSameDeobfuscatedValue()
+    public void DeobfuscateExpression_ExtensionColumnNameMultipleReferencesWithDifferentCasings_ReturnsSameDeobfuscatedValue()
     {
-        var expression = """ SUMX(ADDCOLUMNS(Date, "XXXXXXX", 1), [XXXXXXX]) """;
-        var expected   = """ SUMX(ADDCOLUMNS(Date, "@column", 1), [@COLUMN]) """;
+        var expression = """ SUMX(ADDCOLUMNS({}, "XXXXXXX", 1), [XXXXXXX]) """;
+        var expected   = """ SUMX(ADDCOLUMNS({}, "@column", 1), [@COLUMN]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
-            new ObfuscationText("Date", "Date"),
             new ObfuscationText("@column", "XXXXXXX"),
         ]);
         var actual = deobfuscator.DeobfuscateExpression(expression);
@@ -97,15 +92,14 @@ public class DaxModelDeobfuscatorTests
     }
 
     [Fact]
-    public void DeobfuscateExpression_ExtensionColumnName_ReturnsDeobfuscatedTableNameAndColumnNameParts()
+    public void DeobfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsDeobfuscatedColumnNameParts()
     {
-        var expression = """ SUMX(ADDCOLUMNS(Date, "XXXXXX[Y]", 1), XXXXXX[Y]) """;
-        var expected   = """ SUMX(ADDCOLUMNS(Date, "__rate[%]", 1), __rate[%]) """;
+        var expression = """ SUMX(ADDCOLUMNS({}, "XXXX[Y]", 1), XXXX[Y]) """;
+        var expected   = """ SUMX(ADDCOLUMNS({}, "rate[%]", 1), rate[%]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
-            new ObfuscationText("Date", "Date"),
-            new ObfuscationText("__rate", "XXXXXX"),
+            new ObfuscationText("rate", "XXXX"),
             new ObfuscationText("%", "Y"),
         ]);
         var actual = deobfuscator.DeobfuscateExpression(expression);
@@ -114,14 +108,13 @@ public class DaxModelDeobfuscatorTests
     }
 
     [Fact]
-    public void DeobfuscateExpression_ExtensionColumnName_ReturnsDeobfuscatedValuePreservingEscapeChar()
+    public void DeobfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsDeobfuscatedColumnNamePartsPreservingQuotationMarkEscapeChar()
     {
-        var expression = """ SELECTCOLUMNS(ADDCOLUMNS(Date, "XXX[Y""Y]", 1), XXX[Y"Y]) """;
-        var expected   = """ SELECTCOLUMNS(ADDCOLUMNS(Date, "aaa[b""c]", 1), aaa[b"c]) """;
+        var expression = """ SELECTCOLUMNS(ADDCOLUMNS({}, "XXX[Y""Y]", 1), XXX[Y"Y]) """;
+        var expected   = """ SELECTCOLUMNS(ADDCOLUMNS({}, "aaa[b""c]", 1), aaa[b"c]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [
-            new ObfuscationText("Date", "Date"),
             new ObfuscationText("aaa", "XXX"),
             new ObfuscationText("b\"c", "Y\"Y"),
         ]);
@@ -131,7 +124,7 @@ public class DaxModelDeobfuscatorTests
     }
 
     [Fact]
-    public void DeobfuscateExpression_TableNameWithDifferentCasings_ReturnsSameDeobfuscatedValue()
+    public void DeobfuscateExpression_TableNameMultipleReferencesWithDifferentCasings_ReturnsSameDeobfuscatedValue()
     {
         var expression = "COUNTROWS('XXXXX') + COUNTROWS(XXXXX) + COUNTROWS(XXXXX) + COUNTROWS(XXXXX)";
         var expected   = "COUNTROWS('Sales') + COUNTROWS(sales) + COUNTROWS(SALES) + COUNTROWS(SaLeS)";
@@ -146,7 +139,7 @@ public class DaxModelDeobfuscatorTests
     }
 
     [Fact]
-    public void DeobfuscateExpression_ColumnNameWithEscapeSquareBracket_ReturnsDeobfuscatedValuePreservingEscapeChar()
+    public void DeobfuscateExpression_ColumnName_ReturnsDeobfuscatedValuePreservingSquareBracketEscapeChar()
     {
         var expression = "RELATED( XXXXX[YYYYYY]]] )";
         var expected   = "RELATED( Sales[Rate[%]]] )";
@@ -162,7 +155,7 @@ public class DaxModelDeobfuscatorTests
     }
 
     [Fact]
-    public void DeobfuscateExpression_VariableNameWithDifferentCasings_ReturnsSameDeobfuscatedValue()
+    public void DeobfuscateExpression_VariableNameMultipleReferencesWithDifferentCasings_ReturnsSameDeobfuscatedValue()
     {
         var expression = "VAR XXXXXX = 1 RETURN XXXXXX + XXXXXX + XXXXXX";
         var expected   = "VAR Amount = 1 RETURN AMOUNT + AmOuNt + amount";
@@ -179,8 +172,8 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void ObfuscateExpression_ValueExtensionColumnName_IsNotObfuscated()
     {
-        var expression = """ SELECTCOLUMNS ( { 1 }, "XXXXXXXXXX", ''[Value]) """;
-        var expected   = """ SELECTCOLUMNS ( { 1 }, "__Measures", ''[Value]) """;
+        var expression = """ SELECTCOLUMNS({0}, "XXXXXXXXXX", ''[Value]) """;
+        var expected   = """ SELECTCOLUMNS({0}, "__Measures", ''[Value]) """;
 
         var (_, _, deobfuscator) = CreateTest(
         [

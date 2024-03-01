@@ -42,8 +42,8 @@ public class DaxModelObfuscatorTests
     [Fact]
     public void ObfuscateExpression_TableConstructorColumnName_IsNotObfuscated_SingleColumnTest()
     {
-        var expression = """ SELECTCOLUMNS({ (0) }, "@c1", [Value]) """;
-        var expected   = """ SELECTCOLUMNS({ (0) }, "XXX", [Value]) """;
+        var expression = """ SELECTCOLUMNS({0}, "@c1", [Value]) """;
+        var expected   = """ SELECTCOLUMNS({0}, "XXX", [Value]) """;
 
         var obfuscator = new DaxModelObfuscator(new Model());
         obfuscator.Texts.Add(new DaxText("@c1", "XXX"));
@@ -55,8 +55,8 @@ public class DaxModelObfuscatorTests
     [Fact]
     public void ObfuscateExpression_TableConstructorColumnName_IsNotObfuscated_MultipleColumnsTest()
     {
-        var expression = """ SELECTCOLUMNS({ (1,2,3) }, "@c1", [Value1], "@c2", [value2], "@c3", [VALUE3]) """;
-        var expected =   """ SELECTCOLUMNS({ (1,2,3) }, "XXX", [Value1], "YYY", [value2], "ZZZ", [VALUE3]) """;
+        var expression = """ SELECTCOLUMNS({(1,2,3)}, "@c1", [Value1], "@c2", [value2], "@c3", [VALUE3]) """;
+        var expected =   """ SELECTCOLUMNS({(1,2,3)}, "XXX", [Value1], "YYY", [value2], "ZZZ", [VALUE3]) """;
 
         var obfuscator = new DaxModelObfuscator(new Model());
         obfuscator.Texts.Add(new DaxText("@c1", "XXX"));
@@ -68,10 +68,10 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ExtensionColumnNameWithDifferentCasings_ReturnsSameObfuscatedValue()
+    public void ObfuscateExpression_ExtensionColumnNameMultipleReferencesWithDifferentCasings_ReturnsSameObfuscatedValue()
     {
-        var expression = """ SUMX(ADDCOLUMNS(Date, "@column", 1), [@COLUMN]) """;
-        var expected   = """ SUMX(ADDCOLUMNS(Date, "XXXXXXX", 1), [XXXXXXX]) """;
+        var expression = """ SUMX(ADDCOLUMNS({}, "@column", 1), [@COLUMN]) """;
+        var expected   = """ SUMX(ADDCOLUMNS({}, "XXXXXXX", 1), [XXXXXXX]) """;
 
         var obfuscator = new DaxModelObfuscator(new Model());
         obfuscator.Texts.Add(new DaxText("@column", "XXXXXXX"));
@@ -81,13 +81,13 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ExtensionColumnName_ReturnsObfuscatedTableNameAndColumnNameParts()
+    public void ObfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsObfuscatedColumnNameParts()
     {
-        var expression = """ SUMX(ADDCOLUMNS(Date, "__rate[%]", 1), __rate[%]) """;
-        var expected   = """ SUMX(ADDCOLUMNS(Date, "XXXXXX[Y]", 1), XXXXXX[Y]) """;
+        var expression = """ SUMX(ADDCOLUMNS({}, "rate[%]", 1), rate[%]) """;
+        var expected   = """ SUMX(ADDCOLUMNS({}, "XXXX[Y]", 1), XXXX[Y]) """;
 
         var obfuscator = new DaxModelObfuscator(new Model());
-        obfuscator.Texts.Add(new DaxText("__rate", "XXXXXX"));
+        obfuscator.Texts.Add(new DaxText("rate", "XXXX"));
         obfuscator.Texts.Add(new DaxText("%", "Y"));
         var actual = obfuscator.ObfuscateExpression(expression);
 
@@ -95,10 +95,10 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ExtensionColumnName_ReturnsObfuscatedValuePreservingEscapeChar()
+    public void ObfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsObfuscatedColumnNamePartsPreservingQuotationMarkEscapeChar()
     {
-        var expression = """ SELECTCOLUMNS(ADDCOLUMNS(Date, "aaa[b""c]", 1), aaa[b"c]) """;
-        var expected   = """ SELECTCOLUMNS(ADDCOLUMNS(Date, "XXX[Y""Y]", 1), XXX[Y"Y]) """;
+        var expression = """ SELECTCOLUMNS(ADDCOLUMNS({}, "aaa[b""c]", 1), aaa[b"c]) """;
+        var expected   = """ SELECTCOLUMNS(ADDCOLUMNS({}, "XXX[Y""Y]", 1), XXX[Y"Y]) """;
 
         var obfuscator = new DaxModelObfuscator(new Model());
         obfuscator.Texts.Add(new DaxText("aaa", "XXX"));
@@ -122,7 +122,7 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ColumnNameWithEscapeSquareBracket_ReturnsObfuscatedValuePreservingEscapeChar()
+    public void ObfuscateExpression_ColumnName_ReturnsObfuscatedValuePreservingSquareBracketEscapeChar()
     {
         var expression = "RELATED( Sales[Rate[%]]] )";
         var expected   = "RELATED( XXXXX[YYYYYY]]] )";
@@ -136,7 +136,7 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_VariableNameWithDifferentCasings_ReturnsSameObfuscatedValue()
+    public void ObfuscateExpression_VariableNameMultipleReferencesWithDifferentCasings_ReturnsSameObfuscatedValue()
     {
         var expression = "VAR Amount = 1 RETURN AMOUNT + AmOuNt + amount";
         var expected   = "VAR XXXXXX = 1 RETURN XXXXXX + XXXXXX + XXXXXX";
@@ -151,8 +151,8 @@ public class DaxModelObfuscatorTests
     [Fact]
     public void ObfuscateExpression_ValueExtensionColumnName_IsNotObfuscated()
     {
-        var expression = """ SELECTCOLUMNS ( { 1 }, "__Measures", ''[Value]) """;
-        var expected =   """ SELECTCOLUMNS ( { 1 }, "XXXXXXXXXX", ''[Value]) """;
+        var expression = """ SELECTCOLUMNS({0}, "__Measures", ''[Value]) """;
+        var expected =   """ SELECTCOLUMNS({0}, "XXXXXXXXXX", ''[Value]) """;
 
         var obfuscator = new DaxModelObfuscator(new Model());
         obfuscator.Texts.Add(new DaxText("__Measures", "XXXXXXXXXX"));
