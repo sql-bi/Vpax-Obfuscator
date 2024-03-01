@@ -136,7 +136,7 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_VariableNameWithDifferentCasings_ReturnsSameObfuscatedValue()
+    public void ObfuscateExpression_VariableNameMultipleReferencesWithDifferentCasings_ReturnsSameObfuscatedValue()
     {
         var expression = "VAR Amount = 1 RETURN AMOUNT + AmOuNt + amount";
         var expected   = "VAR XXXXXX = 1 RETURN XXXXXX + XXXXXX + XXXXXX";
