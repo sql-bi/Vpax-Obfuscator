@@ -67,6 +67,10 @@ internal sealed partial class DaxModelObfuscator
             var text = new DaxText($"_{measureText.Value} {type}");
             text.ObfuscatedValue = $"_{measureText.ObfuscatedValue} {type}";
 
+            // It may already exist in case of incremental obfuscation
+            if (Texts.IsIncrementalObfuscation && Texts.Contains(text))
+                return;
+
             Texts.Add(text);
         }
     }
