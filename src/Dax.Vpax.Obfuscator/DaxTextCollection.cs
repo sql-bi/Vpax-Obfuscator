@@ -13,10 +13,13 @@ internal sealed class DaxTextCollection: ICollection<DaxText>
     {
         if (dictionary != null)
         {
+            IsIncrementalObfuscation = true;
             foreach (var text in dictionary.Texts)
                 Add(new DaxText(text.Value, text.Obfuscated));
         }
     }
+
+    public bool IsIncrementalObfuscation { get; }
 
     public int Count => _plaintexts.Count;
 
