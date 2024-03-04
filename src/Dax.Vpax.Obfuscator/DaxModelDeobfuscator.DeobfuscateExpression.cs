@@ -63,8 +63,8 @@ internal sealed partial class DaxModelDeobfuscator
             tableName = _dictionary.GetValue(tableName);
             columnName = _dictionary.GetValue(columnName);
 
-            var value = $"{tableName.DaxEscape()}[{columnName.DaxEscape()}]";
-            return token.Replace(expression, value, escape: true);
+            var value = $"{tableName}[{columnName}]";
+            return token.Replace(expression, value);
         }
     }
 }

@@ -58,14 +58,19 @@ internal static class DaxTokenExtensions
     public static string Replace(this DaxToken token, string expression, DaxText text)
         => Replace(token, expression, text.ObfuscatedValue);
 
-    public static string Replace(this DaxToken token, string expression, string value, bool escape = false)
+    public static string Replace(this DaxToken token, string expression, string value)
     {
         var substring = expression.Substring(token.StartIndex, token.StopIndex - token.StartIndex + 1);
-        var tokenText = escape ? token.Text.DaxEscape() : token.Text;
 
-        if (substring.IndexOf(tokenText, StringComparison.Ordinal) == -1)
-            throw new InvalidOperationException($"Failed to replace token >> {token.Type} | {substring} | {tokenText} | {value}");
+        if (substring.IndexOf(token.Text, StringComparison.Ordinal) == -1)
+            throw new InvalidOperationException($"Expression does not contain token to replace >> {token.Type} | {substring} | {token.Text} | {value}");
 
-        return substring.Replace(tokenText, value);
+        switch (token.Type)
+        {
+            case DaxToken.STRING_LITERAL:
+                return string.Concat(substring[0] + value + substring[substring.Length - 1]);
+        }
+
+        return substring.Replace(token.Text, value);
     }
 }

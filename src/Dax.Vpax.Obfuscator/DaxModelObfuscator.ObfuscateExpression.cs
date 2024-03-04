@@ -63,8 +63,8 @@ internal sealed partial class DaxModelObfuscator
             var tableText = ObfuscateText(new DaxText(tableName));
             var columnText = ObfuscateText(new DaxText(columnName));
 
-            var value = $"{tableText.ObfuscatedValue.DaxEscape()}[{columnText.ObfuscatedValue.DaxEscape()}]";
-            return token.Replace(expression, value, escape: true);
+            var value = $"{tableText.ObfuscatedValue}[{columnText.ObfuscatedValue}]";
+            return token.Replace(expression, value);
         }
     }
 }
