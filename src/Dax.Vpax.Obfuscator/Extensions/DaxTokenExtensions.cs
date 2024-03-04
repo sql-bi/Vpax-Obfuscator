@@ -5,7 +5,7 @@ namespace Dax.Vpax.Obfuscator.Extensions;
 
 internal static class DaxTokenExtensions
 {
-    public static bool IsExtensionColumnName(this DaxToken token)
+    public static bool IsFullyQualifiedColumnName(this DaxToken token)
     {
         Debug.Assert(token.Type == DaxToken.STRING_LITERAL|| token.Type == DaxToken.COLUMN_OR_MEASURE);
         return token.Text.EndsWith("]") && token.Text.IndexOf('[') > 0;
@@ -50,15 +50,19 @@ internal static class DaxTokenExtensions
         return false;
     }
 
-    public static (string tableName, string columnName) GetExtensionColumnNameParts(this DaxToken token)
+    public static (string table, string column) GetFullyQualifiedColumnNameParts(this DaxToken token)
     {
-        Debug.Assert(token.IsExtensionColumnName());
+        Debug.Assert(token.IsFullyQualifiedColumnName());
 
         var openIndex = token.Text.IndexOf('[');
+        if (openIndex == 0) throw new InvalidOperationException("Invalid open parenthesis index");
+
         var closeIndex = token.Text.LastIndexOf(']');
-        var tableName = token.Text.Substring(0, openIndex);
-        var columnName = token.Text.Substring(openIndex + 1, closeIndex - openIndex - 1);
-        return (tableName, columnName);
+        if (closeIndex != token.Text.Length - 1) throw new InvalidOperationException("Invalid close parenthesis index");
+
+        var table = token.Text.Substring(0, openIndex);
+        var column = token.Text.Substring(openIndex + 1, closeIndex - openIndex - 1);
+        return (table, column);
     }
 
     public static string Replace(this DaxToken token, string expression, DaxText text)

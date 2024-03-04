@@ -38,7 +38,8 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.COLUMN_OR_MEASURE when token.IsReservedExtensionColumn():
                     tokenText = token.Replace(expression, tokenText);
                     break;
-                case DaxToken.STRING_LITERAL when token.IsExtensionColumnName():
+                case DaxToken.COLUMN_OR_MEASURE when token.IsFullyQualifiedColumnName():
+                case DaxToken.STRING_LITERAL when token.IsFullyQualifiedColumnName():
                     tokenText = ReplaceExtensionColumnName(token);
                     break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
