@@ -162,12 +162,27 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_EmptyStringLiteral_IsNotObfuscated()
+    public void ObfuscateExpression_StringLiteralEmpty_IsNotObfuscated()
     {
         var expected = """ IF("" = "", "", "") """;
 
         var obfuscator = new DaxModelObfuscator(new Model());
         var actual = obfuscator.ObfuscateExpression(expected);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public void ObfuscateExpression_StringLiteralWithEscapedQuotationMark_IsObfuscated()
+    {
+        var expression = """"" "A" & """" & "B" """"";
+        var expected   = """"" "X" & "Y" & "Z" """"";
+
+        var obfuscator = new DaxModelObfuscator(new Model());
+        obfuscator.Texts.Add(new DaxText("A", "X"));
+        obfuscator.Texts.Add(new DaxText("\"", "Y"));
+        obfuscator.Texts.Add(new DaxText("B", "Z"));
+        var actual = obfuscator.ObfuscateExpression(expression);
 
         Assert.Equal(expected, actual);
     }

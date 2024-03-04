@@ -28,14 +28,6 @@ public class DaxTextObfuscatorTests
         Assert.NotEqual(text1.ObfuscatedValue, text2.ObfuscatedValue);
     }
 
-    [Fact]
-    public void Obfuscate_EscapedQuotationMarkInStringLiteral_ReturnsUnobfuscatedQuotationMark()
-    {
-        var value = "\"\"\"\""; // e.g. VAR __quotationMarkChar = """"
-        var text = _obfuscator.Obfuscate(new DaxText(value));
-        Assert.Equal(value, text.ObfuscatedValue);
-    }
-
     [Theory]
     [InlineData(DaxTextObfuscator.CharSet)]
     [InlineData("Sales Amount")]
