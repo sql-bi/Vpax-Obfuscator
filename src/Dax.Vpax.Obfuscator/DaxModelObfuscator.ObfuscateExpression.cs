@@ -1,6 +1,6 @@
-﻿using Dax.Vpax.Obfuscator.Extensions;
-using System.Text;
+﻿using System.Text;
 using Dax.Tokenizer;
+using Dax.Vpax.Obfuscator.Extensions;
 
 namespace Dax.Vpax.Obfuscator;
 
@@ -38,10 +38,6 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.COLUMN_OR_MEASURE when token.IsReservedExtensionColumn():
                     tokenText = token.Replace(expression, tokenText);
                     break;
-                case DaxToken.COLUMN_OR_MEASURE when token.IsFullyQualifiedColumnName():
-                case DaxToken.STRING_LITERAL when token.IsFullyQualifiedColumnName():
-                    tokenText = ReplaceExtensionColumnName(token);
-                    break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
                 case DaxToken.TABLE:
                 case DaxToken.COLUMN_OR_MEASURE:
@@ -49,7 +45,18 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.UNTERMINATED_COLREF:
                 case DaxToken.UNTERMINATED_TABLEREF:
                 case DaxToken.UNTERMINATED_STRING:
-                    tokenText = token.Replace(expression, ObfuscateText(new DaxText(tokenText)));
+                    {
+                        if (token.Text.IsFullyQualifiedColumnName())
+                        {
+                            var value = ObfuscateFullyQualifiedColumnName(tokenText).EscapeDax(token.Type);
+                            tokenText = token.Replace(expression, value);
+                        }
+                        else
+                        {
+                            var value = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue.EscapeDax(token.Type);
+                            tokenText = token.Replace(expression, value);
+                        }
+                    }
                     break;
             }
 
@@ -57,25 +64,14 @@ internal sealed partial class DaxModelObfuscator
         }
 
         return builder.ToString();
+    }
 
-        string ReplaceExtensionColumnName(DaxToken token)
-        {
-            var (table, column) = token.GetFullyQualifiedColumnNameParts();
+    internal string ObfuscateFullyQualifiedColumnName(string value)
+    {
+        var (table, column) = value.GetFullyQualifiedColumnNameParts(obfuscating: true);
+        var tableName = ObfuscateText(new DaxText(table)).ObfuscatedValue;
+        var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
 
-            var tableName = ObfuscateText(new DaxText(table)).ObfuscatedValue;
-            var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
-            var value = $"{tableName}[{columnName}]";
-
-            switch (token.Type)
-            {
-                case DaxToken.STRING_LITERAL:
-                    value = value.Replace("\"", "\"\"");
-                    break;
-                case DaxToken.COLUMN_OR_MEASURE:
-                    value = value.Replace("]", "]]");
-                    break;
-            }
-            return token.Replace(expression, value);
-        }
+        return $"{tableName}[{columnName}]";
     }
 }
