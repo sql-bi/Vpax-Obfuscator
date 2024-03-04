@@ -69,8 +69,6 @@ internal sealed class DaxTextObfuscator
             case '-': // single-line comment char
             case '/': // multi-line comment char
             case '*': // multi-line comment char
-            case ']': // square bracket escape char e.g. Sales[Rate[%]]]
-            case '"': // quotation mark escape char e.g. VAR __quotationMarkChar = """"
             case '\n': // line feed char e.g. in multi-line comments
             case '\r': // carriage return char e.g. in multi-line comments
                 return true;
