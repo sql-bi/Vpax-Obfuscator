@@ -55,7 +55,7 @@ internal sealed partial class DaxModelObfuscator
 
     private void ObfuscateIdentifiers(Measure measure)
     {
-        var name = measure.MeasureName;
+        var name = measure.MeasureName.Name;
         var obfuscatedName = Obfuscate(measure.MeasureName) ?? throw new InvalidOperationException($"The measure name is not valid [{name}].");
         CreateKpiMeasure(measure.KpiTargetExpression, "Goal");
         CreateKpiMeasure(measure.KpiStatusExpression, "Status");
