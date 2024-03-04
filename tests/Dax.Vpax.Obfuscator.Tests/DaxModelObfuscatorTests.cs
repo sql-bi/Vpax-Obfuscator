@@ -95,34 +95,6 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ExtensionColumnName_T1()
-    {
-        var expression = """ SUMX(ADDCOLUMNS({}, " col5 [%]", 1), col5 [%]) """;
-        var expected   = """ SUMX(ADDCOLUMNS({}, "XXXX[Y]", 1), XXXX[Y]) """;
-
-        var obfuscator = new DaxModelObfuscator(new Model());
-        //obfuscator.Texts.Add(new DaxText("rate", "XXXX"));
-        //obfuscator.Texts.Add(new DaxText("%", "Y"));
-        var actual = obfuscator.ObfuscateExpression(expression);
-
-        Assert.Equal(expected, actual);
-    }
-
-    [Fact]
-    public void ObfuscateExpression_ExtensionColumnNameFullyQualifiedWithSquareBracket_ReturnsObfuscatedColumnNameParts()
-    {
-        var expression = """ SUMX(ADDCOLUMNS({}, "@rate[%]", 1), [@rate[%]]]) """;
-        var expected   = """ SUMX(ADDCOLUMNS({}, "XXXXX[Y]", 1), [XXXXX[Y]]]) """;
-
-        var obfuscator = new DaxModelObfuscator(new Model());
-        obfuscator.Texts.Add(new DaxText("@rate", "XXXXX"));
-        obfuscator.Texts.Add(new DaxText("%", "Y"));
-        var actual = obfuscator.ObfuscateExpression(expression);
-
-        Assert.Equal(expected, actual);
-    }
-
-    [Fact]
     public void ObfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsObfuscatedColumnNamePartsWithoutPreservingQuotationMarkEscapeChar()
     {
         var expression = """ SELECTCOLUMNS(ADDCOLUMNS({}, "aaa[b""c]", 1), aaa[b"c]) """;
@@ -131,6 +103,48 @@ public class DaxModelObfuscatorTests
         var obfuscator = new DaxModelObfuscator(new Model());
         obfuscator.Texts.Add(new DaxText("aaa", "XXX"));
         obfuscator.Texts.Add(new DaxText("b\"c", "YYY"));
+        var actual = obfuscator.ObfuscateExpression(expression);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public void ObfuscateExpression_ExtensionColumnNameFullyQualifiedWithSquareBracket_Test1()
+    {
+        var expression = """ SUMX(ADDCOLUMNS({}, "@rate[%]", 1), [@rate[%]]]) """;
+        var expected   = """ SUMX(ADDCOLUMNS({}, "-XXXXX[Y]", 1), [-XXXXX[Y]]]) """;
+
+        var obfuscator = new DaxModelObfuscator(new Model());
+        obfuscator.Texts.Add(new DaxText("-@rate", "-XXXXX"));
+        obfuscator.Texts.Add(new DaxText("%", "Y"));
+        var actual = obfuscator.ObfuscateExpression(expression);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public void ObfuscateExpression_ExtensionColumnNameFullyQualifiedWithSquareBracket_Test2()
+    {
+        var expression = """ SUMX(ADDCOLUMNS({}, " col11 [ a] b ] ", 1), [ col11 [ a]] b ]] ]) """;
+        var expected   = """ SUMX(ADDCOLUMNS({}, "-XXXXX[YYYYYY]", 1), [-XXXXX[YYYYYY]]]) """;
+
+        var obfuscator = new DaxModelObfuscator(new Model());
+        obfuscator.Texts.Add(new DaxText("-col11", "-XXXXX"));
+        obfuscator.Texts.Add(new DaxText(" a] b ", "YYYYYY"));
+        var actual = obfuscator.ObfuscateExpression(expression);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public void ObfuscateExpression_ExtensionColumnNameFullyQualifiedWithSquareBracket_Test3()
+    {
+        var expression = """ SUMX(ADDCOLUMNS({}, " col15 [ a ""' b ] ", 1), col15[ a "' b ]) """;
+        var expected   = """ SUMX(ADDCOLUMNS({}, "XXXXX[YYYYYYYY]", 1), XXXXX[YYYYYYYY]) """;
+
+        var obfuscator = new DaxModelObfuscator(new Model());
+        obfuscator.Texts.Add(new DaxText("col15", "XXXXX"));
+        obfuscator.Texts.Add(new DaxText(" a \"' b ", "YYYYYYYY"));
         var actual = obfuscator.ObfuscateExpression(expression);
 
         Assert.Equal(expected, actual);
