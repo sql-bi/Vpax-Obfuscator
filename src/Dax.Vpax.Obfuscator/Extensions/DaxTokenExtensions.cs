@@ -22,7 +22,7 @@ internal static class DaxTokenExtensions
         return current != null && current.Type == DaxToken.OPEN_PARENS;
     }
 
-    public static bool IsReservedExtensionColumn(this DaxToken token)
+    public static bool IsReservedTokenName(this DaxToken token)
     {
         Debug.Assert(token.Type == DaxToken.COLUMN_OR_MEASURE);
 

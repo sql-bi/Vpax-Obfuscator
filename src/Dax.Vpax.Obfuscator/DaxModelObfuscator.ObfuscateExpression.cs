@@ -35,7 +35,7 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.DELIMITED_COMMENT:
                     tokenText = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue;
                     break;
-                case DaxToken.COLUMN_OR_MEASURE when token.IsReservedExtensionColumn():
+                case DaxToken.COLUMN_OR_MEASURE when token.IsReservedTokenName():
                     tokenText = token.Replace(expression, tokenText);
                     break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
