@@ -72,13 +72,15 @@ internal static class DaxTokenExtensions
     {
         var substring = expression.Substring(token.StartIndex, token.StopIndex - token.StartIndex + 1);
 
-        if (substring.IndexOf(token.Text, StringComparison.Ordinal) == -1)
-            throw new InvalidOperationException($"Expression does not contain token to replace >> {token.Type} | {substring} | {token.Text} | {value}");
-
         switch (token.Type)
         {
+            case DaxToken.TABLE:
             case DaxToken.STRING_LITERAL:
-                return string.Concat(substring[0] + value + substring[substring.Length - 1]);
+            case DaxToken.COLUMN_OR_MEASURE:
+                return string.Concat(substring[0], value, substring[substring.Length - 1]);
+            case DaxToken.UNTERMINATED_TABLEREF:
+            case DaxToken.UNTERMINATED_COLREF:
+                return string.Concat(substring[0], value);
         }
 
         return substring.Replace(token.Text, value);

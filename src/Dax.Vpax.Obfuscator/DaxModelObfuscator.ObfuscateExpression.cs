@@ -60,11 +60,21 @@ internal sealed partial class DaxModelObfuscator
 
         string ReplaceExtensionColumnName(DaxToken token)
         {
-            var (tableName, columnName) = token.GetExtensionColumnNameParts();
-            var tableText = ObfuscateText(new DaxText(tableName));
-            var columnText = ObfuscateText(new DaxText(columnName));
+            var (table, column) = token.GetFullyQualifiedColumnNameParts();
 
-            var value = $"{tableText.ObfuscatedValue}[{columnText.ObfuscatedValue}]";
+            var tableName = ObfuscateText(new DaxText(table)).ObfuscatedValue;
+            var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
+            var value = $"{tableName}[{columnName}]";
+
+            switch (token.Type)
+            {
+                case DaxToken.STRING_LITERAL:
+                    value = value.Replace("\"", "\"\"");
+                    break;
+                case DaxToken.COLUMN_OR_MEASURE:
+                    value = value.Replace("]", "]]");
+                    break;
+            }
             return token.Replace(expression, value);
         }
     }

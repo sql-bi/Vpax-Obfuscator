@@ -95,14 +95,14 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsObfuscatedColumnNamePartsPreservingQuotationMarkEscapeChar()
+    public void ObfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsObfuscatedColumnNamePartsWithoutPreservingQuotationMarkEscapeChar()
     {
         var expression = """ SELECTCOLUMNS(ADDCOLUMNS({}, "aaa[b""c]", 1), aaa[b"c]) """;
-        var expected   = """ SELECTCOLUMNS(ADDCOLUMNS({}, "XXX[Y""Y]", 1), XXX[Y"Y]) """;
+        var expected   = """ SELECTCOLUMNS(ADDCOLUMNS({}, "XXX[YYY]", 1), XXX[YYY]) """;
 
         var obfuscator = new DaxModelObfuscator(new Model());
         obfuscator.Texts.Add(new DaxText("aaa", "XXX"));
-        obfuscator.Texts.Add(new DaxText("b\"c", "Y\"Y"));
+        obfuscator.Texts.Add(new DaxText("b\"c", "YYY"));
         var actual = obfuscator.ObfuscateExpression(expression);
 
         Assert.Equal(expected, actual);
@@ -125,11 +125,12 @@ public class DaxModelObfuscatorTests
     public void ObfuscateExpression_ColumnName_ReturnsObfuscatedValuePreservingSquareBracketEscapeChar()
     {
         var expression = "RELATED( Sales[Rate[%]]] )";
-        var expected   = "RELATED( XXXXX[YYYYYY]]] )";
+        var expected   = "RELATED( XXXXX[YYYY[Z]]] )";
 
         var obfuscator = new DaxModelObfuscator(new Model());
         obfuscator.Texts.Add(new DaxText("Sales", "XXXXX"));
-        obfuscator.Texts.Add(new DaxText("Rate[%]", "YYYYYY]"));
+        obfuscator.Texts.Add(new DaxText("Rate", "YYYY"));
+        obfuscator.Texts.Add(new DaxText("%", "Z"));
         var actual = obfuscator.ObfuscateExpression(expression);
 
         Assert.Equal(expected, actual);
