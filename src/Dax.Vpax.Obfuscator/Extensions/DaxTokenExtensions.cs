@@ -6,14 +6,20 @@ namespace Dax.Vpax.Obfuscator.Extensions;
 internal static class DaxTokenExtensions
 {
     public static bool IsExtensionColumnName(this DaxToken token)
-        => token.Type == DaxToken.STRING_LITERAL && token.Text.EndsWith("]") && token.Text.IndexOf('[') > 0;
+    {
+        Debug.Assert(token.Type == DaxToken.STRING_LITERAL|| token.Type == DaxToken.COLUMN_OR_MEASURE);
+        return token.Text.EndsWith("]") && token.Text.IndexOf('[') > 0;
+    }
 
     public static bool IsVariable(this DaxToken token)
-        => token.Type == DaxToken.TABLE_OR_VARIABLE && !IsFunction(token);
+    {
+        Debug.Assert(token.Type == DaxToken.TABLE_OR_VARIABLE);
+        return token.Type == DaxToken.TABLE_OR_VARIABLE && !IsFunction(token);
+    }
 
     public static bool IsFunction(this DaxToken token)
     {
-        if (token.Type != DaxToken.TABLE_OR_VARIABLE) return false;
+        Debug.Assert(token.Type == DaxToken.TABLE_OR_VARIABLE);
 
         var current = token.Next;
         while (current != null && current.CommentOrWhitespace)
@@ -24,7 +30,7 @@ internal static class DaxTokenExtensions
 
     public static bool IsReservedExtensionColumn(this DaxToken token)
     {
-        if (token.Type != DaxToken.COLUMN_OR_MEASURE) return false;
+        Debug.Assert(token.Type == DaxToken.COLUMN_OR_MEASURE);
 
         if (token.Text.StartsWith(DaxTextObfuscator.ReservedToken_Value, StringComparison.OrdinalIgnoreCase))
         {
