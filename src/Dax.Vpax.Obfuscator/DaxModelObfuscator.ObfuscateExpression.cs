@@ -1,6 +1,6 @@
-﻿using Dax.Vpax.Obfuscator.Extensions;
-using System.Text;
+﻿using System.Text;
 using Dax.Tokenizer;
+using Dax.Vpax.Obfuscator.Extensions;
 
 namespace Dax.Vpax.Obfuscator;
 
@@ -35,11 +35,8 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.DELIMITED_COMMENT:
                     tokenText = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue;
                     break;
-                case DaxToken.COLUMN_OR_MEASURE when token.IsReservedExtensionColumn():
+                case DaxToken.COLUMN_OR_MEASURE when token.IsReservedTokenName():
                     tokenText = token.Replace(expression, tokenText);
-                    break;
-                case DaxToken.STRING_LITERAL when token.IsExtensionColumnName():
-                    tokenText = ReplaceExtensionColumnName(token);
                     break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
                 case DaxToken.TABLE:
@@ -48,7 +45,18 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.UNTERMINATED_COLREF:
                 case DaxToken.UNTERMINATED_TABLEREF:
                 case DaxToken.UNTERMINATED_STRING:
-                    tokenText = token.Replace(expression, ObfuscateText(new DaxText(tokenText)));
+                    {
+                        if (token.Text.IsFullyQualifiedColumnName())
+                        {
+                            var value = ObfuscateFullyQualifiedColumnName(tokenText).EscapeDax(token.Type);
+                            tokenText = token.Replace(expression, value);
+                        }
+                        else
+                        {
+                            var value = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue.EscapeDax(token.Type);
+                            tokenText = token.Replace(expression, value);
+                        }
+                    }
                     break;
             }
 
@@ -56,15 +64,14 @@ internal sealed partial class DaxModelObfuscator
         }
 
         return builder.ToString();
+    }
 
-        string ReplaceExtensionColumnName(DaxToken token)
-        {
-            var (tableName, columnName) = token.GetExtensionColumnNameParts();
-            var tableText = ObfuscateText(new DaxText(tableName));
-            var columnText = ObfuscateText(new DaxText(columnName));
+    internal string ObfuscateFullyQualifiedColumnName(string value)
+    {
+        var (table, column) = value.GetFullyQualifiedColumnNameParts(obfuscating: true);
+        var tableName = ObfuscateText(new DaxText(table)).ObfuscatedValue;
+        var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
 
-            var value = $"{tableText.ObfuscatedValue.DaxEscape()}[{columnText.ObfuscatedValue.DaxEscape()}]";
-            return token.Replace(expression, value, escape: true);
-        }
+        return $"{tableName}[{columnName}]";
     }
 }

@@ -35,11 +35,8 @@ internal sealed partial class DaxModelDeobfuscator
                 case DaxToken.DELIMITED_COMMENT:
                     tokenText = _dictionary.GetValue(tokenText);
                     break;
-                case DaxToken.COLUMN_OR_MEASURE when token.IsReservedExtensionColumn():
+                case DaxToken.COLUMN_OR_MEASURE when token.IsReservedTokenName():
                     tokenText = token.Replace(expression, tokenText);
-                    break;
-                case DaxToken.STRING_LITERAL when token.IsExtensionColumnName():
-                    tokenText = ReplaceExtensionColumnName(token);
                     break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
                 case DaxToken.TABLE:
@@ -48,7 +45,18 @@ internal sealed partial class DaxModelDeobfuscator
                 case DaxToken.UNTERMINATED_COLREF:
                 case DaxToken.UNTERMINATED_TABLEREF:
                 case DaxToken.UNTERMINATED_STRING:
-                    tokenText = token.Replace(expression, _dictionary.GetValue(tokenText));
+                    {
+                        if (token.Text.IsFullyQualifiedColumnName())
+                        {
+                            var value = DeobfuscateFullyQualifiedColumnName(tokenText).EscapeDax(token.Type);
+                            tokenText = token.Replace(expression, value);
+                        }
+                        else
+                        {
+                            var value = _dictionary.GetValue(tokenText).EscapeDax(token.Type);
+                            tokenText = token.Replace(expression, value);
+                        }
+                    }
                     break;
             }
 
@@ -56,15 +64,14 @@ internal sealed partial class DaxModelDeobfuscator
         }
 
         return builder.ToString();
+    }
 
-        string ReplaceExtensionColumnName(DaxToken token)
-        {
-            var (tableName, columnName) = token.GetExtensionColumnNameParts();
-            tableName = _dictionary.GetValue(tableName);
-            columnName = _dictionary.GetValue(columnName);
+    internal string DeobfuscateFullyQualifiedColumnName(string value)
+    {
+        var (table, column) = value.GetFullyQualifiedColumnNameParts();
+        var tableName = _dictionary.GetValue(table);
+        var columnName = _dictionary.GetValue(column);
 
-            var value = $"{tableName.DaxEscape()}[{columnName.DaxEscape()}]";
-            return token.Replace(expression, value, escape: true);
-        }
+        return $"{tableName}[{columnName}]";
     }
 }

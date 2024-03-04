@@ -113,8 +113,16 @@ internal partial class DaxModelDeobfuscator
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return;
 
-        var value = _dictionary.GetValue(name!.Name);
-        name.Name = value;
+        if (name!.Name.IsFullyQualifiedColumnName())
+        {
+            var value = DeobfuscateFullyQualifiedColumnName(name!.Name);
+            name.Name = value;
+        }
+        else
+        {
+            var value = _dictionary.GetValue(name!.Name);
+            name.Name = value;
+        }
     }
 
     private void Deobfuscate(DaxNote note)

@@ -5,15 +5,15 @@ namespace Dax.Vpax.Obfuscator.Extensions;
 
 internal static class DaxTokenExtensions
 {
-    public static bool IsExtensionColumnName(this DaxToken token)
-        => token.Type == DaxToken.STRING_LITERAL && token.Text.EndsWith("]") && token.Text.IndexOf('[') > 0;
-
     public static bool IsVariable(this DaxToken token)
-        => token.Type == DaxToken.TABLE_OR_VARIABLE && !IsFunction(token);
+    {
+        Debug.Assert(token.Type == DaxToken.TABLE_OR_VARIABLE);
+        return token.Type == DaxToken.TABLE_OR_VARIABLE && !IsFunction(token);
+    }
 
     public static bool IsFunction(this DaxToken token)
     {
-        if (token.Type != DaxToken.TABLE_OR_VARIABLE) return false;
+        Debug.Assert(token.Type == DaxToken.TABLE_OR_VARIABLE);
 
         var current = token.Next;
         while (current != null && current.CommentOrWhitespace)
@@ -22,9 +22,9 @@ internal static class DaxTokenExtensions
         return current != null && current.Type == DaxToken.OPEN_PARENS;
     }
 
-    public static bool IsReservedExtensionColumn(this DaxToken token)
+    public static bool IsReservedTokenName(this DaxToken token)
     {
-        if (token.Type != DaxToken.COLUMN_OR_MEASURE) return false;
+        Debug.Assert(token.Type == DaxToken.COLUMN_OR_MEASURE);
 
         if (token.Text.StartsWith(DaxTextObfuscator.ReservedToken_Value, StringComparison.OrdinalIgnoreCase))
         {
@@ -44,28 +44,21 @@ internal static class DaxTokenExtensions
         return false;
     }
 
-    public static (string tableName, string columnName) GetExtensionColumnNameParts(this DaxToken token)
-    {
-        Debug.Assert(token.IsExtensionColumnName());
-
-        var openIndex = token.Text.IndexOf('[');
-        var closeIndex = token.Text.LastIndexOf(']');
-        var tableName = token.Text.Substring(0, openIndex);
-        var columnName = token.Text.Substring(openIndex + 1, closeIndex - openIndex - 1);
-        return (tableName, columnName);
-    }
-
-    public static string Replace(this DaxToken token, string expression, DaxText text)
-        => Replace(token, expression, text.ObfuscatedValue);
-
-    public static string Replace(this DaxToken token, string expression, string value, bool escape = false)
+    public static string Replace(this DaxToken token, string expression, string value)
     {
         var substring = expression.Substring(token.StartIndex, token.StopIndex - token.StartIndex + 1);
-        var tokenText = escape ? token.Text.DaxEscape() : token.Text;
 
-        if (substring.IndexOf(tokenText, StringComparison.Ordinal) == -1)
-            throw new InvalidOperationException($"Failed to replace token >> {token.Type} | {substring} | {tokenText} | {value}");
+        switch (token.Type)
+        {
+            case DaxToken.TABLE:
+            case DaxToken.STRING_LITERAL:
+            case DaxToken.COLUMN_OR_MEASURE:
+                return string.Concat(substring[0], value, substring[substring.Length - 1]);
+            case DaxToken.UNTERMINATED_TABLEREF:
+            case DaxToken.UNTERMINATED_COLREF:
+                return string.Concat(substring[0], value);
+        }
 
-        return substring.Replace(tokenText, value);
+        return substring.Replace(token.Text, value);
     }
 }

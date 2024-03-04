@@ -55,7 +55,8 @@ internal sealed partial class DaxModelObfuscator
 
     private void ObfuscateIdentifiers(Measure measure)
     {
-        var measureText = Obfuscate(measure.MeasureName) ?? throw new InvalidOperationException($"The measure name is not valid [{measure.MeasureName}].");
+        var name = measure.MeasureName.Name;
+        var obfuscatedName = Obfuscate(measure.MeasureName) ?? throw new InvalidOperationException($"The measure name is not valid [{name}].");
         CreateKpiMeasure(measure.KpiTargetExpression, "Goal");
         CreateKpiMeasure(measure.KpiStatusExpression, "Status");
         CreateKpiMeasure(measure.KpiTrendExpression, "Trend");
@@ -64,8 +65,8 @@ internal sealed partial class DaxModelObfuscator
         {
             if (string.IsNullOrWhiteSpace(kpi?.Expression)) return;
 
-            var text = new DaxText($"_{measureText.Value} {type}");
-            text.ObfuscatedValue = $"_{measureText.ObfuscatedValue} {type}";
+            var text = new DaxText($"_{name} {type}");
+            text.ObfuscatedValue = $"_{obfuscatedName} {type}";
 
             // It may already exist in case of incremental obfuscation
             if (Texts.IsIncrementalObfuscation && Texts.Contains(text))
@@ -151,13 +152,22 @@ internal sealed partial class DaxModelObfuscator
         Obfuscate(tablePermission.FilterExpression);
     }
 
-    private DaxText? Obfuscate(DaxName name)
+    private string? Obfuscate(DaxName name)
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 
-        var text = ObfuscateText(new DaxText(name!.Name));
-        name.Name = text.ObfuscatedValue;
-        return text;
+        if (name!.Name.IsFullyQualifiedColumnName())
+        {
+            var value = ObfuscateFullyQualifiedColumnName(name!.Name);
+            name.Name = value;
+        }
+        else
+        {
+            var text = ObfuscateText(new DaxText(name!.Name));
+            name.Name = text.ObfuscatedValue;
+        }
+
+        return name.Name;
     }
 
     private void Obfuscate(DaxNote note)
