@@ -27,10 +27,8 @@ internal sealed class DaxTextObfuscator
         if (text.ObfuscatedValue == null && retryCount != 0) throw new InvalidOperationException("Text has not been obfuscated yet.");
 
         // Skip obfuscation for reserved tokens and empty or whitespace strings
-        if (ReservedTokens.Contains(text.Value) || string.IsNullOrWhiteSpace(text.Value)) {
-            text.ObfuscatedValue = text.Value;
-            return text;
-        }
+        if (ReservedTokens.Contains(text.Value) || string.IsNullOrWhiteSpace(text.Value))
+            return new DaxText(text.Value, text.Value); // ObfuscatedValue is the same as Value
 
         var plaintext = text.Value;
         var salt = retryCount != 0 ? _random.Next() : 0; // An additional salt used during retries to avoid generating the same obfuscated 'base' string when extending the string length
@@ -39,14 +37,16 @@ internal sealed class DaxTextObfuscator
         var retryLenght = Math.Max(0, retryCount - RetryLimitBeforeExtension);
         var obfuscated = new char[plaintext.Length + retryLenght];
 
-        for (var i = 0; i < obfuscated.Length; i++) {
-            // Skip reserved chars
-            if (i < plaintext.Length && IsReservedChar(plaintext[i])) {
-                obfuscated[i] = plaintext[i];
+        for (var i = 0; i < obfuscated.Length; i++)
+        {
+            if (i < plaintext.Length && IsReservedChar(plaintext[i]))
+            {
+                obfuscated[i] = plaintext[i]; // Do not obfuscate reserved characters
                 continue;
             }
-            // Always use an alphabetic char for the first char to avoid generating invalid DAX identifiers
-            if (i == 0) {
+            
+            if (i == 0) // Always use an alphabetic char for the first char to avoid generating invalid DAX identifiers
+            {
                 obfuscated[i] = AlphaCharSet[random.Next(AlphaCharSet.Length)];
                 continue;
             }
@@ -55,10 +55,9 @@ internal sealed class DaxTextObfuscator
         }
 
         var obfuscatedValue = new string(obfuscated);
-        Debug.WriteLineIf(condition: retryCount > 0, $"\t>> Retry {retryCount} for: {text.Value} | {text.ObfuscatedValue} > {obfuscatedValue}");
+        Debug.WriteLineIf(retryCount > 0, $"\t>> Retry {retryCount} for: {text.Value} | {text.ObfuscatedValue} > {obfuscatedValue}");
 
-        text.ObfuscatedValue = obfuscatedValue;
-        return text;
+        return new DaxText(text.Value, obfuscatedValue);
     }
 
     private static bool IsReservedChar(char @char)
