@@ -36,7 +36,7 @@ internal static class StringExtensions
         {
             if (table.Length > 0)
             {
-                if ("012345679".Contains(table[0]))
+                if ("0123456789".Contains(table[0]))
                     return true; // Table name start with a digit
 
                 if (table.Any((c) => c != '_' && !DaxTextObfuscator.CharSet.Contains(c)))
