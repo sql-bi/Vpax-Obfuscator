@@ -5,6 +5,9 @@ namespace Dax.Vpax.Obfuscator.Extensions;
 
 internal static class StringExtensions
 {
+    public static bool IsDaxKeyword(this string value)
+        => DaxKeywords.Contains(value ?? throw new ArgumentNullException(nameof(value)));
+
     public static bool IsFullyQualifiedColumnName(this string value)
         => value.TrimEnd().EndsWith("]") && value.IndexOf('[') > 0;
 
@@ -67,4 +70,61 @@ internal static class StringExtensions
 
         return value;
     }
+
+    private static readonly HashSet<string> DaxKeywords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // TOFIX: get keywords from tokenizer instead of hardcoding
+        "MEASURE",
+        "COLUMN",
+        "TABLE",
+        "CALCULATIONGROUP",
+        "CALCULATIONITEM",
+        "DETAILROWS",
+        "DEFINE",
+        "EVALUATE",
+        "ORDER",
+        "BY",
+        "START",
+        "AT",
+        "RETURN",
+        "VAR",
+        "NOT",
+        "IN",
+        "ASC",
+        "DESC",
+        "SKIP",
+        "DENSE",
+        "BLANK",
+        "BLANKS",
+        "SECOND",
+        "MINUTE",
+        "HOUR",
+        "DAY",
+        "MONTH",
+        "QUARTER",
+        "YEAR",
+        "WEEK",
+        "BOTH",
+        "NONE",
+        "ONEWAY",
+        "ONEWAY_RIGHTFILTERSLEFT",
+        "ONEWAY_LEFTFILTERSRIGHT",
+        "CURRENCY",
+        "INTEGER",
+        "DOUBLE",
+        "STRING",
+        "BOOLEAN",
+        "DATETIME",
+        "VARIANT",
+        "TEXT",
+        "ALPHABETICAL",
+        "KEEP",
+        "FIRST",
+        "LAST",
+        "DEFAULT",
+        "TRUE",
+        "FALSE",
+        "ABS",
+        "REL",
+    };
 }

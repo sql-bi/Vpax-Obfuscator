@@ -1,4 +1,6 @@
-﻿namespace Dax.Vpax.Obfuscator;
+﻿using Dax.Vpax.Obfuscator.Extensions;
+
+namespace Dax.Vpax.Obfuscator;
 
 internal sealed partial class DaxModelObfuscator
 {
@@ -20,6 +22,6 @@ internal sealed partial class DaxModelObfuscator
         Texts.Add(obfuscatedText); // << throws in case of unresolved collision (duplicate value/obfuscated value)
         return obfuscatedText;
 
-        bool IsRetryNeeded() => obfuscatedText.IsObfuscatedAsDaxKeyword || Texts.Contains(obfuscatedText);
+        bool IsRetryNeeded() => obfuscatedText.ObfuscatedValue.IsDaxKeyword() || Texts.Contains(obfuscatedText);
     }
 }

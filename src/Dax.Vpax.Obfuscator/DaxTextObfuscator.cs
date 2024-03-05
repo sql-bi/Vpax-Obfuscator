@@ -77,6 +77,12 @@ internal sealed class DaxTextObfuscator
         return false;
     }
 
+    private static readonly HashSet<string> ReservedTokens = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ReservedToken_Date,
+        ReservedToken_Value
+    };
+
     internal const char ReservedChar_Minus = '-';
     /// <summary>
     /// CALENDAR() [Date] extension column.
@@ -86,67 +92,4 @@ internal sealed class DaxTextObfuscator
     /// ''[Value] or table constructor { } extension columns
     /// </summary>
     internal const string ReservedToken_Value = "Value";
-
-    private static readonly HashSet<string> ReservedTokens = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ReservedToken_Date,
-        ReservedToken_Value
-    };
-
-    internal static readonly HashSet<string> DaxKeywords = new(StringComparer.OrdinalIgnoreCase)
-    {
-        // TOFIX: get keywords from tokenizer instead of hardcoding
-        "MEASURE",
-        "COLUMN",
-        "TABLE",
-        "CALCULATIONGROUP",
-        "CALCULATIONITEM",
-        "DETAILROWS",
-        "DEFINE",
-        "EVALUATE",
-        "ORDER",
-        "BY",
-        "START",
-        "AT",
-        "RETURN",
-        "VAR",
-        "NOT",
-        "IN",
-        "ASC",
-        "DESC",
-        "SKIP",
-        "DENSE",
-        "BLANK",
-        "BLANKS",
-        "SECOND",
-        "MINUTE",
-        "HOUR",
-        "DAY",
-        "MONTH",
-        "QUARTER",
-        "YEAR",
-        "WEEK",
-        "BOTH",
-        "NONE",
-        "ONEWAY",
-        "ONEWAY_RIGHTFILTERSLEFT",
-        "ONEWAY_LEFTFILTERSRIGHT",
-        "CURRENCY",
-        "INTEGER",
-        "DOUBLE",
-        "STRING",
-        "BOOLEAN",
-        "DATETIME",
-        "VARIANT",
-        "TEXT",
-        "ALPHABETICAL",
-        "KEEP",
-        "FIRST",
-        "LAST",
-        "DEFAULT",
-        "TRUE",
-        "FALSE",
-        "ABS",
-        "REL",
-    };
 }
