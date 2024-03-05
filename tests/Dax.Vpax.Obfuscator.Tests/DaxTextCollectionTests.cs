@@ -10,8 +10,8 @@ public class DaxTextCollectionTests
     [InlineData("a", "a")]
     public void Add_DuplicateValue_Throws(string value1, string value2)
     {
-        var text1 = new DaxText(value1); text1.ObfuscatedValue = value1;
-        var text2 = new DaxText(value2); text2.ObfuscatedValue = value2;
+        var text1 = new DaxText(value1, value1);
+        var text2 = new DaxText(value2, value2);
 
         var texts = new DaxTextCollection();
         texts.Add(text1);
@@ -32,7 +32,7 @@ public class DaxTextCollectionTests
         var dictionary = new DaxTextCollection();
 
         foreach (var value in values) {
-            var text = new DaxText(value); text.ObfuscatedValue = value;
+            var text = new DaxText(value, value);
             dictionary.Add(text); // Seed the result dictionary
             Assert.Throws<ArgumentException>(() => dictionary.Add(text));
         }
@@ -44,11 +44,8 @@ public class DaxTextCollectionTests
     [InlineData("a", "a")]
     public void Add_DuplicateObfuscatedValue_Throws(string obfuscatedValue1, string obfuscatedValue2)
     {
-        var text1 = new DaxText("X");
-        var text2 = new DaxText("Y");
-
-        text1.ObfuscatedValue = obfuscatedValue1;
-        text2.ObfuscatedValue = obfuscatedValue2;
+        var text1 = new DaxText("X", obfuscatedValue1);
+        var text2 = new DaxText("Y", obfuscatedValue2);
 
         var texts = new DaxTextCollection();
         texts.Add(text1);

@@ -65,10 +65,11 @@ internal sealed partial class DaxModelObfuscator
         {
             if (string.IsNullOrWhiteSpace(kpi?.Expression)) return;
 
-            var text = new DaxText($"_{name} {type}");
-            text.ObfuscatedValue = $"_{obfuscatedName} {type}";
+            var value = $"_{name} {type}";
+            var obfuscatedValue = $"_{obfuscatedName} {type}";
+            var text = new DaxText(value, obfuscatedValue);
 
-            // It may already exist in case of incremental obfuscation
+            // Only add the KPI measure if it does not exist. Can happen in case of incremental obfuscation
             if (Texts.IsIncrementalObfuscation && Texts.Contains(text))
                 return;
 
