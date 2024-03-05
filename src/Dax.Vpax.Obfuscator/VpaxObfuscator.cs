@@ -1,4 +1,5 @@
 ﻿using System.IO.Packaging;
+using Dax.Metadata;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Tools;
 
@@ -6,35 +7,35 @@ namespace Dax.Vpax.Obfuscator;
 
 public sealed class VpaxObfuscator : IVpaxObfuscator
 {
-    /// <inheritdoc/>
-    public ObfuscationDictionary Obfuscate(Stream stream)
-        => ObfuscateImpl(stream, dictionary: null);
-
-    /// <inheritdoc/>
-    public ObfuscationDictionary Obfuscate(Stream stream, ObfuscationDictionary dictionary)
-        => ObfuscateImpl(stream, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));
-
-    /// <inheritdoc/>
-    public void Deobfuscate(Stream stream, ObfuscationDictionary dictionary)
-        => DeobfuscateImpl(stream, dictionary);
+    public ObfuscationDictionary Obfuscate(Stream stream) => ObfuscateImpl(stream, dictionary: null);
+    public ObfuscationDictionary Obfuscate(Model model) => ObfuscateImpl(model, dictionary: null);
+    public ObfuscationDictionary Obfuscate(Stream stream, ObfuscationDictionary dictionary) => ObfuscateImpl(stream, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));
+    public ObfuscationDictionary Obfuscate(Model model, ObfuscationDictionary dictionary) => ObfuscateImpl(model, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));
+    public void Deobfuscate(Stream stream, ObfuscationDictionary dictionary) => DeobfuscateImpl(stream, dictionary);
+    public void Deobfuscate(Model model, ObfuscationDictionary dictionary) => DeobfuscateImpl(model, dictionary);
 
     private static ObfuscationDictionary ObfuscateImpl(Stream stream, ObfuscationDictionary? dictionary)
     {
         if (stream == null) throw new ArgumentNullException(nameof(stream));
 
-        var model = VpaxTools.ImportVpax(stream, importDatabase: false).DaxModel
-            ?? throw new InvalidOperationException($"The VPAX package does not contain a {VpaxFormat.DAXMODEL} file.");
+        var model = GetModel(stream);
+        var result = ObfuscateImpl(model, dictionary);
 
-        // Zero out the package to remove all contents before writing the obfuscated DaxModel.json
-        ZeroOutPackage(stream);
+        ZeroOutPackage(stream); // Zero out the package to remove all contents before writing the obfuscated DaxModel.json
+        VpaxTools.ExportVpax(stream, model, viewVpa: null, database: null);
+
+        return result;
+    }
+
+    private static ObfuscationDictionary ObfuscateImpl(Model model, ObfuscationDictionary? dictionary)
+    {
+        if (model == null) throw new ArgumentNullException(nameof(model));
 
         var obfuscator = new DaxModelObfuscator(model, dictionary);
         obfuscator.Obfuscate();
-        var texts = obfuscator.Texts.Select((t) => new ObfuscationText(t.Value, t.ObfuscatedValue)).ToArray();
-        var result = new ObfuscationDictionary(id: model.ObfuscatorDictionaryId, texts);
 
-        VpaxTools.ExportVpax(stream, model, viewVpa: null, database: null);
-        return result;
+        var texts = obfuscator.Texts.Select((t) => new ObfuscationText(t.Value, t.ObfuscatedValue)).ToArray();
+        return new ObfuscationDictionary(id: model.ObfuscatorDictionaryId, texts);
     }
 
     private static void DeobfuscateImpl(Stream stream, ObfuscationDictionary dictionary)
@@ -42,13 +43,24 @@ public sealed class VpaxObfuscator : IVpaxObfuscator
         if (stream == null) throw new ArgumentNullException(nameof(stream));
         if (dictionary == null) throw new ArgumentNullException(nameof(dictionary));
 
-        var model = VpaxTools.ImportVpax(stream, importDatabase: false).DaxModel
-            ?? throw new InvalidOperationException($"The VPAX package does not contain a {VpaxFormat.DAXMODEL} file.");
+        var model = GetModel(stream);
+        DeobfuscateImpl(model, dictionary);
+        VpaxTools.ExportVpax(stream, model, viewVpa: null, database: null);
+    }
+
+    private static void DeobfuscateImpl(Model model, ObfuscationDictionary dictionary)
+    {
+        if (model == null) throw new ArgumentNullException(nameof(model));
+        if (dictionary == null) throw new ArgumentNullException(nameof(dictionary));
 
         var deobfuscator = new DaxModelDeobfuscator(model, dictionary);
         deobfuscator.Deobfuscate();
+    }
 
-        VpaxTools.ExportVpax(stream, model, viewVpa: null, database: null);
+    private static Model GetModel(Stream stream)
+    {
+        var model = VpaxTools.ImportVpax(stream, importDatabase: false).DaxModel;
+        return model ?? throw new InvalidOperationException($"The VPAX package does not contain a {VpaxFormat.DAXMODEL} file.");
     }
 
     private static void ZeroOutPackage(Stream stream)
