@@ -32,10 +32,7 @@ public sealed class VpaxObfuscator : IVpaxObfuscator
         if (model == null) throw new ArgumentNullException(nameof(model));
 
         var obfuscator = new DaxModelObfuscator(model, dictionary);
-        obfuscator.Obfuscate();
-
-        var texts = obfuscator.Texts.Select((t) => new ObfuscationText(t.Value, t.ObfuscatedValue)).ToArray();
-        return new ObfuscationDictionary(id: model.ObfuscatorDictionaryId, texts);
+        return obfuscator.Obfuscate();
     }
 
     private static void DeobfuscateImpl(Stream stream, ObfuscationDictionary dictionary)

@@ -26,7 +26,7 @@ internal sealed partial class DaxModelObfuscator
 
     public DaxTextCollection Texts => _texts;
 
-    public void Obfuscate()
+    public ObfuscationDictionary Obfuscate()
     {
         // Obfuscate and map identifiers first
         _model.Tables.ForEach(ObfuscateIdentifiers);
@@ -36,6 +36,9 @@ internal sealed partial class DaxModelObfuscator
         _model.Tables.ForEach(Obfuscate);
         _model.Relationships.ForEach(Obfuscate);
         _model.Roles.ForEach(Obfuscate);
+
+        var texts = Texts.Select((t) => t.ToObfuscationText()).ToArray();
+        return new ObfuscationDictionary(id: _model.ObfuscatorDictionaryId, texts);
     }
 
     private void ObfuscateIdentifiers(Table table)

@@ -27,5 +27,6 @@ internal sealed class DaxText
     public string Value { get; }
     public string ObfuscatedValue { get; }
 
+    public ObfuscationText ToObfuscationText() => new(Value, ObfuscatedValue, PlaintextValue);
     public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0} | {1}", Value, ObfuscatedValue);
 }
