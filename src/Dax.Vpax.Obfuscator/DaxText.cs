@@ -1,18 +1,22 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
+using Dax.Vpax.Obfuscator.Common;
 
 namespace Dax.Vpax.Obfuscator;
 
 [DebuggerDisplay("{Value}")]
-internal sealed class DaxText 
+internal sealed class DaxText
 {
+    public DaxText(ObfuscationText text)
+        : this(text.Value, text.Obfuscated)
+    {
+        if (text.Plaintext != null)
+            PlaintextValue = text.Plaintext;
+    }
+
     public DaxText(string value, string obfuscatedValue)
         : this(value)
     {
-        if (obfuscatedValue == null) throw new ArgumentNullException(nameof(obfuscatedValue));
-        if (obfuscatedValue == string.Empty) throw new ArgumentException("Obfuscated value cannot be empty.", nameof(obfuscatedValue));
-        if (obfuscatedValue.Length < value.Length) throw new InvalidOperationException("Obfuscated value cannot be shorter than the original value.");
-
         ObfuscatedValue = obfuscatedValue;
     }
 
@@ -25,7 +29,36 @@ internal sealed class DaxText
     }
 
     public string Value { get; }
-    public string ObfuscatedValue { get; }
+
+    private string? _obfuscatedValue;
+    public string ObfuscatedValue
+    {
+        get => _obfuscatedValue;
+        set
+        {
+            if (_obfuscatedValue != null) throw new InvalidOperationException($"{nameof(ObfuscatedValue)} cannot be changed once set.");
+
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == string.Empty) throw new ArgumentException("Value cannot be empty.", nameof(value));
+            if (value.Length < Value.Length) throw new InvalidOperationException($"{nameof(ObfuscatedValue)} cannot be shorter than the original {nameof(Value)}.");
+
+            _obfuscatedValue = value;
+        }
+    }
+
+    private string? _plaintextValue;
+    public string? PlaintextValue
+    {
+        get => _plaintextValue;
+        set
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == string.Empty) throw new ArgumentException("Value cannot be empty.", nameof(value));
+            if (_plaintextValue != null) throw new InvalidOperationException($"{nameof(PlaintextValue)} cannot be changed once set.");
+
+            _plaintextValue = value;
+        }
+    }
 
     public ObfuscationText ToObfuscationText() => new(Value, ObfuscatedValue, PlaintextValue);
     public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0} | {1}", Value, ObfuscatedValue);

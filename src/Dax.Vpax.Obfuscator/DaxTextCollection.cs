@@ -15,7 +15,7 @@ internal sealed class DaxTextCollection: ICollection<DaxText>
         {
             IsIncrementalObfuscation = true;
             foreach (var text in dictionary.Texts)
-                Add(new DaxText(text.Value, text.Obfuscated));
+                Add(new DaxText(text));
         }
     }
 

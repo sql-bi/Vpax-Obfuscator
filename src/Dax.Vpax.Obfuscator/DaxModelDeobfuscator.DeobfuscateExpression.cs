@@ -69,7 +69,7 @@ internal sealed partial class DaxModelDeobfuscator
     internal string DeobfuscateFullyQualifiedColumnName(string value)
     {
         var (table, column) = value.GetFullyQualifiedColumnNameParts();
-        var tableName = _dictionary.GetValue(table);
+        var tableName = _dictionary.GetPlaintext(table) ?? _dictionary.GetValue(table);
         var columnName = _dictionary.GetValue(column);
 
         return $"{tableName}[{columnName}]";

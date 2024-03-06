@@ -28,7 +28,10 @@ internal sealed class DaxTextObfuscator
 
         // Skip obfuscation for reserved tokens and empty or whitespace strings
         if (ReservedTokens.Contains(text.Value) || string.IsNullOrWhiteSpace(text.Value))
-            return new DaxText(text.Value, text.Value); // ObfuscatedValue is the same as Value
+        {
+            text.ObfuscatedValue = text.Value;
+            return text;
+        }
 
         var plaintext = text.Value;
         var salt = retryCount != 0 ? _random.Next() : 0; // An additional salt used during retries to avoid generating the same obfuscated 'base' string when extending the string length
@@ -57,7 +60,8 @@ internal sealed class DaxTextObfuscator
         var obfuscatedValue = new string(obfuscated);
         Debug.WriteLineIf(retryCount > 0, $"\t>> Retry {retryCount} for: {text.Value} | {text.ObfuscatedValue} > {obfuscatedValue}");
 
-        return new DaxText(text.Value, obfuscatedValue);
+        text.ObfuscatedValue = obfuscatedValue;
+        return text;
     }
 
     private static bool IsReservedChar(char @char)
