@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text;
+﻿using System.Text;
 using Newtonsoft.Json;
 
 namespace Dax.Vpax.Obfuscator.Common;
@@ -48,30 +47,6 @@ public sealed class ObfuscationDictionary
             return text.Plaintext;
 
         throw new KeyNotFoundException($"The obfuscated value was not found in the dictionary [{obfuscated}].");
-    }
-
-    public bool TryGetValue(string obfuscated, [NotNullWhen(true)] out string? value)
-    {
-        if (_obfuscated.TryGetValue(obfuscated, out var text))
-        {
-            value = text.Value;
-            return true;
-        }
-
-        value = null;
-        return false;
-    }
-
-    public bool TryGetObfuscated(string value, [NotNullWhen(true)] out string? obfuscated)
-    {
-        if (_values.TryGetValue(value, out var text))
-        {
-            obfuscated = text.Obfuscated;
-            return true;
-        }
-
-        obfuscated = null;
-        return false;
     }
 
     public void WriteTo(string path, bool overwrite = false, bool indented = false)
