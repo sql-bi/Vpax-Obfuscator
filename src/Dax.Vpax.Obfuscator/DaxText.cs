@@ -20,6 +20,7 @@ internal sealed class DaxText
         ObfuscatedValue = obfuscatedValue;
     }
 
+    [DebuggerStepThrough]
     public DaxText(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -36,11 +37,9 @@ internal sealed class DaxText
         get => _obfuscatedValue;
         set
         {
-            if (_obfuscatedValue != null) throw new InvalidOperationException($"{nameof(ObfuscatedValue)} cannot be changed once set.");
-
             if (value == null) throw new ArgumentNullException(nameof(value));
             if (value == string.Empty) throw new ArgumentException("Value cannot be empty.", nameof(value));
-            if (value.Length < Value.Length) throw new InvalidOperationException($"{nameof(ObfuscatedValue)} cannot be shorter than the original {nameof(Value)}.");
+            if (value.Length < Value.Length) throw new InvalidOperationException($"{nameof(ObfuscatedValue)} cannot be shorter than the {nameof(Value)}.");
 
             _obfuscatedValue = value;
         }
@@ -54,7 +53,6 @@ internal sealed class DaxText
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             if (value == string.Empty) throw new ArgumentException("Value cannot be empty.", nameof(value));
-            if (_plaintextValue != null) throw new InvalidOperationException($"{nameof(PlaintextValue)} cannot be changed once set.");
 
             _plaintextValue = value;
         }

@@ -45,7 +45,7 @@ public class DaxModelDeobfuscatorTests
     }
 
     [Fact]
-    public void DeobfuscateExpression_TableConstructorColumnName_IsNotDeobfuscatedBecauseItIsNotObfuscated_SingleColumnTest()
+    public void DeobfuscateExpression_TableConstructorColumnNameSingle_IsNotDeobfuscatedBecauseItIsNotObfuscated()
     {
         var expression = """ SELECTCOLUMNS({0}, "XXX", [Value]) """;
         var expected   = """ SELECTCOLUMNS({0}, "@c1", [Value]) """;
@@ -60,7 +60,7 @@ public class DaxModelDeobfuscatorTests
     }
 
     [Fact]
-    public void DeobfuscateExpression_TableConstructorColumnName_IsNotDeobfuscatedBecauseItIsNotObfuscated_MultipleColumnsTest()
+    public void DeobfuscateExpression_TableConstructorColumnNameMultiple_IsNotDeobfuscatedBecauseItIsNotObfuscated()
     {
         var expression = """ SELECTCOLUMNS({(1,2,3)}, "XXX", [Value1], "YYY", [value2], "ZZZ", [VALUE3]) """;
         var expected   = """ SELECTCOLUMNS({(1,2,3)}, "@c1", [Value1], "@c2", [value2], "@c3", [VALUE3]) """;
@@ -89,38 +89,6 @@ public class DaxModelDeobfuscatorTests
         var actual = deobfuscator.DeobfuscateExpression(expression);
 
         Assert.Equal(expected, actual, ignoreCase: true);
-    }
-
-    [Fact]
-    public void DeobfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsDeobfuscatedColumnNameParts()
-    {
-        var expression = """ SUMX(ADDCOLUMNS({}, "XXXX[Y]", 1), XXXX[Y]) """;
-        var expected   = """ SUMX(ADDCOLUMNS({}, "rate[%]", 1), rate[%]) """;
-
-        var (_, _, deobfuscator) = CreateTest(
-        [
-            new ObfuscationText("rate", "XXXX"),
-            new ObfuscationText("%", "Y"),
-        ]);
-        var actual = deobfuscator.DeobfuscateExpression(expression);
-
-        Assert.Equal(expected, actual);
-    }
-
-    [Fact]
-    public void DeobfuscateExpression_ExtensionColumnNameFullyQualified_ReturnsDeobfuscatedColumnNamePartsWithoutPreservingQuotationMarkEscapeChar()
-    {
-        var expression = """ SELECTCOLUMNS(ADDCOLUMNS({}, "XXX[YYY]", 1), XXX[YYY]) """;
-        var expected   = """ SELECTCOLUMNS(ADDCOLUMNS({}, "aaa[b""c]", 1), aaa[b"c]) """;
-
-        var (_, _, deobfuscator) = CreateTest(
-        [
-            new ObfuscationText("aaa", "XXX"),
-            new ObfuscationText("b\"c", "YYY"),
-        ]);
-        var actual = deobfuscator.DeobfuscateExpression(expression);
-
-        Assert.Equal(expected, actual);
     }
 
     [Fact]
@@ -197,7 +165,7 @@ public class DaxModelDeobfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_StringLiteralWithEscapedQuotationMark_IsObfuscated()
+    public void DeobfuscateExpression_StringLiteralWithEscapedQuotationMark_IsObfuscated()
     {
         var expression = """"" "X" & "Y" & "Z" """"";
         var expected   = """"" "A" & """" & "B" """"";

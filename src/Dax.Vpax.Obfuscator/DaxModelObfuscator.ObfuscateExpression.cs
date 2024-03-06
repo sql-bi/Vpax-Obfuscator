@@ -40,20 +40,21 @@ internal sealed partial class DaxModelObfuscator
                     break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
                 case DaxToken.TABLE:
-                case DaxToken.COLUMN_OR_MEASURE:
-                case DaxToken.STRING_LITERAL:
-                case DaxToken.UNTERMINATED_COLREF:
                 case DaxToken.UNTERMINATED_TABLEREF:
+                case DaxToken.COLUMN_OR_MEASURE:
+                case DaxToken.UNTERMINATED_COLREF:
+                case DaxToken.STRING_LITERAL:
                 case DaxToken.UNTERMINATED_STRING:
                     {
-                        if (token.Text.IsFullyQualifiedColumnName())
+                        if (token.Text.TryGetTableAndColumnNames(out var table, out var column))
                         {
-                            var value = ObfuscateFullyQualifiedColumnName(tokenText).EscapeDax(token.Type);
+                            var value = ObfuscateTableAndColumnNames(table, column, token);
                             tokenText = token.Replace(expression, value);
                         }
                         else
                         {
-                            var value = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue.EscapeDax(token.Type);
+                            if (token.IsStringOrTableOrColumnOrMeasure()) tokenText = tokenText.EscapeDax(DaxToken.COLUMN_OR_MEASURE);
+                            var value = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue;
                             tokenText = token.Replace(expression, value);
                         }
                     }
@@ -66,42 +67,27 @@ internal sealed partial class DaxModelObfuscator
         return builder.ToString();
     }
 
-    internal string ObfuscateFullyQualifiedColumnName(string value)
+    internal string ObfuscateTableAndColumnNames(string table, string column, DaxToken? token = null)
     {
-        var (table, column) = value.GetFullyQualifiedColumnNameParts();
-
-        var tableText = new DaxText(table);
-        var columnText = new DaxText(column);
-
-        if (IsSquareBraketsRequired(table, column))
+        var isStringToken = token.IsString();
+        if (isStringToken && table.TryGetTableAndColumnNames(out var tableTable, out var tableColumn))
         {
-            // Since the plaintext value contains at least one character that results in a fully qualified
-            // column name that requires square brackets, then, in order to preserve the same semantics
-            // we must add at least a single char of the same type to the obfuscated value as well.
-            // We use the reserved char '-' for this purpose becase it is preserved by the obfuscator.
-            tableText = new DaxText($"{DaxTextObfuscator.ReservedChar_Minus}{table}");
-            tableText.PlaintextValue = table;
+            var tableTableName = ObfuscateText(new DaxText(tableTable)).ObfuscatedValue;
+            var tableColumnName = ObfuscateText(new DaxText(tableColumn)).ObfuscatedValue;
+            var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
+
+            return $"'{tableTableName}[{tableColumnName}]'[{columnName}]";
         }
-
-        var tableName = ObfuscateText(tableText).ObfuscatedValue;
-        var columnName = ObfuscateText(columnText).ObfuscatedValue;
-
-        return $"{tableName}[{columnName}]";
-
-        static bool IsSquareBraketsRequired(string table, string column)
+        else
         {
-            if (table.Length > 0)
-            {
-                table = table.Trim(); // remove any leading or trailing whitespace
+            if (isStringToken) table = table.Trim();
 
-                if ("0123456789".Contains(table[0]))
-                    return true; // Table name start with a digit
+            var tableName = ObfuscateText(new DaxText(table)).ObfuscatedValue;
+            var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
 
-                if (table.Any((c) => c != '_' && !DaxTextObfuscator.CharSet.Contains(c)))
-                    return true; // Table name contains any non-alphabetic characters except for the underscore
-            }
-
-            return column.Contains(']');
+            return token.IsColumnOrMeasure()
+                ? $"{tableName}[{columnName}]]" // escape the closing bracket
+                : $"{tableName}[{columnName}]";
         }
     }
 }

@@ -5,6 +5,11 @@ namespace Dax.Vpax.Obfuscator.Extensions;
 
 internal static class DaxTokenExtensions
 {
+    public static bool IsString(this DaxToken? token) => token?.Type == DaxToken.STRING_LITERAL || token?.Type == DaxToken.UNTERMINATED_STRING;
+    public static bool IsTable(this DaxToken? token) => token?.Type == DaxToken.TABLE || (token?.Type == DaxToken.TABLE_OR_VARIABLE && !IsVariable(token));
+    public static bool IsColumnOrMeasure(this DaxToken? token) => token?.Type == DaxToken.COLUMN_OR_MEASURE || token?.Type == DaxToken.UNTERMINATED_COLREF;
+    public static bool IsStringOrTableOrColumnOrMeasure(this DaxToken? token) => IsString(token) || IsTable(token) || IsColumnOrMeasure(token);
+
     public static bool IsVariable(this DaxToken token)
     {
         Debug.Assert(token.Type == DaxToken.TABLE_OR_VARIABLE);

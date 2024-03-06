@@ -41,10 +41,10 @@ public sealed class ObfuscationDictionary
         throw new KeyNotFoundException($"The value was not found in the dictionary [{value}].");
     }
 
-    public string? GetPlaintext(string obfuscated)
+    public string? GetPlaintextOrValue(string obfuscated)
     {
         if (_obfuscated.TryGetValue(obfuscated, out var text))
-            return text.Plaintext;
+            return text.Plaintext ?? text.Value;
 
         throw new KeyNotFoundException($"The obfuscated value was not found in the dictionary [{obfuscated}].");
     }
