@@ -3,6 +3,7 @@ using Dax.Metadata;
 using Dax.Tokenizer;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Extensions;
+using Newtonsoft.Json.Linq;
 
 namespace Dax.Vpax.Obfuscator;
 
@@ -162,17 +163,8 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 
-        if (name!.Name.TryGetTableAndColumnNames(out var table, out var column))
-        {
-            var value = ObfuscateTableAndColumnNames(table, column);
-            name.Name = value;
-        }
-        else
-        {
-            var value = name!.Name.EscapeDax(DaxToken.COLUMN_OR_MEASURE);
-            var text = ObfuscateText(new DaxText(value));
-            name.Name = text.ObfuscatedValue;
-        }
+        var text = ObfuscateText(new DaxText(name!.Name));
+        name.Name = text.ObfuscatedValue;
 
         return name.Name;
     }

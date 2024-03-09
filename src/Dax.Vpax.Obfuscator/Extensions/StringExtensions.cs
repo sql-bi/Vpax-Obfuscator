@@ -22,8 +22,6 @@ internal static class StringExtensions
 
     public static bool TryGetTableAndColumnNames(this string value, out string table, out string column)
     {
-        //value = value.UnescapeDax(DaxToken.STRING_LITERAL);
-
         var endsWithBracket = value.TrimEnd().EndsWith("]");
         if (!endsWithBracket) goto unqualified_column_name;
 
@@ -33,7 +31,7 @@ internal static class StringExtensions
             var quoteOpenIndex = value.IndexOf('\'');
             var quoteCloseIndex = value.Replace("''", "__").IndexOf('\'', quoteOpenIndex + 1);
             if (quoteCloseIndex == -1) goto unqualified_column_name;
-            table = value.Substring(0, quoteCloseIndex + 1).Trim().Unquote();
+            table = value.Substring(0, quoteCloseIndex + 1).Trim();
             column = value.Substring(quoteCloseIndex + 1);
 
             var columnTrimmed = column.Trim();
@@ -52,8 +50,6 @@ internal static class StringExtensions
             if (IsInvalidUnquotedTable(table)) goto unqualified_column_name;
         }
 
-        //table = table.UnescapeDax(DaxToken.TABLE);
-        //column = column.UnescapeDax(DaxToken.COLUMN_OR_MEASURE);
         return true;
 
     unqualified_column_name:

@@ -122,7 +122,7 @@ internal partial class DaxModelDeobfuscator
         else
         {
             var value = _dictionary.GetValue(name!.Name);
-            name.Name = value.UnescapeDax(DaxToken.COLUMN_OR_MEASURE);
+            name.Name = value;
         }
     }
 

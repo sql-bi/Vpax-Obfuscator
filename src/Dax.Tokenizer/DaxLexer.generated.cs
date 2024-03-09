@@ -189,22 +189,22 @@ internal partial class DaxLexer : Lexer {
 	}
 	private void TABLE_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
-		case 2: Text = Text.Substring(1, Text.Length - 2).Replace("''","'"); break;
+		case 2: Text = Text.Substring(1, Text.Length - 2)/*.Replace("''","'")*/; break;
 		}
 	}
 	private void COLUMN_OR_MEASURE_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
-		case 3: Text = Text.Substring(1, Text.Length - 2).Replace("]]","]"); break;
+		case 3: Text = Text.Substring(1, Text.Length - 2)/*.Replace("]]","]")*/; break;
 		}
 	}
 	private void UNTERMINATED_COLREF_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
-		case 4: Text = Text.Substring(1, Text.Length - 1).Replace("]]","]"); break;
+		case 4: Text = Text.Substring(1, Text.Length - 1)/*.Replace("]]","]")*/; break;
 		}
 	}
 	private void UNTERMINATED_TABLEREF_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
-		case 5: Text = Text.Substring(1, Text.Length - 1).Replace("''","'"); break;
+		case 5: Text = Text.Substring(1, Text.Length - 1)/*.Replace("''","'")*/; break;
 		}
 	}
 	public override bool Sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
