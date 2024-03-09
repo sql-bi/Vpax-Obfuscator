@@ -41,14 +41,6 @@ public sealed class ObfuscationDictionary
         throw new KeyNotFoundException($"The value was not found in the dictionary [{value}].");
     }
 
-    public string? GetPlaintextOrValue(string obfuscated)
-    {
-        if (_obfuscated.TryGetValue(obfuscated, out var text))
-            return text.Plaintext ?? text.Value;
-
-        throw new KeyNotFoundException($"The obfuscated value was not found in the dictionary [{obfuscated}].");
-    }
-
     public void WriteTo(string path, bool overwrite = false, bool indented = false)
     {
         var mode = overwrite ? FileMode.Create : FileMode.CreateNew;

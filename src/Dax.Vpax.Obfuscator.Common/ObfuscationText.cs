@@ -7,14 +7,12 @@ namespace Dax.Vpax.Obfuscator.Common;
 public sealed class ObfuscationText
 {
     [JsonConstructor]
-    public ObfuscationText(string value, string obfuscated, string? plaintext = null)
+    public ObfuscationText(string value, string obfuscated)
     {
         Value = value ?? throw new ArgumentNullException(nameof(value));
         Obfuscated = obfuscated ?? throw new ArgumentNullException(nameof(obfuscated));
-        Plaintext = plaintext;
     }
 
     public string Value { get; }
     public string Obfuscated { get; }
-    public string? Plaintext { get; }
 }

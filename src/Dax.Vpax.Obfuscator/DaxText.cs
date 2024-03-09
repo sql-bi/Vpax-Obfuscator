@@ -9,10 +9,7 @@ internal sealed class DaxText
 {
     public DaxText(ObfuscationText text)
         : this(text.Value, text.Obfuscated)
-    {
-        if (text.Plaintext != null)
-            PlaintextValue = text.Plaintext;
-    }
+    { }
 
     public DaxText(string value, string obfuscatedValue)
         : this(value)
@@ -45,19 +42,6 @@ internal sealed class DaxText
         }
     }
 
-    private string? _plaintextValue;
-    public string? PlaintextValue
-    {
-        get => _plaintextValue;
-        set
-        {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            if (value == string.Empty) throw new ArgumentException("Value cannot be empty.", nameof(value));
-
-            _plaintextValue = value;
-        }
-    }
-
-    public ObfuscationText ToObfuscationText() => new(Value, ObfuscatedValue, PlaintextValue);
+    public ObfuscationText ToObfuscationText() => new(Value, ObfuscatedValue);
     public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0} | {1}", Value, ObfuscatedValue);
 }
