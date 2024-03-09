@@ -70,7 +70,7 @@ internal sealed class DaxTextObfuscator
 
         switch (@char)
         {
-            case ReservedChar_Minus: // single-line comment char
+            case '-': // single-line comment char
             case '/': // multi-line comment char
             case '*': // multi-line comment char
             case '\n': // line feed char e.g. in multi-line comments
@@ -87,7 +87,6 @@ internal sealed class DaxTextObfuscator
         ReservedToken_Value
     };
 
-    internal const char ReservedChar_Minus = '-';
     /// <summary>
     /// CALENDAR() [Date] extension column.
     /// </summary>
