@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace Dax.Vpax.Obfuscator.Common;
 
+[DebuggerDisplay("{Value}")]
 public sealed class ObfuscationText
 {
     [JsonConstructor]

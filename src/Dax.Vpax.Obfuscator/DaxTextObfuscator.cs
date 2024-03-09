@@ -28,7 +28,10 @@ internal sealed class DaxTextObfuscator
 
         // Skip obfuscation for reserved tokens and empty or whitespace strings
         if (ReservedTokens.Contains(text.Value) || string.IsNullOrWhiteSpace(text.Value))
-            return new DaxText(text.Value, text.Value); // ObfuscatedValue is the same as Value
+        {
+            text.ObfuscatedValue = text.Value;
+            return text;
+        }
 
         var plaintext = text.Value;
         var salt = retryCount != 0 ? _random.Next() : 0; // An additional salt used during retries to avoid generating the same obfuscated 'base' string when extending the string length
@@ -57,7 +60,8 @@ internal sealed class DaxTextObfuscator
         var obfuscatedValue = new string(obfuscated);
         Debug.WriteLineIf(retryCount > 0, $"\t>> Retry {retryCount} for: {text.Value} | {text.ObfuscatedValue} > {obfuscatedValue}");
 
-        return new DaxText(text.Value, obfuscatedValue);
+        text.ObfuscatedValue = obfuscatedValue;
+        return text;
     }
 
     private static bool IsReservedChar(char @char)
@@ -77,6 +81,12 @@ internal sealed class DaxTextObfuscator
         return false;
     }
 
+    private static readonly HashSet<string> ReservedTokens = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ReservedToken_Date,
+        ReservedToken_Value
+    };
+
     internal const char ReservedChar_Minus = '-';
     /// <summary>
     /// CALENDAR() [Date] extension column.
@@ -86,67 +96,4 @@ internal sealed class DaxTextObfuscator
     /// ''[Value] or table constructor { } extension columns
     /// </summary>
     internal const string ReservedToken_Value = "Value";
-
-    private static readonly HashSet<string> ReservedTokens = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ReservedToken_Date,
-        ReservedToken_Value
-    };
-
-    internal static readonly HashSet<string> DaxKeywords = new(StringComparer.OrdinalIgnoreCase)
-    {
-        // TOFIX: get keywords from tokenizer instead of hardcoding
-        "MEASURE",
-        "COLUMN",
-        "TABLE",
-        "CALCULATIONGROUP",
-        "CALCULATIONITEM",
-        "DETAILROWS",
-        "DEFINE",
-        "EVALUATE",
-        "ORDER",
-        "BY",
-        "START",
-        "AT",
-        "RETURN",
-        "VAR",
-        "NOT",
-        "IN",
-        "ASC",
-        "DESC",
-        "SKIP",
-        "DENSE",
-        "BLANK",
-        "BLANKS",
-        "SECOND",
-        "MINUTE",
-        "HOUR",
-        "DAY",
-        "MONTH",
-        "QUARTER",
-        "YEAR",
-        "WEEK",
-        "BOTH",
-        "NONE",
-        "ONEWAY",
-        "ONEWAY_RIGHTFILTERSLEFT",
-        "ONEWAY_LEFTFILTERSRIGHT",
-        "CURRENCY",
-        "INTEGER",
-        "DOUBLE",
-        "STRING",
-        "BOOLEAN",
-        "DATETIME",
-        "VARIANT",
-        "TEXT",
-        "ALPHABETICAL",
-        "KEEP",
-        "FIRST",
-        "LAST",
-        "DEFAULT",
-        "TRUE",
-        "FALSE",
-        "ABS",
-        "REL",
-    };
 }

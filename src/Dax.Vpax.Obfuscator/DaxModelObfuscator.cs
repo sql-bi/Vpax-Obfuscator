@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Dax.Metadata;
+using Dax.Tokenizer;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Extensions;
 
@@ -24,9 +25,10 @@ internal sealed partial class DaxModelObfuscator
         _texts = new DaxTextCollection(dictionary);
     }
 
+    public Model Model => _model; // test only
     public DaxTextCollection Texts => _texts;
 
-    public void Obfuscate()
+    public ObfuscationDictionary Obfuscate()
     {
         // Obfuscate and map identifiers first
         _model.Tables.ForEach(ObfuscateIdentifiers);
@@ -36,6 +38,9 @@ internal sealed partial class DaxModelObfuscator
         _model.Tables.ForEach(Obfuscate);
         _model.Relationships.ForEach(Obfuscate);
         _model.Roles.ForEach(Obfuscate);
+
+        var texts = Texts.Select((t) => t.ToObfuscationText()).ToArray();
+        return new ObfuscationDictionary(id: _model.ObfuscatorDictionaryId, texts);
     }
 
     private void ObfuscateIdentifiers(Table table)
@@ -157,14 +162,15 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 
-        if (name!.Name.IsFullyQualifiedColumnName())
+        if (name!.Name.TryGetTableAndColumnNames(out var table, out var column))
         {
-            var value = ObfuscateFullyQualifiedColumnName(name!.Name);
+            var value = ObfuscateTableAndColumnNames(table, column);
             name.Name = value;
         }
         else
         {
-            var text = ObfuscateText(new DaxText(name!.Name));
+            var value = name!.Name.EscapeDax(DaxToken.COLUMN_OR_MEASURE);
+            var text = ObfuscateText(new DaxText(value));
             name.Name = text.ObfuscatedValue;
         }
 

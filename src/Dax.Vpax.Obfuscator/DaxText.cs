@@ -1,21 +1,23 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
+using Dax.Vpax.Obfuscator.Common;
 
 namespace Dax.Vpax.Obfuscator;
 
 [DebuggerDisplay("{Value}")]
-internal sealed class DaxText 
+internal sealed class DaxText
 {
+    public DaxText(ObfuscationText text)
+        : this(text.Value, text.Obfuscated)
+    { }
+
     public DaxText(string value, string obfuscatedValue)
         : this(value)
     {
-        if (obfuscatedValue == null) throw new ArgumentNullException(nameof(obfuscatedValue));
-        if (obfuscatedValue == string.Empty) throw new ArgumentException("Obfuscated value cannot be empty.", nameof(obfuscatedValue));
-        if (obfuscatedValue.Length < value.Length) throw new InvalidOperationException("Obfuscated value cannot be shorter than the original value.");
-
         ObfuscatedValue = obfuscatedValue;
     }
 
+    [DebuggerStepThrough]
     public DaxText(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -25,8 +27,21 @@ internal sealed class DaxText
     }
 
     public string Value { get; }
-    public string ObfuscatedValue { get; }
-    public bool IsObfuscatedAsDaxKeyword => DaxTextObfuscator.DaxKeywords.Contains(ObfuscatedValue ?? throw new InvalidOperationException("ObfuscatedValue is null"));
 
+    private string? _obfuscatedValue;
+    public string ObfuscatedValue
+    {
+        get => _obfuscatedValue;
+        set
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value == string.Empty) throw new ArgumentException("Value cannot be empty.", nameof(value));
+            if (value.Length < Value.Length) throw new InvalidOperationException($"{nameof(ObfuscatedValue)} cannot be shorter than the {nameof(Value)}.");
+
+            _obfuscatedValue = value;
+        }
+    }
+
+    public ObfuscationText ToObfuscationText() => new(Value, ObfuscatedValue);
     public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0} | {1}", Value, ObfuscatedValue);
 }

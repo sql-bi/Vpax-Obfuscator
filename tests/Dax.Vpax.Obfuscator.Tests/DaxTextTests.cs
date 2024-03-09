@@ -27,13 +27,13 @@ public class DaxTextTests
     public void ctor_EmptyObfuscatedValue_Throws()
     {
         var exception = Assert.Throws<ArgumentException>(() => new DaxText(value: "abc", obfuscatedValue: string.Empty));
-        Assert.StartsWith("Obfuscated value cannot be empty.", exception.Message);
+        Assert.StartsWith("Value cannot be empty.", exception.Message);
     }
 
     [Fact]
     public void ctor_ObfuscatedValueShorterThanValue_Throws()
     {
         var exception = Assert.Throws<InvalidOperationException>(() => new DaxText(value: "abc", obfuscatedValue: "ab"));
-        Assert.Equal("Obfuscated value cannot be shorter than the original value.", exception.Message);
+        Assert.Equal($"{nameof(DaxText.ObfuscatedValue)} cannot be shorter than the {nameof(DaxText.Value)}.", exception.Message);
     }
 }

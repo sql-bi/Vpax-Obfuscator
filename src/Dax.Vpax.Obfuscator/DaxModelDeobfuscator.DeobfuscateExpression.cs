@@ -40,20 +40,21 @@ internal sealed partial class DaxModelDeobfuscator
                     break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
                 case DaxToken.TABLE:
-                case DaxToken.COLUMN_OR_MEASURE:
-                case DaxToken.STRING_LITERAL:
-                case DaxToken.UNTERMINATED_COLREF:
                 case DaxToken.UNTERMINATED_TABLEREF:
+                case DaxToken.COLUMN_OR_MEASURE:
+                case DaxToken.UNTERMINATED_COLREF:
+                case DaxToken.STRING_LITERAL:
                 case DaxToken.UNTERMINATED_STRING:
                     {
-                        if (token.Text.IsFullyQualifiedColumnName())
+                        if (token.Text.TryGetTableAndColumnNames(out var table, out var column))
                         {
-                            var value = DeobfuscateFullyQualifiedColumnName(tokenText).EscapeDax(token.Type);
+                            var value = DeobfuscateTableAndColumnNames(table, column, token).EscapeDax(token.Type);
                             tokenText = token.Replace(expression, value);
                         }
                         else
                         {
                             var value = _dictionary.GetValue(tokenText).EscapeDax(token.Type);
+                            if (token.IsStringOrTableOrColumnOrMeasure()) value = value.UnescapeDax(DaxToken.COLUMN_OR_MEASURE);
                             tokenText = token.Replace(expression, value);
                         }
                     }
@@ -66,12 +67,20 @@ internal sealed partial class DaxModelDeobfuscator
         return builder.ToString();
     }
 
-    internal string DeobfuscateFullyQualifiedColumnName(string value)
+    internal string DeobfuscateTableAndColumnNames(string table, string column, DaxToken? token = null)
     {
-        var (table, column) = value.GetFullyQualifiedColumnNameParts();
-        var tableName = _dictionary.GetValue(table);
-        var columnName = _dictionary.GetValue(column);
-
-        return $"{tableName}[{columnName}]";
+        if (token.IsString() && table.TryGetTableAndColumnNames(out var tableTable, out var tableColumn))
+        {
+            var tableTableName = _dictionary.GetValue(tableTable);
+            var tableColumnName = _dictionary.GetValue(tableColumn);
+            var columnName = _dictionary.GetValue(column);
+            return $"'{tableTableName}[{tableColumnName}]'[{columnName}]";
+        }
+        else
+        {
+            var tableName = _dictionary.GetValue(table);
+            var columnName = _dictionary.GetValue(column);
+            return $"{tableName}[{columnName}]";
+        }
     }
 }

@@ -1,12 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text;
+﻿using System.Text;
 using Newtonsoft.Json;
 
 namespace Dax.Vpax.Obfuscator.Common;
 
 public sealed class ObfuscationDictionary
 {
-    private readonly Dictionary<string, ObfuscationText> _plaintexts;
+    private readonly Dictionary<string, ObfuscationText> _values;
     private readonly Dictionary<string, ObfuscationText> _obfuscated;
 
     [JsonConstructor]
@@ -19,7 +18,7 @@ public sealed class ObfuscationDictionary
         Texts = texts.OrderBy((t) => t.Value).ToArray();
 
         // Create dictionaries to allow for fast lookups. This also ensures uniqueness of the keys by throwing if there are duplicates.
-        _plaintexts = Texts.ToDictionary((text) => text.Value, StringComparer.OrdinalIgnoreCase);
+        _values = Texts.ToDictionary((text) => text.Value, StringComparer.OrdinalIgnoreCase);
         _obfuscated = Texts.ToDictionary((text) => text.Obfuscated, StringComparer.OrdinalIgnoreCase);
     }
 
@@ -36,34 +35,10 @@ public sealed class ObfuscationDictionary
 
     public string GetObfuscated(string value)
     {
-        if (_plaintexts.TryGetValue(value, out var text))
+        if (_values.TryGetValue(value, out var text))
             return text.Obfuscated;
 
         throw new KeyNotFoundException($"The value was not found in the dictionary [{value}].");
-    }
-
-    public bool TryGetValue(string obfuscated, [NotNullWhen(true)] out string? value)
-    {
-        if (_obfuscated.TryGetValue(obfuscated, out var text))
-        {
-            value = text.Value;
-            return true;
-        }
-
-        value = null;
-        return false;
-    }
-
-    public bool TryGetObfuscated(string value, [NotNullWhen(true)] out string? obfuscated)
-    {
-        if (_plaintexts.TryGetValue(value, out var text))
-        {
-            obfuscated = text.Obfuscated;
-            return true;
-        }
-
-        obfuscated = null;
-        return false;
     }
 
     public void WriteTo(string path, bool overwrite = false, bool indented = false)
@@ -78,7 +53,8 @@ public sealed class ObfuscationDictionary
         var encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true, throwOnInvalidBytes: true);
         var serializer = JsonSerializer.Create(new JsonSerializerSettings
         {
-            Formatting = indented ? Formatting.Indented : Formatting.None
+            Formatting = indented ? Formatting.Indented : Formatting.None,
+            NullValueHandling = NullValueHandling.Ignore,
         });
 
         using (var streamWriter = new StreamWriter(stream, encoding, bufferSize: 1024, leaveOpen))

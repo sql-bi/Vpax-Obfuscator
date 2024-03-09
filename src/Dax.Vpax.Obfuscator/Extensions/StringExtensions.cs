@@ -1,49 +1,72 @@
-﻿using System.Diagnostics;
-using Dax.Tokenizer;
+﻿using Dax.Tokenizer;
 
 namespace Dax.Vpax.Obfuscator.Extensions;
 
 internal static class StringExtensions
 {
-    public static bool IsFullyQualifiedColumnName(this string value)
-        => value.TrimEnd().EndsWith("]") && value.IndexOf('[') > 0;
+    public static bool IsBracketed(this string value) => value.StartsWith("[") && value.EndsWith("]");
+    public static bool IsQuoted(this string value) => value.StartsWith("'") && value.EndsWith("'");
+    public static bool IsDaxKeyword(this string value) => DaxKeywords.Contains(value ?? throw new ArgumentNullException(nameof(value)));
 
-    public static (string table, string column) GetFullyQualifiedColumnNameParts(this string value, bool obfuscating = false)
+    public static string Unquote(this string value)
     {
-        Debug.Assert(IsFullyQualifiedColumnName(value));
+        if (!IsQuoted(value)) throw new InvalidOperationException($"Invalid format. '{value}' is not a quoted string.");
+        return value.Substring(1, value.Length - 2);
+    }
 
-        var openIndex = value.IndexOf('[');
-        var closeIndex = value.LastIndexOf(']');
-        var table = value.Substring(0, openIndex);
-        var column = value.Substring(openIndex + 1, closeIndex - openIndex - 1);
+    public static string Unbracket(this string value)
+    {
+        if (!IsBracketed(value)) throw new InvalidCastException($"Invalid format. '{value}' is not a bracketed string.");
+        return value.Substring(1, value.Length - 2);
+    }
 
-        if (obfuscating)
+    public static bool TryGetTableAndColumnNames(this string value, out string table, out string column)
+    {
+        //value = value.UnescapeDax(DaxToken.STRING_LITERAL);
+
+        var endsWithBracket = value.TrimEnd().EndsWith("]");
+        if (!endsWithBracket) goto unqualified_column_name;
+
+        var startsWithQuote = value.TrimStart().StartsWith("'");
+        if (startsWithQuote)
         {
-            table = table.Trim(); // remove any leading or trailing whitespace first
+            var quoteOpenIndex = value.IndexOf('\'');
+            var quoteCloseIndex = value.Replace("''", "__").IndexOf('\'', quoteOpenIndex + 1);
+            if (quoteCloseIndex == -1) goto unqualified_column_name;
+            table = value.Substring(0, quoteCloseIndex + 1).Trim().Unquote();
+            column = value.Substring(quoteCloseIndex + 1);
 
-            if (IsSquareBraketsRequired(table, column))
-            {
-                // Since the plaintext value contains at least one character that results in a fully qualified
-                // column name that requires square brackets, then, in order to preserve the same semantics
-                // we must add at least a single char of the same type to the obfuscated value as well.
-                table = $"{DaxTextObfuscator.ReservedChar_Minus}{table}";
-            }
+            var columnTrimmed = column.Trim();
+            if (!columnTrimmed.IsBracketed()) goto unqualified_column_name;
+            column = columnTrimmed.Unbracket();
+            if (column.Replace("]]", "__").Contains("]")) goto unqualified_column_name;
+        }
+        else
+        {
+            var bracketOpenIndex = value.Replace("[[", "__").IndexOf('[');
+            if (bracketOpenIndex == -1) goto unqualified_column_name;
+            table = value.Substring(0, bracketOpenIndex);
+            column = value.Substring(bracketOpenIndex).TrimEnd().Unbracket();
+
+            if (column.Replace("]]", "__").Contains("]")) goto unqualified_column_name;
+            if (IsInvalidUnquotedTable(table)) goto unqualified_column_name;
         }
 
-        return (table, column);
+        //table = table.UnescapeDax(DaxToken.TABLE);
+        //column = column.UnescapeDax(DaxToken.COLUMN_OR_MEASURE);
+        return true;
 
-        static bool IsSquareBraketsRequired(string table, string column)
+    unqualified_column_name:
+        table = null!;
+        column = value;
+        return false;
+
+        static bool IsInvalidUnquotedTable(string name)
         {
-            if (table.Length > 0)
-            {
-                if ("0123456789".Contains(table[0]))
-                    return true; // Table name start with a digit
-
-                if (table.Any((c) => c != '_' && !DaxTextObfuscator.CharSet.Contains(c)))
-                    return true; // Table name contains any non-alphabetic characters except for the underscore
-            }
-
-            return column.Contains(']');
+            name = name.Trim();
+            return name.Length == 0
+                || "0123456789".Contains(name[0]) // starts with a digit
+                || name.Any((c) => c != '_' && !DaxTextObfuscator.CharSet.Contains(c));
         }
     }
 
@@ -67,4 +90,82 @@ internal static class StringExtensions
 
         return value;
     }
+
+    public static string UnescapeDax(this string value, int tokenType)
+    {
+        // See <TOKEN_TYPE>_action() methods in Dax.Tokenizer.DaxLexer class
+
+        switch (tokenType)
+        {
+            case DaxToken.TABLE:
+            case DaxToken.UNTERMINATED_TABLEREF:
+                return value.Replace("''", "'");
+
+            case DaxToken.STRING_LITERAL:
+                return value.Replace("\"\"", "\"");
+
+            case DaxToken.COLUMN_OR_MEASURE:
+            case DaxToken.UNTERMINATED_COLREF:
+                return value.Replace("]]", "]");
+        }
+
+        return value;
+    }
+
+    private static readonly HashSet<string> DaxKeywords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // TOFIX: get keywords from tokenizer instead of hardcoding
+        "MEASURE",
+        "COLUMN",
+        "TABLE",
+        "CALCULATIONGROUP",
+        "CALCULATIONITEM",
+        "DETAILROWS",
+        "DEFINE",
+        "EVALUATE",
+        "ORDER",
+        "BY",
+        "START",
+        "AT",
+        "RETURN",
+        "VAR",
+        "NOT",
+        "IN",
+        "ASC",
+        "DESC",
+        "SKIP",
+        "DENSE",
+        "BLANK",
+        "BLANKS",
+        "SECOND",
+        "MINUTE",
+        "HOUR",
+        "DAY",
+        "MONTH",
+        "QUARTER",
+        "YEAR",
+        "WEEK",
+        "BOTH",
+        "NONE",
+        "ONEWAY",
+        "ONEWAY_RIGHTFILTERSLEFT",
+        "ONEWAY_LEFTFILTERSRIGHT",
+        "CURRENCY",
+        "INTEGER",
+        "DOUBLE",
+        "STRING",
+        "BOOLEAN",
+        "DATETIME",
+        "VARIANT",
+        "TEXT",
+        "ALPHABETICAL",
+        "KEEP",
+        "FIRST",
+        "LAST",
+        "DEFAULT",
+        "TRUE",
+        "FALSE",
+        "ABS",
+        "REL",
+    };
 }
