@@ -489,7 +489,7 @@ public class DaxModelObfuscatorTests
     private static DaxModelDeobfuscator GetDeobfuscator(DaxModelObfuscator obfuscator)
     {
         var texts = obfuscator.Texts.Select((t) => t.ToObfuscationText()).ToArray();
-        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), texts);
+        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", texts);
         obfuscator.Model.ObfuscatorDictionaryId = dictionary.Id;
         return new DaxModelDeobfuscator(obfuscator.Model, dictionary);
     }

@@ -182,7 +182,7 @@ public class DaxModelDeobfuscatorTests
 
     private (Model model, ObfuscationDictionary dictionary, DaxModelDeobfuscator deobfuscator) CreateTest(ObfuscationText[] texts)
     {
-        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), texts);
+        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", texts);
         var model = new Model
         {
             ObfuscatorDictionaryId = dictionary.Id,
