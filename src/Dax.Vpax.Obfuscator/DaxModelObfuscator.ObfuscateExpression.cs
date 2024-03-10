@@ -53,9 +53,6 @@ internal sealed partial class DaxModelObfuscator
                         }
                         else
                         {
-                            if (token.IsColumnOrMeasure()) tokenText = tokenText.UnescapeDax(DaxToken.COLUMN_OR_MEASURE);
-                            if (token.IsString()) tokenText = tokenText.UnescapeDax(DaxToken.STRING_LITERAL);
-                            if (token.IsTable()) tokenText = tokenText.UnescapeDax(DaxToken.TABLE);
                             var value = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue;
                             tokenText = token.Replace(expression, value);
                         }
