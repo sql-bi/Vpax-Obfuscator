@@ -46,16 +46,16 @@ internal sealed partial class DaxModelDeobfuscator
                 case DaxToken.STRING_LITERAL:
                 case DaxToken.UNTERMINATED_STRING:
                     {
-                        if (token.IsString() && token.Text.TryGetTableAndColumnNames(out var table, out var column))
+                        if (token.IsStringLiteral() && token.Text.TryGetTableAndColumnNames(out var table, out var column))
                         {
-                            var value = DeobfuscateTableAndColumnNames(table, column, token).EscapeDax(token.Type);
+                            var value = DeobfuscateTableAndColumnNames(table, column);
                             tokenText = token.Replace(expression, value);
                         }
                         else
                         {
                             var value = _dictionary.GetValue(tokenText);
                             if (token.IsColumnOrMeasure()) value = value.EscapeDax(DaxToken.COLUMN_OR_MEASURE);
-                            if (token.IsString()) value = value.EscapeDax(DaxToken.STRING_LITERAL);
+                            if (token.IsStringLiteral()) value = value.EscapeDax(DaxToken.STRING_LITERAL);
                             if (token.IsTable()) value = value.EscapeDax(DaxToken.TABLE);
                             tokenText = token.Replace(expression, value);
                         }
@@ -69,7 +69,7 @@ internal sealed partial class DaxModelDeobfuscator
         return builder.ToString();
     }
 
-    internal string DeobfuscateTableAndColumnNames(string table, string column, DaxToken? token = null)
+    internal string DeobfuscateTableAndColumnNames(string table, string column)
     {
         var quoted = table.IsQuoted();
         if (quoted) table = table.Unquote();
@@ -81,6 +81,6 @@ internal sealed partial class DaxModelDeobfuscator
         columnName = columnName.EscapeDax(DaxToken.COLUMN_OR_MEASURE);
 
         if (quoted) tableName = $"'{tableName}'";
-        return $"{tableName}[{columnName}]";
+        return $"{tableName}[{columnName}]".EscapeDax(DaxToken.STRING_LITERAL);
     }
 }

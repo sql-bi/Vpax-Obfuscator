@@ -1,9 +1,7 @@
 ﻿using System.Reflection;
 using Dax.Metadata;
-using Dax.Tokenizer;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Extensions;
-using Newtonsoft.Json.Linq;
 
 namespace Dax.Vpax.Obfuscator;
 
@@ -164,9 +162,7 @@ internal sealed partial class DaxModelObfuscator
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 
         var text = ObfuscateText(new DaxText(name!.Name));
-        name.Name = text.ObfuscatedValue;
-
-        return name.Name;
+        return name.Name = text.ObfuscatedValue;
     }
 
     private void Obfuscate(DaxNote note)

@@ -319,6 +319,23 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
+    public void ObfuscateExpression_ExtensionColumnName_Test16()
+    {
+        var expression = """ SUMX(ADDCOLUMNS({}, " c ", 1), [ c ]) """;
+        var expected_o = """ SUMX(ADDCOLUMNS({}, "XXX", 1), [XXX]) """;
+        var expected_d = expression;
+
+        var obfuscator = new DaxModelObfuscator(new Model());
+        obfuscator.Texts.Add(new DaxText(" c ", "XXX"));
+
+        var actual_o = obfuscator.ObfuscateExpression(expression);
+        Assert.Equal(expected_o, actual_o);
+
+        var actual_d = GetDeobfuscator(obfuscator).DeobfuscateExpression(actual_o);
+        Assert.Equal(expected_d, actual_d);
+    }
+
+    [Fact]
     public void ObfuscateExpression_TableNameWithDifferentCasings_ReturnsSameObfuscatedValue()
     {
         var expression = "COUNTROWS('Sales') + COUNTROWS(sales) + COUNTROWS(SALES) + COUNTROWS(SaLeS)";

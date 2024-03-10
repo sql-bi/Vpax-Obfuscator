@@ -46,9 +46,9 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.STRING_LITERAL:
                 case DaxToken.UNTERMINATED_STRING:
                     {
-                        if (token.IsString() && token.Text.TryGetTableAndColumnNames(out var table, out var column))
+                        if (token.IsStringLiteral() && token.Text.TryGetTableAndColumnNames(out var table, out var column))
                         {
-                            var value = ObfuscateTableAndColumnNames(table, column, token);
+                            var value = ObfuscateTableAndColumnNames(table, column);
                             tokenText = token.Replace(expression, value);
                         }
                         else
@@ -66,7 +66,7 @@ internal sealed partial class DaxModelObfuscator
         return builder.ToString();
     }
 
-    internal string ObfuscateTableAndColumnNames(string table, string column, DaxToken? token = null)
+    internal string ObfuscateTableAndColumnNames(string table, string column)
     {
         table = table.UnescapeDax(DaxToken.TABLE).Trim();
         column = column.UnescapeDax(DaxToken.COLUMN_OR_MEASURE);
