@@ -7,14 +7,14 @@ public class ObfuscationDictionaryTests
     [Fact]
     public void ctor_EmptyTexts_ReturnsEmptyDictionary()
     {
-        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), texts: []);
+        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", texts: []);
         Assert.Empty(dictionary.Texts);
     }
 
     [Fact]
     public void ctor_EmptyId_Throws()
     {
-        var exception = Assert.Throws<ArgumentException>(() => new ObfuscationDictionary(id: Guid.Empty.ToString("D"), texts: []));
+        var exception = Assert.Throws<ArgumentException>(() => new ObfuscationDictionary(id: Guid.Empty.ToString("D"), "0.0.0-test", texts: []));
         Assert.StartsWith("The dictionary identifier is not valid.", exception.Message);
     }
 
@@ -27,7 +27,7 @@ public class ObfuscationDictionaryTests
             new ObfuscationText("VALUE", "XXXXXX"),
         };
 
-        var exception = Assert.Throws<ArgumentException>(() => new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), texts));
+        var exception = Assert.Throws<ArgumentException>(() => new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", texts));
         Assert.StartsWith("An item with the same key has already been added.", exception.Message);
     }
 
@@ -128,6 +128,6 @@ public class ObfuscationDictionaryTests
 
     private ObfuscationDictionary CreateDictionary(ObfuscationText[] texts)
     {
-        return new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), texts);
+        return new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", texts);
     }
 }

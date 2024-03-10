@@ -1,5 +1,4 @@
 ﻿using Dax.Metadata;
-using Dax.Tokenizer;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Extensions;
 
@@ -114,16 +113,8 @@ internal partial class DaxModelDeobfuscator
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return;
 
-        if (name!.Name.TryGetTableAndColumnNames(out var table, out var column))
-        {
-            var value = DeobfuscateTableAndColumnNames(table, column);
-            name.Name = value;
-        }
-        else
-        {
-            var value = _dictionary.GetValue(name!.Name);
-            name.Name = value.UnescapeDax(DaxToken.COLUMN_OR_MEASURE);
-        }
+        var value = _dictionary.GetValue(name!.Name);
+        name.Name = value;
     }
 
     private void Deobfuscate(DaxNote note)

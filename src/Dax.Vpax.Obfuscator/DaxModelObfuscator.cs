@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using Dax.Metadata;
-using Dax.Tokenizer;
+﻿using Dax.Metadata;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Extensions;
 
@@ -20,7 +18,7 @@ internal sealed partial class DaxModelObfuscator
         _model = model;
         _model.ObfuscatorDictionaryId = dictionary != null ? dictionary.Id : Guid.NewGuid().ToString("D");
         _model.ObfuscatorLib = "Dax.Vpax.Obfuscator"; // hard-coded
-        _model.ObfuscatorLibVersion = GetType().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? throw new InvalidOperationException("The assembly informational version is not available.");
+        _model.ObfuscatorLibVersion = VpaxObfuscator.Version;
         _obfuscator = new DaxTextObfuscator();
         _texts = new DaxTextCollection(dictionary);
     }
@@ -39,8 +37,10 @@ internal sealed partial class DaxModelObfuscator
         _model.Relationships.ForEach(Obfuscate);
         _model.Roles.ForEach(Obfuscate);
 
+        var id = _model.ObfuscatorDictionaryId;
+        var version = VpaxObfuscator.Version;
         var texts = Texts.Select((t) => t.ToObfuscationText()).ToArray();
-        return new ObfuscationDictionary(id: _model.ObfuscatorDictionaryId, texts);
+        return new ObfuscationDictionary(id, version, texts);
     }
 
     private void ObfuscateIdentifiers(Table table)
@@ -162,19 +162,8 @@ internal sealed partial class DaxModelObfuscator
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 
-        if (name!.Name.TryGetTableAndColumnNames(out var table, out var column))
-        {
-            var value = ObfuscateTableAndColumnNames(table, column);
-            name.Name = value;
-        }
-        else
-        {
-            var value = name!.Name.EscapeDax(DaxToken.COLUMN_OR_MEASURE);
-            var text = ObfuscateText(new DaxText(value));
-            name.Name = text.ObfuscatedValue;
-        }
-
-        return name.Name;
+        var text = ObfuscateText(new DaxText(name!.Name));
+        return name.Name = text.ObfuscatedValue;
     }
 
     private void Obfuscate(DaxNote note)

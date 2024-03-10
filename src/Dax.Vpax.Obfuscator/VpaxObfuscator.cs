@@ -7,6 +7,8 @@ namespace Dax.Vpax.Obfuscator;
 
 public sealed class VpaxObfuscator : IVpaxObfuscator
 {
+    public static string Version { get; } = ThisAssembly.AssemblyInformationalVersion;
+
     public ObfuscationDictionary Obfuscate(Stream stream) => ObfuscateImpl(stream, dictionary: null);
     public ObfuscationDictionary Obfuscate(Model model) => ObfuscateImpl(model, dictionary: null);
     public ObfuscationDictionary Obfuscate(Stream stream, ObfuscationDictionary dictionary) => ObfuscateImpl(stream, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));

@@ -109,14 +109,13 @@ public class DaxModelDeobfuscatorTests
     [Fact]
     public void DeobfuscateExpression_ColumnName_ReturnsDeobfuscatedValuePreservingSquareBracketEscapeChar()
     {
-        var expression = "RELATED( XXXXX[YYYY[Z]]] )";
+        var expression = "RELATED( XXXXX[YYYYYYY] )";
         var expected   = "RELATED( Sales[Rate[%]]] )";
 
         var (_, _, deobfuscator) = CreateTest(
         [
             new ObfuscationText("Sales", "XXXXX"),
-            new ObfuscationText("Rate", "YYYY"),
-            new ObfuscationText("%", "Z")
+            new ObfuscationText("Rate[%]", "YYYYYYY"),
         ]);
         var actual = deobfuscator.DeobfuscateExpression(expression);
 
@@ -183,7 +182,7 @@ public class DaxModelDeobfuscatorTests
 
     private (Model model, ObfuscationDictionary dictionary, DaxModelDeobfuscator deobfuscator) CreateTest(ObfuscationText[] texts)
     {
-        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), texts);
+        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", texts);
         var model = new Model
         {
             ObfuscatorDictionaryId = dictionary.Id,

@@ -9,12 +9,13 @@ public sealed class ObfuscationDictionary
     private readonly Dictionary<string, ObfuscationText> _obfuscated;
 
     [JsonConstructor]
-    public ObfuscationDictionary(string id, ObfuscationText[] texts)
+    public ObfuscationDictionary(string id, string version, ObfuscationText[] texts)
     {
         if (id == null || !Guid.TryParseExact(id, "D", out var guid) || guid == Guid.Empty)
             throw new ArgumentException("The dictionary identifier is not valid.", nameof(id));
 
         Id = id;
+        Version = version ?? throw new ArgumentNullException(nameof(version));
         Texts = texts.OrderBy((t) => t.Value).ToArray();
 
         // Create dictionaries to allow for fast lookups. This also ensures uniqueness of the keys by throwing if there are duplicates.
@@ -23,6 +24,7 @@ public sealed class ObfuscationDictionary
     }
 
     public string Id { get; }
+    public string Version { get; }
     public IReadOnlyList<ObfuscationText> Texts { get; }
 
     public string GetValue(string obfuscated)

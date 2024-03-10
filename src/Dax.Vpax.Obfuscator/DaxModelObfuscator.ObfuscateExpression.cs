@@ -35,7 +35,7 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.DELIMITED_COMMENT:
                     tokenText = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue;
                     break;
-                case DaxToken.COLUMN_OR_MEASURE when token.IsReservedTokenName():
+                case DaxToken.COLUMN_OR_MEASURE when token.IsReservedTokenOrKeyword():
                     tokenText = token.Replace(expression, tokenText);
                     break;
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
@@ -46,14 +46,13 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.STRING_LITERAL:
                 case DaxToken.UNTERMINATED_STRING:
                     {
-                        if (token.Text.TryGetTableAndColumnNames(out var table, out var column))
+                        if (token.IsStringLiteral() && token.Text.TryGetTableAndColumnNames(out var table, out var column))
                         {
-                            var value = ObfuscateTableAndColumnNames(table, column, token);
+                            var value = ObfuscateTableAndColumnNames(table, column);
                             tokenText = token.Replace(expression, value);
                         }
                         else
                         {
-                            if (token.IsStringOrTableOrColumnOrMeasure()) tokenText = tokenText.EscapeDax(DaxToken.COLUMN_OR_MEASURE);
                             var value = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue;
                             tokenText = token.Replace(expression, value);
                         }
@@ -67,27 +66,18 @@ internal sealed partial class DaxModelObfuscator
         return builder.ToString();
     }
 
-    internal string ObfuscateTableAndColumnNames(string table, string column, DaxToken? token = null)
+    internal string ObfuscateTableAndColumnNames(string table, string column)
     {
-        var isStringToken = token.IsString();
-        if (isStringToken && table.TryGetTableAndColumnNames(out var tableTable, out var tableColumn))
-        {
-            var tableTableName = ObfuscateText(new DaxText(tableTable)).ObfuscatedValue;
-            var tableColumnName = ObfuscateText(new DaxText(tableColumn)).ObfuscatedValue;
-            var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
+        table = table.UnescapeDax(DaxToken.TABLE).Trim();
+        column = column.UnescapeDax(DaxToken.COLUMN_OR_MEASURE);
 
-            return $"'{tableTableName}[{tableColumnName}]'[{columnName}]";
-        }
-        else
-        {
-            if (isStringToken) table = table.Trim();
+        var quoted = table.IsQuoted();
+        if (quoted) table = table.Unquote();
 
-            var tableName = ObfuscateText(new DaxText(table)).ObfuscatedValue;
-            var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
+        var tableName = ObfuscateText(new DaxText(table)).ObfuscatedValue;
+        var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
 
-            return token.IsColumnOrMeasure()
-                ? $"{tableName}[{columnName}]]" // escape the closing bracket
-                : $"{tableName}[{columnName}]";
-        }
+        if (quoted) tableName = $"'{tableName}'";
+        return $"{tableName}[{columnName}]";
     }
 }

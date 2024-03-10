@@ -8,6 +8,14 @@ internal sealed class DaxTextObfuscator
     internal const string AlphaCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     internal const string CharSet = /**/ "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"; // ANSI alphanumeric character range
     internal const int RetryLimitBeforeExtension = 26; // A..Z
+    /// <summary>
+    /// CALENDAR() [Date] extension column.
+    /// </summary>
+    internal const string ReservedToken_Date = "Date";
+    /// <summary>
+    /// ''[Value] or table constructor { } extension columns
+    /// </summary>
+    internal const string ReservedToken_Value = "Value";
 
     /// <summary>
     /// A salt combined with the plaintext hashcode to ensure that a different obfuscated string is generated for each program execution
@@ -70,7 +78,7 @@ internal sealed class DaxTextObfuscator
 
         switch (@char)
         {
-            case ReservedChar_Minus: // single-line comment char
+            case '-': // single-line comment char
             case '/': // multi-line comment char
             case '*': // multi-line comment char
             case '\n': // line feed char e.g. in multi-line comments
@@ -86,14 +94,4 @@ internal sealed class DaxTextObfuscator
         ReservedToken_Date,
         ReservedToken_Value
     };
-
-    internal const char ReservedChar_Minus = '-';
-    /// <summary>
-    /// CALENDAR() [Date] extension column.
-    /// </summary>
-    internal const string ReservedToken_Date = "Date";
-    /// <summary>
-    /// ''[Value] or table constructor { } extension columns
-    /// </summary>
-    internal const string ReservedToken_Value = "Value";
 }
