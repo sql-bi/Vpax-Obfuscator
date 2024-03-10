@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Dax.Metadata;
+﻿using Dax.Metadata;
 using Dax.Vpax.Obfuscator.Common;
 using Dax.Vpax.Obfuscator.Extensions;
 
@@ -19,7 +18,7 @@ internal sealed partial class DaxModelObfuscator
         _model = model;
         _model.ObfuscatorDictionaryId = dictionary != null ? dictionary.Id : Guid.NewGuid().ToString("D");
         _model.ObfuscatorLib = "Dax.Vpax.Obfuscator"; // hard-coded
-        _model.ObfuscatorLibVersion = GetType().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? throw new InvalidOperationException("The assembly informational version is not available.");
+        _model.ObfuscatorLibVersion = VpaxObfuscator.Version;
         _obfuscator = new DaxTextObfuscator();
         _texts = new DaxTextCollection(dictionary);
     }
