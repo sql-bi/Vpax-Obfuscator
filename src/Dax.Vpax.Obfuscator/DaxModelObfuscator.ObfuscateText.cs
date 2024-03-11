@@ -9,6 +9,13 @@ internal sealed partial class DaxModelObfuscator
         if (Texts.TryGet(text, out var obfuscatedText))
             return obfuscatedText ?? throw new InvalidOperationException($"Obfuscated text is null. {text.Value}");
 
+        if (text.Value.IsDaxReservedNameOrKeyword() || string.IsNullOrWhiteSpace(text.Value))
+        {
+            text.ObfuscatedValue = text.Value;
+            Texts.Add(text);
+            return text;
+        }
+
         _ = _obfuscator.Obfuscate(text);
 
         var retryLimit = DaxTextObfuscator.RetryLimitBeforeExtension + 100; // retry with the same length otherwise extend the obfuscated string length up to 100 characters
