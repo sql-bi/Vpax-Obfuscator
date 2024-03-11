@@ -7,37 +7,35 @@ namespace Dax.Vpax.Obfuscator;
 // TODO: (vNext) source generator
 internal sealed partial class DaxModelObfuscator
 {
-    private readonly Model _model;
-    private readonly DaxTextCollection _texts;
     private readonly DaxTextObfuscator _obfuscator;
 
     public DaxModelObfuscator(Model model, ObfuscationDictionary? dictionary = null)
     {
         if (model.IsObfuscated()) throw new InvalidOperationException("The model has already been obfuscated.");
 
-        _model = model;
-        _model.ObfuscatorDictionaryId = dictionary != null ? dictionary.Id : Guid.NewGuid().ToString("D");
-        _model.ObfuscatorLib = "Dax.Vpax.Obfuscator"; // hard-coded
-        _model.ObfuscatorLibVersion = VpaxObfuscator.Version;
+        Model = model;
+        Model.ObfuscatorDictionaryId = dictionary != null ? dictionary.Id : Guid.NewGuid().ToString("D");
+        Model.ObfuscatorLib = "Dax.Vpax.Obfuscator"; // hard-coded
+        Model.ObfuscatorLibVersion = VpaxObfuscator.Version;
         _obfuscator = new DaxTextObfuscator();
-        _texts = new DaxTextCollection(dictionary);
+        Texts = new DaxTextCollection(dictionary);
     }
 
-    public Model Model => _model; // test only
-    public DaxTextCollection Texts => _texts;
+    public Model Model { get; } // test only
+    public DaxTextCollection Texts { get; }
 
     public ObfuscationDictionary Obfuscate()
     {
         // Obfuscate and map identifiers first
-        _model.Tables.ForEach(ObfuscateIdentifiers);
+        Model.Tables.ForEach(ObfuscateIdentifiers);
 
-        Obfuscate(_model.ModelName);
-        Obfuscate(_model.ServerName);
-        _model.Tables.ForEach(Obfuscate);
-        _model.Relationships.ForEach(Obfuscate);
-        _model.Roles.ForEach(Obfuscate);
+        Obfuscate(Model.ModelName);
+        Obfuscate(Model.ServerName);
+        Model.Tables.ForEach(Obfuscate);
+        Model.Relationships.ForEach(Obfuscate);
+        Model.Roles.ForEach(Obfuscate);
 
-        var id = _model.ObfuscatorDictionaryId;
+        var id = Model.ObfuscatorDictionaryId;
         var version = VpaxObfuscator.Version;
         var texts = Texts.Select((t) => t.ToObfuscationText()).ToArray();
         return new ObfuscationDictionary(id, version, texts);

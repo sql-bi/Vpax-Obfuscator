@@ -180,7 +180,7 @@ public class DaxModelDeobfuscatorTests
         Assert.Equal(expected, actual);
     }
 
-    private (Model model, ObfuscationDictionary dictionary, DaxModelDeobfuscator deobfuscator) CreateTest(ObfuscationText[] texts)
+    private static (Model model, ObfuscationDictionary dictionary, DaxModelDeobfuscator deobfuscator) CreateTest(ObfuscationText[] texts)
     {
         var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", texts);
         var model = new Model

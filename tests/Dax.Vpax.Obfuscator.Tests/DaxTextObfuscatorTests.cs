@@ -5,7 +5,7 @@ namespace Dax.Vpax.Obfuscator.Tests;
 
 public class DaxTextObfuscatorTests
 {
-    private readonly DaxTextObfuscator _obfuscator = new DaxTextObfuscator();
+    private readonly DaxTextObfuscator _obfuscator = new();
 
     [Theory]
     [InlineData("abc")]

@@ -13,8 +13,10 @@ public class DaxTextCollectionTests
         var text1 = new DaxText(value1, value1);
         var text2 = new DaxText(value2, value2);
 
-        var texts = new DaxTextCollection();
-        texts.Add(text1);
+        var texts = new DaxTextCollection
+        {
+            text1
+        };
 
         Assert.Throws<ArgumentException>(() => texts.Add(text2));
     }
@@ -31,7 +33,8 @@ public class DaxTextCollectionTests
         var values = charset.Select((c) => new string(c, count)).ToList();
         var dictionary = new DaxTextCollection();
 
-        foreach (var value in values) {
+        foreach (var value in values)
+        {
             var text = new DaxText(value, value);
             dictionary.Add(text); // Seed the result dictionary
             Assert.Throws<ArgumentException>(() => dictionary.Add(text));
@@ -47,8 +50,10 @@ public class DaxTextCollectionTests
         var text1 = new DaxText("X", obfuscatedValue1);
         var text2 = new DaxText("Y", obfuscatedValue2);
 
-        var texts = new DaxTextCollection();
-        texts.Add(text1);
+        var texts = new DaxTextCollection
+        {
+            text1
+        };
 
         Assert.Throws<ArgumentException>(() => texts.Add(text2));
     }

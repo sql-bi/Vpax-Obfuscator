@@ -6,7 +6,7 @@ internal static class StringExtensions
 {
     public static bool IsBracketed(this string value) => value.StartsWith("[") && value.EndsWith("]");
     public static bool IsQuoted(this string value) => value.StartsWith("'") && value.EndsWith("'");
-    public static bool IsDaxKeyword(this string value) => DaxKeywords.Contains(value ?? throw new ArgumentNullException(nameof(value)));
+    public static bool IsDaxKeyword(this string value) => s_daxKeywords.Contains(value ?? throw new ArgumentNullException(nameof(value)));
 
     public static bool IsReservedName(this string value)
     {
@@ -57,7 +57,7 @@ internal static class StringExtensions
             var columnTrimmed = column.Trim();
             if (!columnTrimmed.IsBracketed()) goto unqualified_column_name;
             column = columnTrimmed.Unbracket();
-            if (column.Replace("]]", "__").Contains("]")) goto unqualified_column_name;
+            if (column.Replace("]]", "__").Contains(']')) goto unqualified_column_name;
         }
         else
         {
@@ -66,7 +66,7 @@ internal static class StringExtensions
             table = value.Substring(0, bracketOpenIndex);
             column = value.Substring(bracketOpenIndex).TrimEnd().Unbracket();
 
-            if (column.Replace("]]", "__").Contains("]")) goto unqualified_column_name;
+            if (column.Replace("]]", "__").Contains(']')) goto unqualified_column_name;
             if (IsInvalidUnquotedTable(table)) goto unqualified_column_name;
         }
 
@@ -128,7 +128,7 @@ internal static class StringExtensions
         return value;
     }
 
-    private static readonly HashSet<string> DaxKeywords = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> s_daxKeywords = new(StringComparer.OrdinalIgnoreCase)
     {
         "ID",
         // Z__FIRSTKEYWORD__

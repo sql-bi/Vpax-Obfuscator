@@ -35,7 +35,7 @@ internal sealed class DaxTextObfuscator
         if (text.ObfuscatedValue == null && retryCount != 0) throw new InvalidOperationException("Text has not been obfuscated yet.");
 
         // Skip obfuscation for reserved tokens and empty or whitespace strings
-        if (ReservedTokens.Contains(text.Value) || string.IsNullOrWhiteSpace(text.Value))
+        if (s_reservedTokens.Contains(text.Value) || string.IsNullOrWhiteSpace(text.Value))
         {
             text.ObfuscatedValue = text.Value;
             return text;
@@ -89,7 +89,7 @@ internal sealed class DaxTextObfuscator
         return false;
     }
 
-    private static readonly HashSet<string> ReservedTokens = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> s_reservedTokens = new(StringComparer.OrdinalIgnoreCase)
     {
         ReservedToken_Date,
         ReservedToken_Value
