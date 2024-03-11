@@ -6,23 +6,23 @@ internal static class StringExtensions
 {
     public static bool IsBracketed(this string value) => value.StartsWith("[") && value.EndsWith("]");
     public static bool IsQuoted(this string value) => value.StartsWith("'") && value.EndsWith("'");
+    public static bool IsDaxReservedNameOrKeyword(this string value) => IsDaxReservedName(value) || IsDaxKeyword(value);
     public static bool IsDaxKeyword(this string value) => s_daxKeywords.Contains(value ?? throw new ArgumentNullException(nameof(value)));
 
-    public static bool IsReservedName(this string value)
+    public static bool IsDaxReservedName(this string value)
     {
-        if (value.StartsWith(DaxTextObfuscator.ReservedToken_Value, StringComparison.OrdinalIgnoreCase))
+        if (value.Equals(DaxConstants.ReservedToken_Date, StringComparison.OrdinalIgnoreCase))
+            return true; // CALENDAR() [Date] extension column
+
+        if (value.StartsWith(DaxConstants.ReservedToken_Value, StringComparison.OrdinalIgnoreCase))
         {
-            // ''[Value] extension column OR table constructor { } extension column when there is only one column
-            if (value.Length == DaxTextObfuscator.ReservedToken_Value.Length)
+            // ''[Value] column OR table constructor { } column when there is only one column
+            if (value.Length == DaxConstants.ReservedToken_Value.Length)
                 return true;
 
-            // Table constructor { } extension column when there are N columns
-            if (int.TryParse(value.Substring(DaxTextObfuscator.ReservedToken_Value.Length), out _))
+            // Table constructor { } column when there are N columns
+            if (int.TryParse(value.Substring(DaxConstants.ReservedToken_Value.Length), out _))
                 return true;
-        }
-        else if (value.Equals(DaxTextObfuscator.ReservedToken_Date, StringComparison.OrdinalIgnoreCase))
-        {
-            return true; // CALENDAR() [Date] extension column
         }
 
         return false;
