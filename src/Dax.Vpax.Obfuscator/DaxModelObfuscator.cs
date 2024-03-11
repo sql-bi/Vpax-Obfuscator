@@ -17,8 +17,9 @@ internal sealed partial class DaxModelObfuscator
         Model.ObfuscatorDictionaryId = dictionary != null ? dictionary.Id : Guid.NewGuid().ToString("D");
         Model.ObfuscatorLib = "Dax.Vpax.Obfuscator"; // hard-coded
         Model.ObfuscatorLibVersion = VpaxObfuscator.Version;
-        _obfuscator = new DaxTextObfuscator();
         Texts = new DaxTextCollection(dictionary);
+
+        _obfuscator = new DaxTextObfuscator();
     }
 
     public Model Model { get; } // test only
