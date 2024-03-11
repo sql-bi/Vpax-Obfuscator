@@ -111,7 +111,7 @@ internal static class StringExtensions
     private static readonly HashSet<string> DaxKeywords = new(StringComparer.OrdinalIgnoreCase)
     {
         "ID",
-        // __FIRSTKEYWORD__
+        // Z__FIRSTKEYWORD__
         // TOFIX: get keywords from tokenizer instead of hardcoding
         "MEASURE",
         "COLUMN",
@@ -165,6 +165,6 @@ internal static class StringExtensions
         "FALSE",
         "ABS",
         "REL",
-        // __LASTKEYWORD__
+        // Z__LASTKEYWORD__
     };
 }
