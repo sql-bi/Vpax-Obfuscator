@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Dax.Tokenizer;
+﻿using Dax.Tokenizer;
 
 namespace Dax.Vpax.Obfuscator.Extensions;
 
@@ -8,16 +7,11 @@ internal static class DaxTokenExtensions
     public static bool IsStringLiteral(this DaxToken? token) => token?.Type == DaxToken.STRING_LITERAL || token?.Type == DaxToken.UNTERMINATED_STRING;
     public static bool IsTable(this DaxToken? token) => token?.Type == DaxToken.TABLE || (token?.Type == DaxToken.TABLE_OR_VARIABLE && !IsVariable(token));
     public static bool IsColumnOrMeasure(this DaxToken? token) => token?.Type == DaxToken.COLUMN_OR_MEASURE || token?.Type == DaxToken.UNTERMINATED_COLREF;
-
-    public static bool IsVariable(this DaxToken token)
-    {
-        Debug.Assert(token.Type == DaxToken.TABLE_OR_VARIABLE);
-        return token.Type == DaxToken.TABLE_OR_VARIABLE && !IsFunction(token);
-    }
+    public static bool IsVariable(this DaxToken token) => !IsFunction(token);
 
     public static bool IsFunction(this DaxToken token)
     {
-        Debug.Assert(token.Type == DaxToken.TABLE_OR_VARIABLE);
+        if (token.Type != DaxToken.TABLE_OR_VARIABLE) throw new ArgumentException($"Token must be of type {nameof(DaxToken.TABLE_OR_VARIABLE)}", nameof(token));
 
         var current = token.Next;
         while (current != null && current.CommentOrWhitespace)
