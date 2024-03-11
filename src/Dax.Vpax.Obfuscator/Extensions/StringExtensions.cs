@@ -8,6 +8,26 @@ internal static class StringExtensions
     public static bool IsQuoted(this string value) => value.StartsWith("'") && value.EndsWith("'");
     public static bool IsDaxKeyword(this string value) => DaxKeywords.Contains(value ?? throw new ArgumentNullException(nameof(value)));
 
+    public static bool IsReservedName(this string value)
+    {
+        if (value.StartsWith(DaxTextObfuscator.ReservedToken_Value, StringComparison.OrdinalIgnoreCase))
+        {
+            // ''[Value] extension column OR table constructor { } extension column when there is only one column
+            if (value.Length == DaxTextObfuscator.ReservedToken_Value.Length)
+                return true;
+
+            // Table constructor { } extension column when there are N columns
+            if (int.TryParse(value.Substring(DaxTextObfuscator.ReservedToken_Value.Length), out _))
+                return true;
+        }
+        else if (value.Equals(DaxTextObfuscator.ReservedToken_Date, StringComparison.OrdinalIgnoreCase))
+        {
+            return true; // CALENDAR() [Date] extension column
+        }
+
+        return false;
+    }
+
     public static string Unquote(this string value)
     {
         if (!IsQuoted(value)) throw new InvalidOperationException($"Invalid format. '{value}' is not a quoted string.");
@@ -16,7 +36,7 @@ internal static class StringExtensions
 
     public static string Unbracket(this string value)
     {
-        if (!IsBracketed(value)) throw new InvalidCastException($"Invalid format. '{value}' is not a bracketed string.");
+        if (!IsBracketed(value)) throw new InvalidOperationException($"Invalid format. '{value}' is not a bracketed string.");
         return value.Substring(1, value.Length - 2);
     }
 

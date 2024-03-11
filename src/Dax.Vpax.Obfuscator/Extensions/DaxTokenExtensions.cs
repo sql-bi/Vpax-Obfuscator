@@ -26,28 +26,6 @@ internal static class DaxTokenExtensions
         return current != null && current.Type == DaxToken.OPEN_PARENS;
     }
 
-    public static bool IsReservedName(this DaxToken token)
-    {
-        Debug.Assert(token.Type == DaxToken.COLUMN_OR_MEASURE);
-
-        if (token.Text.StartsWith(DaxTextObfuscator.ReservedToken_Value, StringComparison.OrdinalIgnoreCase))
-        {
-            // ''[Value] extension column OR table constructor { } extension column when there is only one column
-            if (token.Text.Length == DaxTextObfuscator.ReservedToken_Value.Length)
-                return true;
-
-            // Table constructor { } extension column when there are N columns
-            if (int.TryParse(token.Text.Substring(DaxTextObfuscator.ReservedToken_Value.Length), out _))
-                return true;
-        }
-        else if (token.Text.Equals(DaxTextObfuscator.ReservedToken_Date, StringComparison.OrdinalIgnoreCase))
-        {
-            return true; // CALENDAR() [Date] extension column
-        }
-
-        return false;
-    }
-
     public static string Replace(this DaxToken token, string expression, string value)
     {
         var substring = expression.Substring(token.StartIndex, token.StopIndex - token.StartIndex + 1);
