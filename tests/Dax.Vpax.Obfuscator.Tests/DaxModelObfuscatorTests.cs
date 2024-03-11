@@ -3,6 +3,7 @@ using System.Globalization;
 using Dax.Metadata;
 using Dax.Tokenizer;
 using Dax.Vpax.Obfuscator.Common;
+using Dax.Vpax.Obfuscator.Comparers;
 using Dax.Vpax.Obfuscator.Tests.TestUtils;
 using Xunit;
 
@@ -28,11 +29,15 @@ public class DaxModelObfuscatorTests
             new ("T", "Y"),
             new ("M", "Z")
         ];
-        var dict = CreateObfuscator(texts, model).Obfuscate();
+        var obfuscator = CreateObfuscator(texts, model);
+        var dictionary = obfuscator.Obfuscate();
         var actual_o = measure.MeasureExpression.Expression;
-        CreateDeobfuscator(dict, model).Deobfuscate();
+        CreateDeobfuscator(dictionary, model).Deobfuscate();
         var actual_d = measure.MeasureExpression.Expression;
 
+        Assert.Contains(new DaxText("_Amount Goal", "_XXXXXX Goal"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
+        Assert.Contains(new DaxText("_Amount Trend", "_XXXXXX Trend"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
+        Assert.Contains(new DaxText("_Amount Status", "_XXXXXX Status"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
         Assert.Equal(expected_o, actual_o);
         Assert.Equal(expected_d, actual_d);
     }
@@ -42,10 +47,11 @@ public class DaxModelObfuscatorTests
     {
         var expression = """ SUMX(GENERATESERIES(1, 10), ''[Value]) """;
 
-        DaxText[] texts = [new("Value", "Value")];
-        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
+        var obfuscator = CreateObfuscator();
+        var actual_o = obfuscator.ObfuscateExpression(expression);
+        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
 
+        Assert.Contains(new DaxText("Value", "Value"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
         Assert.Equal(expression, actual_o);
         Assert.Equal(expression, actual_d);
     }
@@ -53,18 +59,16 @@ public class DaxModelObfuscatorTests
     [Fact]
     public void ObfuscateExpression_CalendarDateColumn_IsNotObfuscated()
     {
-        var expression = """ SELECTCOLUMNS(CALENDAR(1, 100), "@c1", [Date]) """;
-        var expected_o = """ SELECTCOLUMNS(CALENDAR(1, 100), "XXX", [Date]) """;
+        var expression = """ SELECTCOLUMNS(CALENDAR(1, 100), "@c", [Date]) """;
+        var expected_o = """ SELECTCOLUMNS(CALENDAR(1, 100), "XX", [Date]) """;
         var expected_d = expression;
 
-        DaxText[] texts =
-        [
-            new ("Date", "Date"),
-            new ("@c1", "XXX")
-        ];
-        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
+        DaxText[] texts = [new ("@c", "XX")];
+        var obfuscator = CreateObfuscator(texts);
+        var actual_o = obfuscator.ObfuscateExpression(expression);
+        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
 
+        Assert.Contains(new DaxText("Date", "Date"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
         Assert.Equal(expected_o, actual_o);
         Assert.Equal(expected_d, actual_d);
     }
@@ -72,18 +76,16 @@ public class DaxModelObfuscatorTests
     [Fact]
     public void ObfuscateExpression_TableConstructorValueColumn_IsNotObfuscated()
     {
-        var expression = """ SELECTCOLUMNS({0}, "@c1", [Value]) """;
-        var expected_o = """ SELECTCOLUMNS({0}, "XXX", [Value]) """;
+        var expression = """ SELECTCOLUMNS({0}, "@c", [Value]) """;
+        var expected_o = """ SELECTCOLUMNS({0}, "XX", [Value]) """;
         var expected_d = expression;
 
-        DaxText[] texts =
-        [
-            new ("Value", "Value"),
-            new ("@c1", "XXX")
-        ];
-        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
+        DaxText[] texts = [new ("@c", "XX")];
+        var obfuscator = CreateObfuscator(texts);
+        var actual_o = obfuscator.ObfuscateExpression(expression);
+        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
 
+        Assert.Contains(new DaxText("Value", "Value"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
         Assert.Equal(expected_o, actual_o);
         Assert.Equal(expected_d, actual_d);
     }
@@ -97,16 +99,17 @@ public class DaxModelObfuscatorTests
 
         DaxText[] texts =
         [
-            new ("Value1", "Value1"),
-            new ("value2", "value2"),
-            new ("VALUE3", "VALUE3"),
             new("@c1", "XXX"),
             new("@c2", "YYY"),
             new("@c3", "ZZZ"),
         ];
-        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
+        var obfuscator = CreateObfuscator(texts);
+        var actual_o = obfuscator.ObfuscateExpression(expression);
+        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
 
+        Assert.Contains(new DaxText("Value1"), obfuscator.Texts, DaxTextValueEqualityComparer.Instance);
+        Assert.Contains(new DaxText("value2"), obfuscator.Texts, DaxTextValueEqualityComparer.Instance);
+        Assert.Contains(new DaxText("VALUE3"), obfuscator.Texts, DaxTextValueEqualityComparer.Instance);
         Assert.Equal(expected_o, actual_o);
         Assert.Equal(expected_d, actual_d);
     }
@@ -521,6 +524,9 @@ public class DaxModelObfuscatorTests
     }
 
     [DebuggerStepThrough]
+    private static DaxModelObfuscator CreateObfuscator() => CreateObfuscator([]);
+
+    [DebuggerStepThrough]
     private static DaxModelObfuscator CreateObfuscator(DaxText[] texts, Model? model = null)
     {
         var obfuscator = new DaxModelObfuscator(model ?? new Model());
@@ -530,7 +536,7 @@ public class DaxModelObfuscatorTests
     }
 
     [DebuggerStepThrough]
-    private static DaxModelDeobfuscator CreateDeobfuscator(DaxText[] texts)
+    private static DaxModelDeobfuscator CreateDeobfuscator(IEnumerable<DaxText> texts)
     {
         var obfuscationTexts = texts.Select((t) => t.ToObfuscationText()).ToArray();
         var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", obfuscationTexts);
