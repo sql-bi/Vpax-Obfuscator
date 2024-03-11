@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Dax.Tokenizer;
+﻿using Dax.Tokenizer;
 
 namespace Dax.Vpax.Obfuscator.Extensions;
 
@@ -8,44 +7,17 @@ internal static class DaxTokenExtensions
     public static bool IsStringLiteral(this DaxToken? token) => token?.Type == DaxToken.STRING_LITERAL || token?.Type == DaxToken.UNTERMINATED_STRING;
     public static bool IsTable(this DaxToken? token) => token?.Type == DaxToken.TABLE || (token?.Type == DaxToken.TABLE_OR_VARIABLE && !IsVariable(token));
     public static bool IsColumnOrMeasure(this DaxToken? token) => token?.Type == DaxToken.COLUMN_OR_MEASURE || token?.Type == DaxToken.UNTERMINATED_COLREF;
-
-    public static bool IsVariable(this DaxToken token)
-    {
-        Debug.Assert(token.Type == DaxToken.TABLE_OR_VARIABLE);
-        return token.Type == DaxToken.TABLE_OR_VARIABLE && !IsFunction(token);
-    }
+    public static bool IsVariable(this DaxToken token) => !IsFunction(token);
 
     public static bool IsFunction(this DaxToken token)
     {
-        Debug.Assert(token.Type == DaxToken.TABLE_OR_VARIABLE);
+        if (token.Type != DaxToken.TABLE_OR_VARIABLE) throw new ArgumentException($"Token must be of type {nameof(DaxToken.TABLE_OR_VARIABLE)}", nameof(token));
 
         var current = token.Next;
         while (current != null && current.CommentOrWhitespace)
             current = current.Next;
 
         return current != null && current.Type == DaxToken.OPEN_PARENS;
-    }
-
-    public static bool IsReservedTokenOrKeyword(this DaxToken token)
-    {
-        Debug.Assert(token.Type == DaxToken.COLUMN_OR_MEASURE);
-
-        if (token.Text.StartsWith(DaxTextObfuscator.ReservedToken_Value, StringComparison.OrdinalIgnoreCase))
-        {
-            // ''[Value] extension column OR table constructor { } extension column when there is only one column
-            if (token.Text.Length == DaxTextObfuscator.ReservedToken_Value.Length)
-                return true;
-
-            // Table constructor { } extension column when there are N columns
-            if (int.TryParse(token.Text.Substring(DaxTextObfuscator.ReservedToken_Value.Length), out _))
-                return true;
-        }
-        else if (token.Text.Equals(DaxTextObfuscator.ReservedToken_Date, StringComparison.OrdinalIgnoreCase))
-        {
-            return true; // CALENDAR() [Date] extension column
-        }
-
-        return false;
     }
 
     public static string Replace(this DaxToken token, string expression, string value)

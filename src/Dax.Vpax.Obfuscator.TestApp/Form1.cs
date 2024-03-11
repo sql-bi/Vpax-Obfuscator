@@ -24,8 +24,10 @@ namespace Dax.Vpax.Obfuscator.TestApp
             {
                 var dictionary = checkBoxIncrementalFileObfuscation.Checked ? new FileInfo(openDictionaryFileDialog.FileName) : null;
                 var vpax = new FileInfo(openVpaxFileDialog.FileName);
+                var outputPath = folderBrowserDialog1.SelectedPath;
+                var overwrite = checkBoxOverwriteDictionary.Checked;
 
-                Obfuscate(vpax, dictionary, outputPath: folderBrowserDialog1.SelectedPath);
+                Obfuscate(vpax, dictionary, outputPath, overwrite);
                 MessageBox.Show("Obfuscation completed.", "Obfuscation", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -51,8 +53,9 @@ namespace Dax.Vpax.Obfuscator.TestApp
             buttonObfuscateDirectory.Enabled = false;
             try
             {
+                var overwrite = checkBoxOverwriteDictionary.Checked;
                 foreach (var vpax in new DirectoryInfo(inputPath).GetFiles("*.vpax"))
-                    Obfuscate(vpax, dictionaryFile: null, outputPath);
+                    Obfuscate(vpax, dictionaryFile: null, outputPath, overwrite);
 
                 MessageBox.Show("Obfuscation completed.", "Obfuscation", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -64,24 +67,6 @@ namespace Dax.Vpax.Obfuscator.TestApp
             {
                 buttonObfuscateDirectory.Enabled = true;
             }
-        }
-
-        private void Obfuscate(FileInfo vpaxFile, FileInfo? dictionaryFile, string outputPath)
-        {
-            var data = File.ReadAllBytes(vpaxFile.FullName);
-            using var stream = new MemoryStream();
-            stream.Write(data, 0, data.Length);
-
-            var obfuscator = new VpaxObfuscator();
-            var dictionary = dictionaryFile != null
-                ? obfuscator.Obfuscate(stream, ObfuscationDictionary.ReadFrom(dictionaryFile.FullName))
-                : obfuscator.Obfuscate(stream);
-
-            var dictionaryPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".vpax.dict"));
-            var vpaxPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".obfuscated.vpax"));
-
-            dictionary.WriteTo(dictionaryPath, overwrite: checkBoxOverwriteDictionary.Checked, indented: true);
-            File.WriteAllBytes(vpaxPath, stream.ToArray());
         }
 
         private void buttonDeobfuscate_Click(object sender, EventArgs e)
@@ -108,7 +93,25 @@ namespace Dax.Vpax.Obfuscator.TestApp
             }
         }
 
-        private void Deobfuscate(FileInfo vpaxFile, FileInfo dictionaryFile)
+        private static void Obfuscate(FileInfo vpaxFile, FileInfo? dictionaryFile, string outputPath, bool overwrite)
+        {
+            var data = File.ReadAllBytes(vpaxFile.FullName);
+            using var stream = new MemoryStream();
+            stream.Write(data, 0, data.Length);
+
+            var obfuscator = new VpaxObfuscator();
+            var dictionary = dictionaryFile != null
+                ? obfuscator.Obfuscate(stream, ObfuscationDictionary.ReadFrom(dictionaryFile.FullName))
+                : obfuscator.Obfuscate(stream);
+
+            var dictionaryPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".vpax.dict"));
+            var vpaxPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".obfuscated.vpax"));
+
+            dictionary.WriteTo(dictionaryPath, overwrite, indented: true);
+            File.WriteAllBytes(vpaxPath, stream.ToArray());
+        }
+
+        private static void Deobfuscate(FileInfo vpaxFile, FileInfo dictionaryFile)
         {
             var data = File.ReadAllBytes(vpaxFile.FullName);
             using var stream = new MemoryStream();

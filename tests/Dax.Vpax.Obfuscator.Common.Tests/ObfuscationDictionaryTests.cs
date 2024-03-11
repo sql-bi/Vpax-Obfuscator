@@ -117,7 +117,7 @@ public class ObfuscationDictionaryTests
         Assert.Equal("XXXXXX", obfuscated);
     }
 
-    private ObfuscationDictionary CreateTestDictionary()
+    private static ObfuscationDictionary CreateTestDictionary()
     {
         return CreateDictionary(
         [
@@ -126,7 +126,7 @@ public class ObfuscationDictionaryTests
         ]);
     }
 
-    private ObfuscationDictionary CreateDictionary(ObfuscationText[] texts)
+    private static ObfuscationDictionary CreateDictionary(ObfuscationText[] texts)
     {
         return new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", texts);
     }
