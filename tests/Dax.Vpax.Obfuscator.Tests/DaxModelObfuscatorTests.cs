@@ -12,7 +12,7 @@ namespace Dax.Vpax.Obfuscator.Tests;
 public class DaxModelObfuscatorTests
 {
     [Fact]
-    public void Obfuscate_KpiMeasureReference_DoesNotObfuscateKpiMeasureNamePrefixAndSuffix()
+    public void Obfuscate_KpiMeasureReference_IsObfuscatedPreservingNamePrefixAndSuffix()
     {
         var expression = "[_Amount Goal] + [_Amount Trend] + [_Amount Status]";
         var expected_o = "[_XXXXXX Goal] + [_XXXXXX Trend] + [_XXXXXX Status]";
@@ -31,85 +31,100 @@ public class DaxModelObfuscatorTests
         ];
         var obfuscator = CreateObfuscator(texts, model);
         var dictionary = obfuscator.Obfuscate();
-        var actual_o = measure.MeasureExpression.Expression;
-        CreateDeobfuscator(dictionary, model).Deobfuscate();
-        var actual_d = measure.MeasureExpression.Expression;
 
+        Assert.Equal(expected_o, measure.MeasureExpression.Expression);
         Assert.Contains(new DaxText("_Amount Goal", "_XXXXXX Goal"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
         Assert.Contains(new DaxText("_Amount Trend", "_XXXXXX Trend"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
         Assert.Contains(new DaxText("_Amount Status", "_XXXXXX Status"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
-        Assert.Equal(expected_o, actual_o);
-        Assert.Equal(expected_d, actual_d);
+
+        CreateDeobfuscator(dictionary, model).Deobfuscate();
+        Assert.Equal(expected_d, measure.MeasureExpression.Expression);
     }
 
-    [Fact]
-    public void ObfuscateExpression_ValueColumn_IsNotObfuscated()
+    [Theory]
+    [MemberData(nameof(GetDaxKeywordData))]
+    public void Obfuscate_TableNameMatchingDaxKeywordName_IsNotObufuscated(string keyword)
     {
-        var expression = """ SUMX(GENERATESERIES(1, 10), ''[Value]) """;
+        var model = new Model();
+        var table = model.AddTable(keyword);
+
+        var obfuscator = CreateObfuscator([], model);
+        var dictionary = obfuscator.Obfuscate();
+
+        Assert.DoesNotContain(new DaxText(keyword), obfuscator.Texts, DaxTextValueEqualityComparer.Instance);
+        Assert.Equal(keyword, table.TableName.Name);
+
+        CreateDeobfuscator(dictionary, model).Deobfuscate();
+        Assert.Equal(keyword, table.TableName.Name);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetDaxReservedNameData))]
+    public void Obfuscate_ColumnAndMeasureNameMatchingReservedName_IsNotObfuscated(string name)
+    {
+        var model = new Model();
+        var table = model.AddTable("_");
+        var column = table.AddColumn(name);
+        var measure = table.AddMeasure(name, "1");
+
+        var obfuscator = CreateObfuscator([], model);
+        var dictionary = obfuscator.Obfuscate();
+
+        Assert.DoesNotContain(new DaxText(name), obfuscator.Texts, DaxTextValueEqualityComparer.Instance);
+        Assert.Equal(name, column.ColumnName.Name);
+        Assert.Equal(name, measure.MeasureName.Name);
+
+        CreateDeobfuscator(dictionary, model).Deobfuscate();
+        Assert.Equal(name, column.ColumnName.Name);
+        Assert.Equal(name, measure.MeasureName.Name);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetDaxKeywordData))]
+    public void ObfuscateExpression_VariableAndTableReferenceNameMatchingDaxKeyword_IsNotObfuscated(string keyword)
+    {
+        // The generated expression may contain syntax errors, but it is fine for testing
+        var expression = $" VAR {keyword} = 1 RETURN {keyword} + COUNTROWS('{keyword}') + COUNTROWS({keyword}) ";
 
         var obfuscator = CreateObfuscator();
         var actual_o = obfuscator.ObfuscateExpression(expression);
         var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
 
-        Assert.Contains(new DaxText("Value", "Value"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
+        Assert.Empty(obfuscator.Texts);
+        Assert.Equal(expression, actual_o);
+        Assert.Equal(expression, actual_d);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetDaxReservedNameData))]
+    public void ObfuscateExpression_ColumnAndMeasureReferenceNameMatchingReservedName_IsNotObfuscated(string name)
+    {
+        var expression = $" SUM([{name}]) + CALCULATE([{name}]) + SUMX(GENERATESERIES(1, 10), ''[Value])";
+
+        var obfuscator = CreateObfuscator();
+        var actual_o = obfuscator.ObfuscateExpression(expression);
+        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
+
+        Assert.Empty(obfuscator.Texts);
         Assert.Equal(expression, actual_o);
         Assert.Equal(expression, actual_d);
     }
 
     [Fact]
-    public void ObfuscateExpression_CalendarDateColumn_IsNotObfuscated()
+    public void ObfuscateExpression_ColumnReference_IsObfuscatedEscapingSquareBracketsInColumnName()
     {
-        var expression = """ SELECTCOLUMNS(CALENDAR(1, 100), "@c", [Date]) """;
-        var expected_o = """ SELECTCOLUMNS(CALENDAR(1, 100), "XX", [Date]) """;
-        var expected_d = expression;
-
-        DaxText[] texts = [new ("@c", "XX")];
-        var obfuscator = CreateObfuscator(texts);
-        var actual_o = obfuscator.ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
-
-        Assert.Contains(new DaxText("Date", "Date"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
-        Assert.Equal(expected_o, actual_o);
-        Assert.Equal(expected_d, actual_d);
-    }
-
-    [Fact]
-    public void ObfuscateExpression_TableConstructorValueColumn_IsNotObfuscated()
-    {
-        var expression = """ SELECTCOLUMNS({0}, "@c", [Value]) """;
-        var expected_o = """ SELECTCOLUMNS({0}, "XX", [Value]) """;
-        var expected_d = expression;
-
-        DaxText[] texts = [new ("@c", "XX")];
-        var obfuscator = CreateObfuscator(texts);
-        var actual_o = obfuscator.ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
-
-        Assert.Contains(new DaxText("Value", "Value"), obfuscator.Texts, DaxTextEqualityComparer.Instance);
-        Assert.Equal(expected_o, actual_o);
-        Assert.Equal(expected_d, actual_d);
-    }
-
-    [Fact]
-    public void ObfuscateExpression_TableConstructorValueNColumn_IsNotObfuscated()
-    {
-        var expression = """ SELECTCOLUMNS({(1,2,3)}, "@c1", [Value1], "@c2", [value2], "@c3", [VALUE3]) """;
-        var expected_o = """ SELECTCOLUMNS({(1,2,3)}, "XXX", [Value1], "YYY", [value2], "ZZZ", [VALUE3]) """;
+        var expression = "RELATED( Sales[Rate[%]]] )";
+        var expected_o = "RELATED( XXXXX[YYYYYYY] )";
         var expected_d = expression;
 
         DaxText[] texts =
         [
-            new("@c1", "XXX"),
-            new("@c2", "YYY"),
-            new("@c3", "ZZZ"),
+            new("Sales", "XXXXX"),
+            new("Rate[%]", "YYYYYYY")
         ];
-        var obfuscator = CreateObfuscator(texts);
-        var actual_o = obfuscator.ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
+        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
+        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
 
-        Assert.Contains(new DaxText("Value1"), obfuscator.Texts, DaxTextValueEqualityComparer.Instance);
-        Assert.Contains(new DaxText("value2"), obfuscator.Texts, DaxTextValueEqualityComparer.Instance);
-        Assert.Contains(new DaxText("VALUE3"), obfuscator.Texts, DaxTextValueEqualityComparer.Instance);
         Assert.Equal(expected_o, actual_o);
         Assert.Equal(expected_d, actual_d);
     }
@@ -342,31 +357,16 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_TokensWithDifferentCasings_ReturnsSameObfuscatedValue()
+    public void ObfuscateExpression_DaxToken_IsObfuscatedCaseInsensitive()
     {
-        var expression = "COUNTROWS('Sales') + COUNTROWS(sales) + COUNTROWS(SALES) + COUNTROWS(SaLeS)";
-        var expected_o = "COUNTROWS('XXXXX') + COUNTROWS(XXXXX) + COUNTROWS(XXXXX) + COUNTROWS(XXXXX)";
-        var expected_d = "COUNTROWS('Sales') + COUNTROWS(Sales) + COUNTROWS(Sales) + COUNTROWS(Sales)";
-
-        DaxText[] texts = [new("Sales", "XXXXX")];
-        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
-
-        Assert.Equal(expected_o, actual_o);
-        Assert.Equal(expected_d, actual_d);
-    }
-
-    [Fact]
-    public void ObfuscateExpression_ColumnReference_IsObfuscatedEscapingSquareBracketsInColumnName()
-    {
-        var expression = "RELATED( Sales[Rate[%]]] )";
-        var expected_o = "RELATED( XXXXX[YYYYYYY] )";
-        var expected_d = expression;
+        var expression = "VAR AMOUNT = 1 RETURN AmOuNt + COUNTROWS(SALES) + COUNTROWS('SaLeS')";
+        var expected_o = "VAR XXXXXX = 1 RETURN XXXXXX + COUNTROWS(YYYYY) + COUNTROWS('YYYYY')";
+        var expected_d = "VAR AMOUNT = 1 RETURN AMOUNT + COUNTROWS(SALES) + COUNTROWS('SALES')";
 
         DaxText[] texts =
         [
-            new("Sales", "XXXXX"),
-            new("Rate[%]", "YYYYYYY")
+            new("AMOUNT", "XXXXXX"),
+            new("SALES", "YYYYY")
         ];
         var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
         var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
@@ -376,64 +376,31 @@ public class DaxModelObfuscatorTests
     }
 
     [Fact]
-    public void ObfuscateExpression_VariableNameMultipleReferencesWithDifferentCasings_ReturnsSameObfuscatedValue()
-    {
-        var expression = "VAR Amount = 1 RETURN AMOUNT + AmOuNt + amount";
-        var expected_o = "VAR XXXXXX = 1 RETURN XXXXXX + XXXXXX + XXXXXX";
-        var expected_d = "VAR Amount = 1 RETURN Amount + Amount + Amount";
-
-        DaxText[] texts = [new("Amount", "XXXXXX")];
-        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
-
-        Assert.Equal(expected_o, actual_o);
-        Assert.Equal(expected_d, actual_d);
-    }
-
-    //[Fact]
-    //public void ObfuscateExpression_ValueExtensionColumnName_IsNotObfuscated()
-    //{
-    //    var expression = """ SELECTCOLUMNS({0}, "__Measures", ''[Value]) """;
-    //    var expected =   """ SELECTCOLUMNS({0}, "XXXXXXXXXX", ''[Value]) """;
-
-    //    var obfuscator = new DaxModelObfuscator(new Model());
-    //    obfuscator.Texts.Add(new DaxText("__Measures", "XXXXXXXXXX"));
-    //    var actual = obfuscator.ObfuscateExpression(expression);
-
-    //    Assert.Equal(expected, actual);
-    //}
-
-    [Fact]
     public void ObfuscateExpression_StringLiteralEmpty_IsNotObfuscated()
     {
-        var expression = """ IF("" = "", "", "") """;
+        var expression = """ IF("" = "", "") """;
 
-        DaxText[] texts = [];
-        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
+        var obfuscator = CreateObfuscator();
+        var actual_o = obfuscator.ObfuscateExpression(expression);
+        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
 
+        Assert.Empty(obfuscator.Texts);
         Assert.Equal(expression, actual_o);
         Assert.Equal(expression, actual_d);
     }
 
     [Fact]
-    public void ObfuscateExpression_StringLiteralWithWhitespaces_IsObfuscated()
+    public void ObfuscateExpression_StringLiteralWhiteSpace_IsNotObfuscated()
     {
-        var expression = """ IF("" = " ", "  ", "   ") """;
-        var expected_o = """ IF("" = "X", "YY", "ZZZ") """;
-        var expected_d = expression;
+        var expression = """ IF(" " = "  ", "   ") """;
 
-        DaxText[] texts =
-        [
-            new(" ", "X"),
-            new("  ", "YY"),
-            new("   ", "ZZZ"),
-        ];
-        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
+        var obfuscator = CreateObfuscator();
+        var actual_o = obfuscator.ObfuscateExpression(expression);
+        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
 
-        Assert.Equal(expected_o, actual_o);
-        Assert.Equal(expected_d, actual_d);
+        Assert.Empty(obfuscator.Texts);
+        Assert.Equal(expression, actual_o);
+        Assert.Equal(expression, actual_d);
     }
 
     [Fact]
@@ -443,10 +410,13 @@ public class DaxModelObfuscatorTests
         var expected_o = """"" "X" """"";
         var expected_d = expression;
 
-        DaxText[] texts = [new("\"", "X")];
-        var actual_o = CreateObfuscator(texts).ObfuscateExpression(expression);
-        var actual_d = CreateDeobfuscator(texts).DeobfuscateExpression(actual_o);
+        var text = new DaxText("\"", "X");
+        var obfuscator = CreateObfuscator([text]);
+        var actual_o = obfuscator.ObfuscateExpression(expression);
+        var actual_d = CreateDeobfuscator(obfuscator.Texts).DeobfuscateExpression(actual_o);
 
+        Assert.Single(obfuscator.Texts);
+        Assert.Contains(text, obfuscator.Texts, DaxTextEqualityComparer.Instance);
         Assert.Equal(expected_o, actual_o);
         Assert.Equal(expected_d, actual_d);
     }
@@ -457,12 +427,10 @@ public class DaxModelObfuscatorTests
     [InlineData(nameof(DaxToken.DESCRIPTION))] // <- not a valid variable name but it's fine for the test
     [InlineData(nameof(DaxToken.VISIBLE))] // <----- not a valid variable name but it's fine for the test
     [InlineData(nameof(DaxToken.DATATYPE))]
-    public void ObfuscateExpression_ReservedDaxToken_IsNotObfuscated(string name)
+    public void ObfuscateExpression_DDLDaxKeyword_IsNotObfuscated(string name)
     {
         var expression = $""" VAR {name} = 0 RETURN {name} """;
-
-        DaxText[] texts = [];
-        var actual = CreateObfuscator(texts).ObfuscateExpression(expression);
+        var actual = CreateObfuscator().ObfuscateExpression(expression);
 
         Assert.Equal(expression, actual);
     }
@@ -473,14 +441,14 @@ public class DaxModelObfuscatorTests
     [InlineData("__myvar")]
     public void ObfuscateText_ReobfuscatingObfuscatedText_DoesNotChangeObfuscatedValue(string value)
     {
-        var obfuscator = new DaxModelObfuscator(new Model());
-        var text = obfuscator.ObfuscateText(new DaxText(value));
-        var expected = text.ObfuscatedValue;
+        var obfuscator = CreateObfuscator();
+        var text = new DaxText(value);
+        var expected = obfuscator.ObfuscateText(new DaxText(value));
 
         // re-obfuscating the same text should not change the obfuscated value
         _ = obfuscator.ObfuscateText(text);
         _ = obfuscator.ObfuscateText(text);
-        _ = obfuscator.ObfuscateText(text); 
+        _ = obfuscator.ObfuscateText(text);
 
         Assert.Single(obfuscator.Texts);
         Assert.Equal(expected, text.ObfuscatedValue);
@@ -495,7 +463,7 @@ public class DaxModelObfuscatorTests
             //UnicodeCategory.LowercaseLetter, // Excute lowercase since we use case-insensitive comparison
         };
         var values = GetUnicodeChars(categories).Select(char.ToString).ToList();
-        var obfuscator = new DaxModelObfuscator(new Model());
+        var obfuscator = CreateObfuscator();
 
         foreach (var value in values)
         {
@@ -506,10 +474,24 @@ public class DaxModelObfuscatorTests
         Assert.Equal(values.Count, obfuscator.Texts.Count);
     }
 
-    [Fact]
-    public void ObfuscateText_SingleChar_IsExtended()
+    [Theory]
+    [InlineData(" ")]
+    [InlineData("  ")]
+    [InlineData("   ")]
+    public void ObfuscateText_WhiteSpaceValue_IsNotObfuscated(string value)
     {
-        var obfuscator = new DaxModelObfuscator(new Model());
+        var obfuscator = CreateObfuscator();
+        var text = new DaxText(value);
+        _ = obfuscator.ObfuscateText(text);
+
+        AssertThat.IsNotObfuscated(text);
+        Assert.DoesNotContain(text, obfuscator.Texts, DaxTextValueEqualityComparer.Instance);
+    }
+
+    [Fact]
+    public void ObfuscateText_SingleCharLength_IsExtended()
+    {
+        var obfuscator = CreateObfuscator();
 
         // Seed the dictionary
         foreach (var @char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -518,8 +500,8 @@ public class DaxModelObfuscatorTests
         // Here the obfuscator starts extending the obfuscated value length to resolve conflicts
         foreach (var @char in "0123456789=1£$%&(){+")
         {
-            var text = obfuscator.ObfuscateText(new DaxText(@char.ToString()));
-            Assert.True(text.ObfuscatedValue.Length > 1);
+            var value = obfuscator.ObfuscateText(new DaxText(@char.ToString()));
+            Assert.True(value.Length > 1);
         }
     }
 
@@ -566,4 +548,21 @@ public class DaxModelObfuscatorTests
             }
         }
     }
+
+    public static TheoryData<string> GetDaxKeywordData()
+    {
+        var data = new TheoryData<string>();
+        foreach (var kw in Constants.DaxKeywords)
+            data.Add(kw);
+        return data;
+    }
+
+    public static TheoryData<string> GetDaxReservedNameData() => new()
+    {
+        { Constants.DaxKeyword_Date },
+        { Constants.DaxKeyword_Value },
+        // Include table constructor { } [ValueN] names that are not in the list
+        { Constants.DaxKeyword_Value + "1" },
+        { Constants.DaxKeyword_Value + "2" },
+    };
 }

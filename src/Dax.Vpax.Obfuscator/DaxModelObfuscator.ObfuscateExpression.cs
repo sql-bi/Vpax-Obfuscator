@@ -33,24 +33,34 @@ internal sealed partial class DaxModelObfuscator
             {
                 case DaxToken.SINGLE_LINE_COMMENT:
                 case DaxToken.DELIMITED_COMMENT:
-                    tokenText = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue;
+                    tokenText = ObfuscateText(new DaxText(tokenText));
                     break;
-                case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
                 case DaxToken.TABLE:
+                case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
                 case DaxToken.UNTERMINATED_TABLEREF:
+                    {
+                        var value = ObfuscateText(new DaxText(tokenText), ObfuscatorRule.PreserveDaxKeywords);
+                        tokenText = token.Replace(expression, value);
+                    }
+                    break;
                 case DaxToken.COLUMN_OR_MEASURE:
                 case DaxToken.UNTERMINATED_COLREF:
+                    {
+                        var value = ObfuscateText(new DaxText(tokenText), ObfuscatorRule.PreserveDaxReservedNames);
+                        tokenText = token.Replace(expression, value);
+                    }
+                    break;
                 case DaxToken.STRING_LITERAL:
                 case DaxToken.UNTERMINATED_STRING:
                     {
-                        if (token.IsStringLiteral() && token.Text.TryGetTableAndColumnNames(out var table, out var column))
+                        if (token.Text.TryGetTableAndColumnNames(out var table, out var column))
                         {
                             var value = ObfuscateTableAndColumnNames(table, column);
                             tokenText = token.Replace(expression, value);
                         }
                         else
                         {
-                            var value = ObfuscateText(new DaxText(tokenText)).ObfuscatedValue;
+                            var value = ObfuscateText(new DaxText(tokenText));
                             tokenText = token.Replace(expression, value);
                         }
                     }
@@ -71,8 +81,8 @@ internal sealed partial class DaxModelObfuscator
         var quoted = table.IsQuoted();
         if (quoted) table = table.Unquote();
 
-        var tableName = ObfuscateText(new DaxText(table)).ObfuscatedValue;
-        var columnName = ObfuscateText(new DaxText(column)).ObfuscatedValue;
+        var tableName = ObfuscateText(new DaxText(table));
+        var columnName = ObfuscateText(new DaxText(column));
 
         if (quoted) tableName = $"'{tableName}'";
         return $"{tableName}[{columnName}]";

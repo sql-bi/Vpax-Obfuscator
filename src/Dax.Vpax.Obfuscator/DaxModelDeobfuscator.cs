@@ -29,7 +29,7 @@ internal partial class DaxModelDeobfuscator
 
     private void Deobfuscate(Table table)
     {
-        Deobfuscate(table.TableName);
+        DeobfuscateTableName(table.TableName);
         Deobfuscate(table.TableExpression);
         Deobfuscate(table.CalculationGroup);
         Deobfuscate(table.Description);
@@ -41,15 +41,15 @@ internal partial class DaxModelDeobfuscator
 
     private void Deobfuscate(Column column)
     {
-        Deobfuscate(column.ColumnName);
-        Deobfuscate(column.SourceColumn);
-        Deobfuscate(column.SortByColumnName);
+        DeobfuscateColumnName(column.ColumnName);
+        DeobfuscateColumnName(column.SourceColumn);
+        DeobfuscateColumnName(column.SortByColumnName);
         Deobfuscate(column.ColumnExpression);
         Deobfuscate(column.DisplayFolder);
         Deobfuscate(column.Description);
         column.ColumnHierarchies.ForEach(Deobfuscate);
         column.ColumnSegments.ForEach(Deobfuscate);
-        column.GroupByColumns.ForEach(Deobfuscate);
+        column.GroupByColumns.ForEach(DeobfuscateColumnName);
     }
 
     private void Deobfuscate(ColumnHierarchy columnHierarchy)
@@ -61,7 +61,7 @@ internal partial class DaxModelDeobfuscator
 
     private void Deobfuscate(Measure measure)
     {
-        Deobfuscate(measure.MeasureName);
+        DeobfuscateMeasureName(measure.MeasureName);
         Deobfuscate(measure.MeasureExpression);
         Deobfuscate(measure.FormatStringExpression);
         Deobfuscate(measure.DisplayFolder);
@@ -109,11 +109,15 @@ internal partial class DaxModelDeobfuscator
         Deobfuscate(tablePermission.FilterExpression);
     }
 
-    private void Deobfuscate(DaxName name)
+    private void DeobfuscateTableName(DaxName name) => Deobfuscate(name, ObfuscatorRule.PreserveDaxKeywords);
+    private void DeobfuscateColumnName(DaxName name) => Deobfuscate(name, ObfuscatorRule.PreserveDaxReservedNames);
+    private void DeobfuscateMeasureName(DaxName name) => Deobfuscate(name, ObfuscatorRule.PreserveDaxReservedNames);
+
+    private void Deobfuscate(DaxName name, ObfuscatorRule rule = ObfuscatorRule.None)
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return;
 
-        var value = _dictionary.GetValue(name!.Name);
+        var value = DeobfuscateText(name!.Name, rule);
         name.Name = value;
     }
 
@@ -121,7 +125,7 @@ internal partial class DaxModelDeobfuscator
     {
         if (string.IsNullOrWhiteSpace(note?.Note)) return;
 
-        var value = _dictionary.GetValue(note!.Note);
+        var value = DeobfuscateText(note!.Note);
         note.Note = value;
     }
 

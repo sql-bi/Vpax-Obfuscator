@@ -4,17 +4,13 @@ namespace Dax.Vpax.Obfuscator;
 
 internal sealed partial class DaxModelObfuscator
 {
-    internal DaxText ObfuscateText(DaxText text)
+    internal string ObfuscateText(DaxText text, ObfuscatorRule rule = ObfuscatorRule.None)
     {
-        if (Texts.TryGet(text, out var obfuscatedText))
-            return obfuscatedText ?? throw new InvalidOperationException($"Obfuscated text is null. {text.Value}");
+        if (text.Value.IsEmptyOrWhiteSpace() || rule.ShouldPreserve(text.Value))
+            return text.ObfuscatedValue = text.Value;
 
-        if (text.Value.IsDaxReservedNameOrKeyword() || string.IsNullOrWhiteSpace(text.Value))
-        {
-            text.ObfuscatedValue = text.Value;
-            Texts.Add(text);
-            return text;
-        }
+        if (Texts.TryGet(text, out var obfuscatedText))
+            return text.ObfuscatedValue = obfuscatedText?.ObfuscatedValue ?? throw new InvalidOperationException($"Obfuscated text is null. {text.Value}");
 
         _ = _obfuscator.Obfuscate(text);
 
@@ -27,7 +23,7 @@ internal sealed partial class DaxModelObfuscator
             throw new InvalidOperationException($"Failed to obfuscate text. {text.Value} | {text.ObfuscatedValue}");
 
         Texts.Add(text); // << throws in case of unresolved collision (duplicate value/obfuscated value)
-        return text;
+        return text.ObfuscatedValue;
 
         bool IsRetryNeeded() => text.ObfuscatedValue.IsDaxKeyword() || Texts.Contains(text);
     }

@@ -31,7 +31,9 @@ internal sealed class DaxText
     private string? _obfuscatedValue;
     public string ObfuscatedValue
     {
+#pragma warning disable CS8603 // Possible null reference return.
         get => _obfuscatedValue;
+#pragma warning restore CS8603 // Possible null reference return.
         set
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
@@ -42,6 +44,10 @@ internal sealed class DaxText
         }
     }
 
-    public ObfuscationText ToObfuscationText() => new(Value, ObfuscatedValue);
     public override string ToString() => string.Format(CultureInfo.InvariantCulture, "{0} | {1}", Value, ObfuscatedValue);
+}
+
+internal static class DaxTextExtensions
+{
+    public static ObfuscationText ToObfuscationText(this DaxText text) => new(text.Value, text.ObfuscatedValue);
 }

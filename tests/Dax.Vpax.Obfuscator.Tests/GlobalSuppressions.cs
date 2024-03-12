@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE0017:Simplify object initialization", Justification = "<Pending>", Scope = "member", Target = "~M:Dax.Vpax.Obfuscator.Tests.DaxModelObfuscatorTests.CreateDeobfuscator(Dax.Vpax.Obfuscator.Common.ObfuscationDictionary,Dax.Metadata.Model)~Dax.Vpax.Obfuscator.DaxModelDeobfuscator")]
+[assembly: SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "<Pending>", Scope = "member", Target = "~M:Dax.Vpax.Obfuscator.Tests.DaxModelObfuscatorTests.GetDaxReservedNameData~Xunit.TheoryData{System.String}")]

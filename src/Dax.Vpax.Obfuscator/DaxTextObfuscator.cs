@@ -35,7 +35,7 @@ internal sealed class DaxTextObfuscator
 
         for (var i = 0; i < obfuscated.Length; i++)
         {
-            if (i < plaintext.Length && IsReservedChar(plaintext[i]))
+            if (i < plaintext.Length && Constants.ReservedChars.Contains(plaintext[i]))
             {
                 obfuscated[i] = plaintext[i]; // Do not obfuscate reserved characters
                 continue;
@@ -55,22 +55,5 @@ internal sealed class DaxTextObfuscator
 
         text.ObfuscatedValue = obfuscatedValue;
         return text;
-    }
-
-    private static bool IsReservedChar(char @char)
-    {
-        // Reserved characters are preserved during obfuscation
-
-        switch (@char)
-        {
-            case '-': // single-line comment char
-            case '/': // multi-line comment char
-            case '*': // multi-line comment char
-            case '\n': // line feed char e.g. in multi-line comments
-            case '\r': // carriage return char e.g. in multi-line comments
-                return true;
-        }
-
-        return false;
     }
 }
