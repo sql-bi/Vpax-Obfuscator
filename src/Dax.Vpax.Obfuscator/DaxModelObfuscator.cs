@@ -14,7 +14,7 @@ internal sealed partial class DaxModelObfuscator
         if (model.IsObfuscated()) throw new InvalidOperationException("The model has already been obfuscated.");
 
         Model = model;
-        Model.ObfuscatorDictionaryId = dictionary != null ? dictionary.Id : Guid.NewGuid().ToString("D");
+        Model.ObfuscatorDictionaryId = dictionary?.Id ?? Guid.NewGuid().ToString("D");
         Model.ObfuscatorLib = "Dax.Vpax.Obfuscator"; // hard-coded
         Model.ObfuscatorLibVersion = VpaxObfuscator.Version;
         Texts = new DaxTextCollection(dictionary);
@@ -38,34 +38,35 @@ internal sealed partial class DaxModelObfuscator
 
         var id = Model.ObfuscatorDictionaryId;
         var version = VpaxObfuscator.Version;
-        var texts = Texts.Select((t) => t.ToObfuscationText()).ToArray();
+        var texts = Texts.Select((t) => t.ToObfuscationText());
         return new ObfuscationDictionary(id, version, texts);
     }
 
     private void ObfuscateIdentifiers(Table table)
     {
-        Obfuscate(table.TableName);
+        ObfuscateTableName(table.TableName);
         table.Columns.ForEach(ObfuscateIdentifiers);
         table.Measures.ForEach(ObfuscateIdentifiers);
     }
 
     private void ObfuscateIdentifiers(Column column)
     {
-        Obfuscate(column.ColumnName);
-        Obfuscate(column.SourceColumn);
-        Obfuscate(column.SortByColumnName);
-        column.GroupByColumns.ForEach((n) => Obfuscate(n));
+        ObfuscateColumnName(column.ColumnName);
+        ObfuscateColumnName(column.SourceColumn);
+        ObfuscateColumnName(column.SortByColumnName);
+        column.GroupByColumns.ForEach(ObfuscateColumnName);
     }
 
     private void ObfuscateIdentifiers(Measure measure)
     {
-        var name = measure.MeasureName.Name;
-        var obfuscatedName = Obfuscate(measure.MeasureName) ?? throw new InvalidOperationException($"The measure name is not valid [{name}].");
-        CreateKpiMeasure(measure.KpiTargetExpression, "Goal");
-        CreateKpiMeasure(measure.KpiStatusExpression, "Status");
-        CreateKpiMeasure(measure.KpiTrendExpression, "Trend");
+        var name = measure.MeasureName?.Name ?? throw new InvalidOperationException("The measure name is null.");
+        var obfuscatedName = ObfuscateMeasureName(measure.MeasureName) ?? throw new InvalidOperationException($"The measure name is not valid [{name}].");
 
-        void CreateKpiMeasure(DaxExpression kpi, string type)
+        CreateKpiMeasureText(measure.KpiTargetExpression, "Goal");
+        CreateKpiMeasureText(measure.KpiStatusExpression, "Status");
+        CreateKpiMeasureText(measure.KpiTrendExpression, "Trend");
+
+        void CreateKpiMeasureText(DaxExpression kpi, string type)
         {
             if (string.IsNullOrWhiteSpace(kpi?.Expression)) return;
 
@@ -157,20 +158,24 @@ internal sealed partial class DaxModelObfuscator
         Obfuscate(tablePermission.FilterExpression);
     }
 
-    private string? Obfuscate(DaxName name)
+    private void ObfuscateTableName(DaxName name) => Obfuscate(name, ObfuscatorRule.PreserveDaxKeywords);
+    private void ObfuscateColumnName(DaxName name) => Obfuscate(name, ObfuscatorRule.PreserveDaxReservedNames);
+    private string? ObfuscateMeasureName(DaxName name) => Obfuscate(name, ObfuscatorRule.PreserveDaxReservedNames);
+
+    private string? Obfuscate(DaxName name, ObfuscatorRule rule = ObfuscatorRule.None)
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 
-        var text = ObfuscateText(new DaxText(name!.Name));
-        return name.Name = text.ObfuscatedValue;
+        var value = ObfuscateText(new DaxText(name!.Name), rule);
+        return name.Name = value;
     }
 
     private void Obfuscate(DaxNote note)
     {
         if (string.IsNullOrWhiteSpace(note?.Note)) return;
 
-        var text = ObfuscateText(new DaxText(note!.Note));
-        note.Note = text.ObfuscatedValue;
+        var value = ObfuscateText(new DaxText(note!.Note));
+        note.Note = value;
     }
 
     private void Obfuscate(DaxExpression expression)

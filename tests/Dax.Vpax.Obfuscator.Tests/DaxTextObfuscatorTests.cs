@@ -33,7 +33,7 @@ public class DaxTextObfuscatorTests
     [InlineData("Sales Amount")]
     public void Obfuscate_ReturnsObfuscatedString(string value)
     {
-        var text = new DaxTextObfuscator().Obfuscate(new DaxText(value));
+        var text = _obfuscator.Obfuscate(new DaxText(value));
 
         AssertThat.IsObfuscated(text);
     }
@@ -71,5 +71,14 @@ public class DaxTextObfuscatorTests
         Assert.Equal('\n', text.ObfuscatedValue[54]);
         Assert.Equal('\r', text.ObfuscatedValue[67]);
         Assert.Equal('\n', text.ObfuscatedValue[68]);
+    }
+
+    [Fact]
+    public void Obfuscate_ReservedChar_IsNotObfuscated()
+    {
+        var value = new string(Constants.ReservedChars.ToArray());
+        var text = _obfuscator.Obfuscate(new DaxText(value));
+
+        AssertThat.IsNotObfuscated(text);
     }
 }
