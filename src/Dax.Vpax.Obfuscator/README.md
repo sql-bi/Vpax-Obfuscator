@@ -1,3 +1,0 @@
-# Dax.Vpax.Obfuscator
-
-TODO
