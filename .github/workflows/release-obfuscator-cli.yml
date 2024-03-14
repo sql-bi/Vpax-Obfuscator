@@ -24,8 +24,19 @@ jobs:
         path: src/${{ env.PROJECT }}
     - name: dotnet publish
       run: dotnet publish 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj' -o . -c Release -r win-x86 --sc -p:PublishSingleFile=true
+    - name: dotnet tool install AzureSignTool
+      run: dotnet tool install --no-cache --global AzureSignTool
     - name: code signing
-      run: echo "::warning::(TODO) code signing."
+      shell: cmd
+      run: |
+        azuresigntool sign ^
+          -kvu "${{ secrets.CODESIGNING_VAULT_URL }}" ^
+          -kvt "${{ secrets.CODESIGNING_TENANT_ID }}" ^
+          -kvi "${{ secrets.CODESIGNING_CLIENT_ID }}" ^
+          -kvs "${{ secrets.CODESIGNING_CLIENT_SECRET }}" ^
+          -kvc "${{ secrets.CODESIGNING_CERTIFICATE }}" ^
+          -tr "http://timestamp.digicert.com" ^
+          -v "vpax-obfuscator.exe"
     - name: git tag
       run: |
         git config user.name github-actions[bot]
