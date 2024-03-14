@@ -39,14 +39,14 @@ internal sealed partial class DaxModelObfuscator
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():
                 case DaxToken.UNTERMINATED_TABLEREF:
                     {
-                        var value = ObfuscateText(new DaxText(tokenText), ObfuscatorRule.PreserveDaxKeywords);
+                        var value = ObfuscateText(new DaxText(tokenText), ObfuscationRule.PreserveDaxKeywords);
                         tokenText = token.Replace(expression, value);
                     }
                     break;
                 case DaxToken.COLUMN_OR_MEASURE:
                 case DaxToken.UNTERMINATED_COLREF:
                     {
-                        var value = ObfuscateText(new DaxText(tokenText), ObfuscatorRule.PreserveDaxReservedNames);
+                        var value = ObfuscateText(new DaxText(tokenText), ObfuscationRule.PreserveDaxReservedNames);
                         tokenText = token.Replace(expression, value);
                     }
                     break;

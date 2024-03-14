@@ -2,7 +2,7 @@
 
 namespace Dax.Vpax.Obfuscator;
 
-internal enum ObfuscatorRule
+internal enum ObfuscationRule
 {
     None,
     PreserveDaxKeywords,
@@ -11,13 +11,13 @@ internal enum ObfuscatorRule
 
 internal static class ObfuscationRuleExtensions
 {
-    public static bool ShouldPreserve(this ObfuscatorRule rule, string value)
+    public static bool ShouldPreserve(this ObfuscationRule rule, string value)
     {
         switch (rule)
         {
-            case ObfuscatorRule.None: return false;
-            case ObfuscatorRule.PreserveDaxKeywords: return value.IsDaxKeyword();
-            case ObfuscatorRule.PreserveDaxReservedNames: return value.IsDaxReservedName();
+            case ObfuscationRule.None: return false;
+            case ObfuscationRule.PreserveDaxKeywords: return value.IsDaxKeyword();
+            case ObfuscationRule.PreserveDaxReservedNames: return value.IsDaxReservedName();
             default: throw new InvalidOperationException($"Invalid obfuscator rule. {rule}");
         }
     }

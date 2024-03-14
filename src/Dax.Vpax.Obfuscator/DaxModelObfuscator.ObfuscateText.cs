@@ -4,7 +4,7 @@ namespace Dax.Vpax.Obfuscator;
 
 internal sealed partial class DaxModelObfuscator
 {
-    internal string ObfuscateText(DaxText text, ObfuscatorRule rule = ObfuscatorRule.None)
+    internal string ObfuscateText(DaxText text, ObfuscationRule rule = ObfuscationRule.None)
     {
         if (text.Value.IsEmptyOrWhiteSpace() || rule.ShouldPreserve(text.Value))
         {
