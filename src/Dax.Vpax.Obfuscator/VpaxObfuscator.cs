@@ -8,32 +8,35 @@ namespace Dax.Vpax.Obfuscator;
 public sealed class VpaxObfuscator : IVpaxObfuscator
 {
     public static string Version { get; } = ThisAssembly.AssemblyInformationalVersion;
+    public ObfuscationOptions Options { get; } = new();
 
-    public ObfuscationDictionary Obfuscate(Stream stream) => ObfuscateImpl(stream, dictionary: null);
-    public ObfuscationDictionary Obfuscate(Model model) => ObfuscateImpl(model, dictionary: null);
-    public ObfuscationDictionary Obfuscate(Stream stream, ObfuscationDictionary dictionary) => ObfuscateImpl(stream, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));
-    public ObfuscationDictionary Obfuscate(Model model, ObfuscationDictionary dictionary) => ObfuscateImpl(model, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));
+    public ObfuscationDictionary Obfuscate(Stream stream) => ObfuscateImpl(Options, stream);
+    public ObfuscationDictionary Obfuscate(Model model) => ObfuscateImpl(Options, model);
+    public ObfuscationDictionary Obfuscate(Stream stream, ObfuscationDictionary dictionary) => ObfuscateImpl(Options, stream, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));
+    public ObfuscationDictionary Obfuscate(Model model, ObfuscationDictionary dictionary) => ObfuscateImpl(Options, model, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));
     public void Deobfuscate(Stream stream, ObfuscationDictionary dictionary) => DeobfuscateImpl(stream, dictionary);
     public void Deobfuscate(Model model, ObfuscationDictionary dictionary) => DeobfuscateImpl(model, dictionary);
 
-    private static ObfuscationDictionary ObfuscateImpl(Stream stream, ObfuscationDictionary? dictionary)
+    private static ObfuscationDictionary ObfuscateImpl(ObfuscationOptions options, Stream stream, ObfuscationDictionary? dictionary = null)
     {
         if (stream == null) throw new ArgumentNullException(nameof(stream));
 
         var model = GetModel(stream);
-        var result = ObfuscateImpl(model, dictionary);
+        var result = ObfuscateImpl(options, model, dictionary);
 
         ZeroOutPackage(stream); // Zero out the package to remove all contents before writing the obfuscated DaxModel.json
         VpaxTools.ExportVpax(stream, model, viewVpa: null, database: null);
-
         return result;
     }
 
-    private static ObfuscationDictionary ObfuscateImpl(Model model, ObfuscationDictionary? dictionary)
+    private static ObfuscationDictionary ObfuscateImpl(ObfuscationOptions options, Model model, ObfuscationDictionary? dictionary = null)
     {
         if (model == null) throw new ArgumentNullException(nameof(model));
 
-        var obfuscator = new DaxModelObfuscator(model, dictionary);
+        var obfuscator = dictionary == null
+            ? new DaxModelObfuscator(options, model)
+            : new DaxModelObfuscator(options, model, dictionary);
+
         return obfuscator.Obfuscate();
     }
 

@@ -511,7 +511,7 @@ public class DaxModelObfuscatorTests
     [DebuggerStepThrough]
     private static DaxModelObfuscator CreateObfuscator(DaxText[] texts, Model? model = null)
     {
-        var obfuscator = new DaxModelObfuscator(model ?? new Model());
+        var obfuscator = new DaxModelObfuscator(ObfuscationOptions.Default, model ?? new Model());
         foreach (var text in texts)
             obfuscator.Texts.Add(text);
         return obfuscator;

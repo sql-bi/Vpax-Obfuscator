@@ -36,6 +36,7 @@
             openFileDialog1 = new OpenFileDialog();
             openDictionaryFileDialog = new OpenFileDialog();
             buttonDeobfuscate = new Button();
+            checkBoxTrackUnobfuscated = new CheckBox();
             SuspendLayout();
             // 
             // buttonObfuscate
@@ -56,7 +57,7 @@
             // checkBoxOverwriteDictionary
             // 
             checkBoxOverwriteDictionary.AutoSize = true;
-            checkBoxOverwriteDictionary.Location = new Point(37, 26);
+            checkBoxOverwriteDictionary.Location = new Point(37, 30);
             checkBoxOverwriteDictionary.Name = "checkBoxOverwriteDictionary";
             checkBoxOverwriteDictionary.Size = new Size(203, 19);
             checkBoxOverwriteDictionary.TabIndex = 1;
@@ -103,11 +104,24 @@
             buttonDeobfuscate.UseVisualStyleBackColor = true;
             buttonDeobfuscate.Click += buttonDeobfuscate_Click;
             // 
+            // checkBoxTrackUnobfuscated
+            // 
+            checkBoxTrackUnobfuscated.AutoSize = true;
+            checkBoxTrackUnobfuscated.Checked = true;
+            checkBoxTrackUnobfuscated.CheckState = CheckState.Checked;
+            checkBoxTrackUnobfuscated.Location = new Point(37, 12);
+            checkBoxTrackUnobfuscated.Name = "checkBoxTrackUnobfuscated";
+            checkBoxTrackUnobfuscated.Size = new Size(246, 19);
+            checkBoxTrackUnobfuscated.TabIndex = 5;
+            checkBoxTrackUnobfuscated.Text = "Include unobfuscated values in dictionary";
+            checkBoxTrackUnobfuscated.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(515, 304);
+            Controls.Add(checkBoxTrackUnobfuscated);
             Controls.Add(buttonDeobfuscate);
             Controls.Add(checkBoxIncrementalFileObfuscation);
             Controls.Add(buttonObfuscateDirectory);
@@ -133,5 +147,6 @@
         private OpenFileDialog openFileDialog1;
         private OpenFileDialog openDictionaryFileDialog;
         private Button buttonDeobfuscate;
+        private CheckBox checkBoxTrackUnobfuscated;
     }
 }
