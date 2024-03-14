@@ -42,7 +42,7 @@ C:\> vpax-obfuscator.exe [command] [options]
 
 For usage and help content for any command, pass in the `-h` parameter, for example:
 
-```bash
+```cmd
 C:\> vpax-obfuscator.exe obfuscate -h
 
 Description:
