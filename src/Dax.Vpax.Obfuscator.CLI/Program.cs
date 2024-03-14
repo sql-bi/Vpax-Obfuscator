@@ -43,13 +43,19 @@ internal class Program
             Description = "Path to write the obfuscation dictionary file.",
             IsRequired = true,
         };
+        var trackUnobfuscatedOption = new Option<bool?>(name: "--track-unobfuscated")
+        {
+            Description = "Specifies whether to include unobfuscated values in the output dictionary.",
+            IsRequired = false,
+        };
 
         var command = new Command("obfuscate", "Obfuscate the DaxModel.json file and delete all other contents from a VPAX file.");
         command.AddOption(vpaxOption);
         command.AddOption(dictionaryOption);
         command.AddOption(outputVpaxOption);
         command.AddOption(outputDictionaryOption);
-        command.SetHandler(Obfuscate, vpaxOption, dictionaryOption, outputVpaxOption, outputDictionaryOption, allowOverwriteOption);
+        command.AddOption(trackUnobfuscatedOption);
+        command.SetHandler(Obfuscate, vpaxOption, dictionaryOption, outputVpaxOption, outputDictionaryOption, allowOverwriteOption, trackUnobfuscatedOption);
         return command;
     }
 
@@ -78,13 +84,18 @@ internal class Program
         return command;
     }
 
-    private static void Obfuscate(FileInfo vpaxFile, FileInfo? dictionaryOption, FileInfo outputVpaxFile, FileInfo outputDictionaryFile, bool allowOverwrite)
+    private static void Obfuscate(FileInfo vpaxFile, FileInfo? dictionaryOption, FileInfo outputVpaxFile, FileInfo outputDictionaryFile, bool allowOverwrite, bool? trackUnobfuscated)
     {
         using var stream = Read(vpaxFile);
         var obfuscator = new VpaxObfuscator();
+        obfuscator.Options.TrackUnobfuscated = trackUnobfuscated ?? obfuscator.Options.TrackUnobfuscated;
+
         var outputDictionary = dictionaryOption is not null
             ? obfuscator.Obfuscate(stream, dictionary: ObfuscationDictionary.ReadFrom(dictionaryOption.FullName))
             : obfuscator.Obfuscate(stream);
+
+        if (obfuscator.Options.TrackUnobfuscated)
+            NotifyUnobfuscated(outputDictionary);
 
         outputDictionary.WriteTo(outputDictionaryFile.FullName, overwrite: allowOverwrite, indented: true);
         Write(stream, outputVpaxFile, allowOverwrite);
@@ -113,5 +124,20 @@ internal class Program
         var mode = allowOverwrite ? FileMode.Create : FileMode.CreateNew;
         using var fileStream = new FileStream(file.FullName, mode, FileAccess.Write, FileShare.Read);
         fileStream.Write(bytes, 0, bytes.Length);
+    }
+
+    private static void NotifyUnobfuscated(ObfuscationDictionary dictionary)
+    {
+        _ = dictionary.UnobfuscatedValues ?? throw new InvalidOperationException($"{nameof(dictionary.UnobfuscatedValues)} is null.");
+        if (dictionary.UnobfuscatedValues.Count == 0) return;
+
+        var message = $"Obfuscation dictionary contains unobfuscated values. [{dictionary.UnobfuscatedValues.Count}]";
+
+        // TODO: Add support for warning messages in ci/cd environments
+        //var isGitHubAction = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
+        //var isAzurePipeline = Environment.GetEnvironmentVariable("TF_BUILD") == "True";
+        //var isAppVeyor = Environment.GetEnvironmentVariable("APPVEYOR") == "True";
+
+        Console.WriteLine($"\u001b[93m{message}\u001b[0m");
     }
 }
