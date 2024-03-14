@@ -10,10 +10,8 @@ public sealed class VpaxObfuscator : IVpaxObfuscator
     public static string Version { get; } = ThisAssembly.AssemblyInformationalVersion;
     public ObfuscationOptions Options { get; } = new();
 
-    public ObfuscationDictionary Obfuscate(Stream stream) => ObfuscateImpl(Options, stream);
-    public ObfuscationDictionary Obfuscate(Model model) => ObfuscateImpl(Options, model);
-    public ObfuscationDictionary Obfuscate(Stream stream, ObfuscationDictionary dictionary) => ObfuscateImpl(Options, stream, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));
-    public ObfuscationDictionary Obfuscate(Model model, ObfuscationDictionary dictionary) => ObfuscateImpl(Options, model, dictionary ?? throw new ArgumentNullException(nameof(dictionary)));
+    public ObfuscationDictionary Obfuscate(Stream stream, ObfuscationDictionary? dictionary = null) => ObfuscateImpl(Options, stream, dictionary);
+    public ObfuscationDictionary Obfuscate(Model model, ObfuscationDictionary? dictionary = null) => ObfuscateImpl(Options, model, dictionary);
     public void Deobfuscate(Stream stream, ObfuscationDictionary dictionary) => DeobfuscateImpl(stream, dictionary);
     public void Deobfuscate(Model model, ObfuscationDictionary dictionary) => DeobfuscateImpl(model, dictionary);
 
