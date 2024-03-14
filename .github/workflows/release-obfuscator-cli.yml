@@ -5,7 +5,7 @@ env:
   PROJECT: Dax.Vpax.Obfuscator.CLI
 jobs:
   publish-release:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest # windows is required for code signing (AzureSignTool)
     permissions:
       contents: write
     steps:
@@ -35,6 +35,7 @@ jobs:
       env:
         RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
     - name: gh release create
+      shell: bash
       run: |
         PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
         gh release create ${{ env.RELEASE_TAG }} 'vpax-obfuscator.exe#Obfuscator CLI x86 net6.0' --title ${{ env.RELEASE_TAG }} --generate-notes --draft $PRERELEASE_FLAG
