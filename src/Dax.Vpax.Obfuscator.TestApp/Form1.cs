@@ -26,8 +26,9 @@ namespace Dax.Vpax.Obfuscator.TestApp
                 var vpax = new FileInfo(openVpaxFileDialog.FileName);
                 var outputPath = folderBrowserDialog1.SelectedPath;
                 var overwrite = checkBoxOverwriteDictionary.Checked;
+                var trackUnobfuscated = checkBoxTrackUnobfuscated.Checked;
 
-                Obfuscate(vpax, dictionary, outputPath, overwrite);
+                Obfuscate(vpax, dictionary, outputPath, overwrite, trackUnobfuscated);
                 MessageBox.Show("Obfuscation completed.", "Obfuscation", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -54,8 +55,9 @@ namespace Dax.Vpax.Obfuscator.TestApp
             try
             {
                 var overwrite = checkBoxOverwriteDictionary.Checked;
+                var trackUnobfuscated = checkBoxTrackUnobfuscated.Checked;
                 foreach (var vpax in new DirectoryInfo(inputPath).GetFiles("*.vpax"))
-                    Obfuscate(vpax, dictionaryFile: null, outputPath, overwrite);
+                    Obfuscate(vpax, dictionaryFile: null, outputPath, overwrite, trackUnobfuscated);
 
                 MessageBox.Show("Obfuscation completed.", "Obfuscation", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -93,12 +95,13 @@ namespace Dax.Vpax.Obfuscator.TestApp
             }
         }
 
-        private static void Obfuscate(FileInfo vpaxFile, FileInfo? dictionaryFile, string outputPath, bool overwrite)
+        private static void Obfuscate(FileInfo vpaxFile, FileInfo? dictionaryFile, string outputPath, bool overwrite, bool trackUnobfuscated)
         {
             var data = File.ReadAllBytes(vpaxFile.FullName);
             using var stream = new MemoryStream();
             stream.Write(data, 0, data.Length);
 
+            var options = new ObfuscationOptions { TrackUnobfuscated = trackUnobfuscated };
             var obfuscator = new VpaxObfuscator();
             var dictionary = dictionaryFile != null
                 ? obfuscator.Obfuscate(stream, ObfuscationDictionary.ReadFrom(dictionaryFile.FullName))

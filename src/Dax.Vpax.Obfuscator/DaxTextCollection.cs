@@ -9,17 +9,13 @@ internal sealed class DaxTextCollection: ICollection<DaxText>
     private readonly Dictionary<DaxText, DaxText> _plaintexts = new(DaxTextValueEqualityComparer.Instance);
     private readonly Dictionary<DaxText, DaxText> _obfuscated = new(DaxTextObfuscatedValueEqualityComparer.Instance);
 
-    public DaxTextCollection(ObfuscationDictionary? dictionary = null)
+    public DaxTextCollection(ObfuscationDictionary dictionary)
     {
-        if (dictionary != null)
-        {
-            IsIncrementalObfuscation = true;
-            foreach (var text in dictionary.Texts)
-                Add(new DaxText(text));
-        }
+        foreach (var text in dictionary.Texts)
+            Add(new DaxText(text));
     }
 
-    public bool IsIncrementalObfuscation { get; }
+    public DaxTextCollection() { }
 
     public int Count => _plaintexts.Count;
 

@@ -8,6 +8,14 @@ public sealed class ObfuscationDictionary
     private readonly Dictionary<string, ObfuscationText> _values;
     private readonly Dictionary<string, ObfuscationText> _obfuscated;
 
+    public ObfuscationDictionary(string id, string version, IEnumerable<ObfuscationText> texts, IEnumerable<string> unobfuscatedValues)
+        : this(id, version, texts)
+    {
+        if (unobfuscatedValues == null) throw new ArgumentNullException(nameof(unobfuscatedValues));
+
+        UnobfuscatedValues = unobfuscatedValues.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
     [JsonConstructor]
     public ObfuscationDictionary(string id, string version, IEnumerable<ObfuscationText> texts)
     {
@@ -27,6 +35,7 @@ public sealed class ObfuscationDictionary
     public string Id { get; }
     public string Version { get; }
     public IReadOnlyList<ObfuscationText> Texts { get; }
+    public IReadOnlyList<string>? UnobfuscatedValues { get; }
 
     public string GetValue(string obfuscated)
     {

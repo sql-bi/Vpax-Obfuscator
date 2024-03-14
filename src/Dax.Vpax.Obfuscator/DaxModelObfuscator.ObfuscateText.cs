@@ -7,7 +7,10 @@ internal sealed partial class DaxModelObfuscator
     internal string ObfuscateText(DaxText text, ObfuscatorRule rule = ObfuscatorRule.None)
     {
         if (text.Value.IsEmptyOrWhiteSpace() || rule.ShouldPreserve(text.Value))
+        {
+            UnobfuscatedValues.Add(text.Value);
             return text.ObfuscatedValue = text.Value;
+        }
 
         if (Texts.TryGet(text, out var obfuscatedText))
             return text.ObfuscatedValue = obfuscatedText?.ObfuscatedValue ?? throw new InvalidOperationException($"Obfuscated text is null. {text.Value}");

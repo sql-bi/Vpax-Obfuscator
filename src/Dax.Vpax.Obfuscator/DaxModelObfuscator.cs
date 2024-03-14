@@ -7,23 +7,32 @@ namespace Dax.Vpax.Obfuscator;
 // TODO: (vNext) source generator
 internal sealed partial class DaxModelObfuscator
 {
-    private readonly DaxTextObfuscator _obfuscator;
+    private readonly DaxTextObfuscator _obfuscator = new();
 
-    public DaxModelObfuscator(Model model, ObfuscationDictionary? dictionary = null)
+    public DaxModelObfuscator(ObfuscationOptions options, Model model, ObfuscationDictionary dictionary)
+        : this(options, model)
+    {
+        Model.ObfuscatorDictionaryId = dictionary.Id;
+        Texts = new DaxTextCollection(dictionary);
+        Mode = ObfuscationMode.Incremental;
+    }
+
+    public DaxModelObfuscator(ObfuscationOptions options, Model model)
     {
         if (model.IsObfuscated()) throw new InvalidOperationException("The model has already been obfuscated.");
 
+        Options = options;
         Model = model;
-        Model.ObfuscatorDictionaryId = dictionary?.Id ?? Guid.NewGuid().ToString("D");
+        Model.ObfuscatorDictionaryId = Guid.NewGuid().ToString("D");
         Model.ObfuscatorLib = "Dax.Vpax.Obfuscator"; // hard-coded
         Model.ObfuscatorLibVersion = VpaxObfuscator.Version;
-        Texts = new DaxTextCollection(dictionary);
-
-        _obfuscator = new DaxTextObfuscator();
     }
 
     public Model Model { get; } // test only
-    public DaxTextCollection Texts { get; }
+    public ObfuscationMode Mode { get; }
+    public ObfuscationOptions Options { get; }
+    public DaxTextCollection Texts { get; } = new();
+    public List<string> UnobfuscatedValues { get; } = new();
 
     public ObfuscationDictionary Obfuscate()
     {
@@ -39,7 +48,10 @@ internal sealed partial class DaxModelObfuscator
         var id = Model.ObfuscatorDictionaryId;
         var version = VpaxObfuscator.Version;
         var texts = Texts.Select((t) => t.ToObfuscationText());
-        return new ObfuscationDictionary(id, version, texts);
+
+        return Options.TrackUnobfuscated
+            ? new ObfuscationDictionary(id, version, texts, UnobfuscatedValues)
+            : new ObfuscationDictionary(id, version, texts);
     }
 
     private void ObfuscateIdentifiers(Table table)
@@ -75,7 +87,7 @@ internal sealed partial class DaxModelObfuscator
             var text = new DaxText(value, obfuscatedValue);
 
             // Only add the KPI measure if it does not exist. Can happen in case of incremental obfuscation
-            if (Texts.IsIncrementalObfuscation && Texts.Contains(text))
+            if (Mode == ObfuscationMode.Incremental && Texts.Contains(text))
                 return;
 
             Texts.Add(text);
