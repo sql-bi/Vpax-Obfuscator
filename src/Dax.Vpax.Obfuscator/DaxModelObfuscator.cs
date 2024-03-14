@@ -170,11 +170,11 @@ internal sealed partial class DaxModelObfuscator
         Obfuscate(tablePermission.FilterExpression);
     }
 
-    private void ObfuscateTableName(DaxName name) => Obfuscate(name, ObfuscatorRule.PreserveDaxKeywords);
-    private void ObfuscateColumnName(DaxName name) => Obfuscate(name, ObfuscatorRule.PreserveDaxReservedNames);
-    private string? ObfuscateMeasureName(DaxName name) => Obfuscate(name, ObfuscatorRule.PreserveDaxReservedNames);
+    private void ObfuscateTableName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxKeywords);
+    private void ObfuscateColumnName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
+    private string? ObfuscateMeasureName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
 
-    private string? Obfuscate(DaxName name, ObfuscatorRule rule = ObfuscatorRule.None)
+    private string? Obfuscate(DaxName name, ObfuscationRule rule = ObfuscationRule.None)
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return null;
 

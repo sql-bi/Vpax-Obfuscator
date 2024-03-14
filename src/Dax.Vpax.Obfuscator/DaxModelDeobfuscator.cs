@@ -109,11 +109,11 @@ internal partial class DaxModelDeobfuscator
         Deobfuscate(tablePermission.FilterExpression);
     }
 
-    private void DeobfuscateTableName(DaxName name) => Deobfuscate(name, ObfuscatorRule.PreserveDaxKeywords);
-    private void DeobfuscateColumnName(DaxName name) => Deobfuscate(name, ObfuscatorRule.PreserveDaxReservedNames);
-    private void DeobfuscateMeasureName(DaxName name) => Deobfuscate(name, ObfuscatorRule.PreserveDaxReservedNames);
+    private void DeobfuscateTableName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxKeywords);
+    private void DeobfuscateColumnName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
+    private void DeobfuscateMeasureName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
 
-    private void Deobfuscate(DaxName name, ObfuscatorRule rule = ObfuscatorRule.None)
+    private void Deobfuscate(DaxName name, ObfuscationRule rule = ObfuscationRule.None)
     {
         if (string.IsNullOrWhiteSpace(name?.Name)) return;
 
