@@ -8,6 +8,8 @@ internal sealed partial class DaxModelObfuscator
 {
     internal string ObfuscateExpression(string expression)
     {
+        // TODO: refactor to deduplicate the code with DaxModelDeobfuscator.DeobfuscateExpression
+
         var tokens = DaxTokenizer.Tokenize(expression, DaxLocale.US, includeHidden: true);
         var builder = new StringBuilder(expression.Length);
 
