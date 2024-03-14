@@ -53,7 +53,7 @@ public sealed class ObfuscationDictionary
         throw new KeyNotFoundException($"The value was not found in the dictionary [{value}].");
     }
 
-    public void WriteTo(string path, bool overwrite = false, bool indented = false)
+    public void WriteTo(string path, bool overwrite = false, bool indented = true)
     {
         var mode = overwrite ? FileMode.Create : FileMode.CreateNew;
         using (var stream = new FileStream(path, mode))
