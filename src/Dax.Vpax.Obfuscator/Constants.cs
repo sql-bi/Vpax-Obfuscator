@@ -25,67 +25,46 @@ internal static class Constants
     public const string DaxKeyword_Value = "VALUE";
 
     /// <summary>
-    /// See also DMV $SYSTEM.DISCOVER_KEYWORDS
+    /// Contains DAX keywords that are not obfuscable.
     /// </summary>
+    /// <remarks>
+    /// A DAX keyword is not obfuscable when the keyword is also a valid unquoted table name.
+    /// </remarks>
     public static readonly HashSet<string> DaxKeywords = new(StringComparer.OrdinalIgnoreCase)
     {
         DaxKeyword_Date,
         DaxKeyword_Value,
 
-        // TOFIX: get keywords from tokenizer instead of hardcoding
-        // Z__FIRSTKEYWORD__
-        "MEASURE",
-        "COLUMN",
-        "TABLE",
-        "CALCULATIONGROUP",
-        "CALCULATIONITEM",
-        "DETAILROWS",
-        "DEFINE",
-        "EVALUATE",
-        "ORDER",
-        "BY",
-        "START",
-        "AT",
-        "RETURN",
-        "VAR",
-        "NOT",
-        "IN",
-        "ASC",
-        "DESC",
-        "SKIP",
-        "DENSE",
-        "BLANK",
-        "BLANKS",
-        "SECOND",
-        "MINUTE",
-        "HOUR",
-        "DAY",
-        "MONTH",
-        "QUARTER",
-        "YEAR",
-        "WEEK",
-        "BOTH",
-        "NONE",
-        "ONEWAY",
-        "ONEWAY_RIGHTFILTERSLEFT",
-        "ONEWAY_LEFTFILTERSRIGHT",
-        "CURRENCY",
-        "INTEGER",
-        "DOUBLE",
-        "STRING",
-        "BOOLEAN",
-        "DATETIME",
-        "VARIANT",
-        "TEXT",
-        "ALPHABETICAL",
-        "KEEP",
-        "FIRST",
-        "LAST",
-        "DEFAULT",
-        "TRUE",
-        "FALSE",
+        // From DAX lexer grammar. Interval (Z__FIRSTKEYWORD__ .. Z__LASTKEYWORD__) excluding DDL keywords.
         "ABS",
+        "ALPHABETICAL",
+        "BLANKS",
+        "BOOLEAN",
+        "BOTH",
+        "CURRENCY",
+        "DATATYPE",
+        "DATETIME",
+        "DAY",
+        "DEFAULT",
+        "DOUBLE",
+        "FIRST",
+        "HOUR",
+        "INTEGER",
+        "KEEP",
+        "LAST",
+        "MINUTE",
+        "MONTH",
+        "NONE",
+        "ONEWAY_LEFTFILTERSRIGHT",
+        "ONEWAY_RIGHTFILTERSLEFT",
+        "ONEWAY",
+        "QUARTER",
         "REL",
-        // Z__LASTKEYWORD__
+        "SECOND",
+        "STRING",
+        "TEXT",
+        "VARIANT",
+        "WEEK",
+        "YEAR"
     };
 }
