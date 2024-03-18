@@ -8,6 +8,7 @@
     "^refs/heads/main"
   ],
   "pathFilters": [
-    "./"
+    "./",
+    "/src/*.props"
   ]
 }
