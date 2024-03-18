@@ -24,16 +24,6 @@ jobs:
         path: src/${{ env.PROJECT }}
     - name: dotnet pack
       run: dotnet pack -c Release 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj'
-    - name: nuget sign
-      run: echo "::warning::(TODO) code signing."
-    # - name: upload artifact
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: ${{ env.PROJECT }}_nuget
-    #     path: ${{ env.NUPKG_PATH }}
-    #     if-no-files-found: error
-    #   env:
-    #     NUPKG_PATH: src/artifacts/package/release/${{ env.PROJECT }}.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg
     - name: create git tag
       run: |
         git config user.name github-actions[bot]

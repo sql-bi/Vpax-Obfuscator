@@ -24,8 +24,6 @@ jobs:
         path: src/${{ env.PROJECT }}
     - name: dotnet pack
       run: dotnet pack -c Release 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj'
-    - name: nuget sign
-      run: echo "::warning::(TODO) code signing."
     - name: upload artifact
       uses: actions/upload-artifact@v4
       with:
