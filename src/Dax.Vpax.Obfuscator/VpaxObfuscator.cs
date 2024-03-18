@@ -7,7 +7,7 @@ namespace Dax.Vpax.Obfuscator;
 
 public sealed class VpaxObfuscator : IVpaxObfuscator
 {
-    public static string Version { get; } = ThisAssembly.AssemblyInformationalVersion;
+    public static string Version { get; } = System.Version.Parse(ThisAssembly.AssemblyFileVersion).ToString(3);
     public ObfuscationOptions Options { get; } = new();
 
     public ObfuscationDictionary Obfuscate(Stream stream, ObfuscationDictionary? dictionary = null) => ObfuscateImpl(Options, stream, dictionary);
