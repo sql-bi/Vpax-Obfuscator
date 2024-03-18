@@ -29,19 +29,11 @@ jobs:
     - name: code signing
       shell: cmd
       run: azuresigntool sign -kvu "${{ secrets.CODESIGNING_VAULT_URL }}" -kvt "${{ secrets.CODESIGNING_TENANT_ID }}" -kvi "${{ secrets.CODESIGNING_CLIENT_ID }}" -kvs "${{ secrets.CODESIGNING_CLIENT_SECRET }}" -kvc "${{ secrets.CODESIGNING_CERTIFICATE }}" -tr "http://timestamp.digicert.com" -v "vpax-obfuscator.exe"
-    - name: git tag
-      run: |
-        git config user.name github-actions[bot]
-        git config user.email 41898282+github-actions[bot]@users.noreply.github.com # from 'https://api.github.com/users/github-actions[bot]'
-        git tag -a $RELEASE_TAG -m $RELEASE_TAG
-        git push origin $RELEASE_TAG --tags
-      env:
-        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
     - name: gh release create
       shell: bash
       run: |
         PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
-        gh release create ${{ env.RELEASE_TAG }} 'vpax-obfuscator.exe#Obfuscator CLI x86 net6.0' --title ${{ env.RELEASE_TAG }} --generate-notes --draft $PRERELEASE_FLAG
+        gh release create ${{ env.RELEASE_TAG }} 'vpax-obfuscator.exe#Obfuscator CLI x86 net6.0' --title ${{ env.RELEASE_TAG }} --target $GITHUB_SHA --generate-notes --draft $PRERELEASE_FLAG
       env:
         RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
