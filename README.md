@@ -1,6 +1,8 @@
 # VertiPaq-Analyzer Obfuscator
 
-VertiPaq Analyzer Obfuscator is an integration library for .NET, enabling the obfuscation of VertiPaq Analyzer files.
+VertiPaq Analyzer Obfuscator is a .NET library that enables the obfuscation of VertiPaq Analyzer files.
+
+You can read more [here](https://www.sqlbi.com/blog/marco/2024/03/15/vpax-obfuscator-a-library-to-obfuscate-vpax-files).
 
 ### Installation
 
@@ -30,6 +32,18 @@ using var vpax = File.Open(@"C:\path\to\obfuscated.vpax", FileMode.Open);
 var dictionary = ObfuscationDictionary.ReadFrom(@"C:\path\to\dictionary.json");
 var obfuscator = new VpaxObfuscator();
 obfuscator.Deobfuscate(vpax, dictionary);
+```
+
+**Incremental Obfuscation**
+
+> Incremental obfuscation keeps the same obfuscated names across different VPAX versions of the same model.
+
+```csharp
+using var vpax = File.Open(@"C:\path\to\file.vpax", FileMode.Open);
+var dictionaryV1 = ObfuscationDictionary.ReadFrom(@"C:\path\to\dictionary-v1.json");
+var obfuscator = new VpaxObfuscator();
+var dictionaryV2 = obfuscator.Obfuscate(vpax, dictionaryV1);
+dictionaryV2.WriteTo(@"C:\path\to\dictionary-v2.json");
 ```
 
 ## CLI
