@@ -28,15 +28,7 @@ jobs:
       run: dotnet tool install --no-cache --global AzureSignTool
     - name: code signing
       shell: cmd
-      run: |
-        azuresigntool sign ^
-          -kvu "${{ secrets.CODESIGNING_VAULT_URL }}" ^
-          -kvt "${{ secrets.CODESIGNING_TENANT_ID }}" ^
-          -kvi "${{ secrets.CODESIGNING_CLIENT_ID }}" ^
-          -kvs "${{ secrets.CODESIGNING_CLIENT_SECRET }}" ^
-          -kvc "${{ secrets.CODESIGNING_CERTIFICATE }}" ^
-          -tr "http://timestamp.digicert.com" ^
-          -v "vpax-obfuscator.exe"
+      run: azuresigntool sign -kvu "${{ secrets.CODESIGNING_VAULT_URL }}" -kvt "${{ secrets.CODESIGNING_TENANT_ID }}" -kvi "${{ secrets.CODESIGNING_CLIENT_ID }}" -kvs "${{ secrets.CODESIGNING_CLIENT_SECRET }}" -kvc "${{ secrets.CODESIGNING_CERTIFICATE }}" -tr "http://timestamp.digicert.com" -v "vpax-obfuscator.exe"
     - name: git tag
       run: |
         git config user.name github-actions[bot]
