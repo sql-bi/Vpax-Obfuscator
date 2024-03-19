@@ -2,17 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IsPackable>true</IsPackable>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
     <Title>Vpax Obfuscator Common</Title>
     <Description>A shared package used by VertiPaq Analyzer Obfuscator. Do not install this package manually, it will be added as a prerequisite by other packages that require it.</Description>
-    <PackageProjectUrl>https://github.com/sql-bi/Vpax-Obfuscator/tree/main/src/Dax.Vpax.Obfuscator.Common</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

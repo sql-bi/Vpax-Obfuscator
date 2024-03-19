@@ -24,32 +24,14 @@ jobs:
         path: src/${{ env.PROJECT }}
     - name: dotnet pack
       run: dotnet pack -c Release 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj'
-    - name: nuget sign
-      run: echo "::warning::(TODO) code signing."
-    # - name: upload artifact
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: ${{ env.PROJECT }}_nuget
-    #     path: ${{ env.NUPKG_PATH }}
-    #     if-no-files-found: error
-    #   env:
-    #     NUPKG_PATH: src/artifacts/package/release/${{ env.PROJECT }}.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg
-    - name: create git tag
-      run: |
-        git config user.name github-actions[bot]
-        git config user.email 41898282+github-actions[bot]@users.noreply.github.com # from 'https://api.github.com/users/github-actions[bot]'
-        git tag -a $RELEASE_TAG -m $RELEASE_TAG
-        git push origin $RELEASE_TAG --tags
-      env:
-        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.NuGetPackageVersion }}
     - name: nuget push
-      run: dotnet nuget push ${{ env.NUPKG_PATH }} -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json 
+      run: dotnet nuget push '${{ env.NUPKG_PATH }}' -k '${{ secrets.NUGET_API_KEY }}' -s https://api.nuget.org/v3/index.json 
       env:
-        NUPKG_PATH: src/artifacts/package/release/${{ env.PROJECT }}.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg
+        NUPKG_PATH: 'src/artifacts/package/release/${{ env.PROJECT }}.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg'
     - name: create release
       run: |
         PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
-        gh release create ${{ env.RELEASE_TAG }} --title ${{ env.RELEASE_TAG }} --generate-notes --draft $PRERELEASE_FLAG
+        gh release create ${{ env.RELEASE_TAG }} --title ${{ env.RELEASE_TAG }} --target $GITHUB_SHA --generate-notes --draft $PRERELEASE_FLAG
       env:
         RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.NuGetPackageVersion }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
