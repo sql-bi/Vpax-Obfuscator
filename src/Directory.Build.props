@@ -8,27 +8,14 @@
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <Authors>SQLBI</Authors>
-    <Company>SQLBI</Company>
-    <Product>Vpax Obfuscator</Product>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/sql-bi/Vpax-Obfuscator/tree/main/src/Dax.Vpax.Obfuscator</PackageProjectUrl>
-    <PackageIcon>package-icon.png</PackageIcon>
-    <PackageTags>vpax dax vertipaq analyzer</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/sql-bi/Vpax-Obfuscator.git</RepositoryUrl>
-    <RepositoryBranch>main</RepositoryBranch>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <DebugType>embedded</DebugType>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-  </PropertyGroup>
-
   <ItemGroup Condition="'$(IsPackable)' == 'true'">
     <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
     <None Include="..\..\assets\package-icon.png" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

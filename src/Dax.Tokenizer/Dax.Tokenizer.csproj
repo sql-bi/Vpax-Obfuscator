@@ -7,13 +7,10 @@
 
   <PropertyGroup>
     <Authors>Tabular Editor ApS</Authors>
-    <Company>Tabular Editor ApS</Company>
-    <Product>Dax Tokenizer</Product>
-    <PackageProjectUrl>https://github.com/sql-bi/Vpax-Obfuscator/tree/main/src/Dax.Tokenizer</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Antlr4.Runtime.Standard" />
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
   </ItemGroup>
 
 </Project>

@@ -6,9 +6,23 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <Authors>SQLBI</Authors>
+    <Company>SQLBI</Company>
+    <Product>Vpax Obfuscator</Product>
     <Title>Vpax Obfuscator</Title>
     <Description>A library enabling the obfuscation of VertiPaq Analyzer files.</Description>
     <PackageProjectUrl>https://github.com/sql-bi/Vpax-Obfuscator/tree/main/src/Dax.Vpax.Obfuscator</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageId>Dax.Vpax.Obfuscator</PackageId>
+    <PackageIcon>package-icon.png</PackageIcon>
+    <PackageTags>vpax dax vertipaq analyzer</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/sql-bi/Vpax-Obfuscator.git</RepositoryUrl>
+    <RepositoryBranch>main</RepositoryBranch>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <DebugType>embedded</DebugType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,8 +31,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Dax.Vpax" />
-    <PackageReference Include="Antlr4.Runtime.Standard" />
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Dax.Vpax" Version="1.4.1" />
   </ItemGroup>
 
   <ItemGroup>
