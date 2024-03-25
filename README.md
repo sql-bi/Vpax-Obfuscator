@@ -19,19 +19,23 @@ The library can be used in any .NET application built with `net462`, `netcoreapp
 **Obfuscation**
 
 ```csharp
-using var vpax = File.Open(@"C:\path\to\file.vpax", FileMode.Open);
+using var vpax = new MemoryStream(File.ReadAllBytes(@"C:\path\to\unobfuscated.vpax"));
 var obfuscator = new VpaxObfuscator();
 var dictionary = obfuscator.Obfuscate(vpax);
-dictionary.WriteTo(@"C:\path\to\dictionary.json");
+
+dictionary.WriteTo(@"C:\path\to\dictionary.dict");
+File.WriteAllBytes(@"C:\path\to\obfuscated.ovpax", vpax.ToArray());
 ```
 
 **Deobfuscation**
 
 ```csharp
-using var vpax = File.Open(@"C:\path\to\obfuscated.vpax", FileMode.Open);
-var dictionary = ObfuscationDictionary.ReadFrom(@"C:\path\to\dictionary.json");
+using var vpax = new MemoryStream(File.ReadAllBytes(@"C:\path\to\obfuscated.ovpax"));
+var dictionary = ObfuscationDictionary.ReadFrom(@"C:\path\to\dictionary.dict");
 var obfuscator = new VpaxObfuscator();
 obfuscator.Deobfuscate(vpax, dictionary);
+
+File.WriteAllBytes(@"C:\path\to\deobfuscated.vpax", vpax.ToArray());
 ```
 
 **Incremental Obfuscation**
@@ -39,11 +43,13 @@ obfuscator.Deobfuscate(vpax, dictionary);
 > Incremental obfuscation keeps the same obfuscated names across different VPAX versions of the same model.
 
 ```csharp
-using var vpax = File.Open(@"C:\path\to\file.vpax", FileMode.Open);
-var dictionaryV1 = ObfuscationDictionary.ReadFrom(@"C:\path\to\dictionary-v1.json");
+using var vpax = new MemoryStream(File.ReadAllBytes(@"C:\path\to\unobfuscated-v2.vpax"));
+var dictionaryV1 = ObfuscationDictionary.ReadFrom(@"C:\path\to\dictionary-v1.dict");
 var obfuscator = new VpaxObfuscator();
-var dictionaryV2 = obfuscator.Obfuscate(vpax, dictionaryV1);
-dictionaryV2.WriteTo(@"C:\path\to\dictionary-v2.json");
+var dictionary = obfuscator.Obfuscate(vpax, dictionaryV1);
+
+dictionary.WriteTo(@"C:\path\to\dictionary-v2.dict");
+File.WriteAllBytes(@"C:\path\to\obfuscated-v2.ovpax", vpax.ToArray());
 ```
 
 ## CLI
@@ -66,11 +72,11 @@ Usage:
   vpax-obfuscator obfuscate [options]
 
 Options:
-  --vpax <vpax> (REQUIRED)                            Path to the unobfuscated VPAX file.
-  --dictionary <dictionary>                           Path to the dictionary file to be used for incremental obfuscation. If not provided, a new dictionary will be created.
-  --output-vpax <output-vpax> (REQUIRED)              Path to write the obfuscated VPAX file.
-  --output-dictionary <output-dictionary> (REQUIRED)  Path to write the obfuscation dictionary file.
-  --track-unobfuscated                                Specifies whether to include unobfuscated values in the output dictionary.
-  --allow-overwrite                                   Allow output files to be overwritten. If not provided, the command will fail if an output file already exists.
-  -?, -h, --help                                      Show help and usage information
+  --vpax <vpax> (REQUIRED)                 Path to the unobfuscated VPAX file.
+  --dictionary <dictionary>                Path to the dictionary file to be used for incremental obfuscation. If not provided, a new dictionary will be created.
+  --output-vpax <output-vpax>              Path to write the obfuscated VPAX file. If not provided, the file will be written to the same folder as the '--vpax' file, using the default file extension for obfuscated VPAX files, which is '.ovpax'.
+  --output-dictionary <output-dictionary>  Path to write the obfuscation dictionary file. If not provided, the file will be written to the same folder as the '--vpax' file, using the default file extension for obfuscation dictionary files, which is '.dict'.
+  --track-unobfuscated                     Specifies whether to include unobfuscated values in the output dictionary.
+  --allow-overwrite                        Allow output files to be overwritten. If not provided, the command will fail if an output file already exists.
+  -?, -h, --help                           Show help and usage information
 ```

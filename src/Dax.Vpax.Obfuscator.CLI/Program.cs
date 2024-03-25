@@ -35,13 +35,13 @@ internal class Program
         };
         var outputVpaxOption = new Option<FileInfo>(name: "--output-vpax")
         {
-            Description = "Path to write the obfuscated VPAX file.",
-            IsRequired = true,
+            Description = "Path to write the obfuscated VPAX file. If not provided, the file will be written to the same folder as the '--vpax' file, using the default file extension for obfuscated VPAX files, which is '.ovpax'.",
+            IsRequired = false,
         };
         var outputDictionaryOption = new Option<FileInfo>(name: "--output-dictionary")
         {
-            Description = "Path to write the obfuscation dictionary file.",
-            IsRequired = true,
+            Description = "Path to write the obfuscation dictionary file. If not provided, the file will be written to the same folder as the '--vpax' file, using the default file extension for obfuscation dictionary files, which is '.dict'.",
+            IsRequired = false,
         };
         var trackUnobfuscatedOption = new Option<bool?>(name: "--track-unobfuscated")
         {
@@ -73,8 +73,8 @@ internal class Program
         };
         var outputVpaxOption = new Option<FileInfo>(name: "--output-vpax")
         {
-            Description = "Path to write the deobfuscated VPAX file.",
-            IsRequired = true,
+            Description = "Path to write the deobfuscated VPAX file. If not provided, the file will be written to the same folder as the '--vpax' file, using the default file extension for unobfuscated VPAX files, which is '.vpax'.",
+            IsRequired = false,
         };
         var command = new Command("deobfuscate", "Deobfuscate the DaxModel.json file from an obfuscated VPAX file using the provided dictionary.");
         command.AddOption(vpaxOption); 
@@ -84,7 +84,7 @@ internal class Program
         return command;
     }
 
-    private static void Obfuscate(FileInfo vpaxFile, FileInfo? dictionaryOption, FileInfo outputVpaxFile, FileInfo outputDictionaryFile, bool allowOverwrite, bool? trackUnobfuscated)
+    private static void Obfuscate(FileInfo vpaxFile, FileInfo? dictionaryOption, FileInfo? outputVpaxFile, FileInfo? outputDictionaryFile, bool allowOverwrite, bool? trackUnobfuscated)
     {
         using var stream = Read(vpaxFile);
         var obfuscator = new VpaxObfuscator();
@@ -96,18 +96,22 @@ internal class Program
 
         if (obfuscator.Options.TrackUnobfuscated)
             NotifyUnobfuscated(outputDictionary);
+        
+        var dictPath = outputDictionaryFile?.FullName ?? Path.ChangeExtension(vpaxFile.FullName, ".dict");
+        var ovpaxPath = outputVpaxFile?.FullName ?? Path.ChangeExtension(vpaxFile.FullName, ".ovpax");
 
-        outputDictionary.WriteTo(outputDictionaryFile.FullName, overwrite: allowOverwrite, indented: true);
-        Write(stream, outputVpaxFile, allowOverwrite);
+        outputDictionary.WriteTo(dictPath, overwrite: allowOverwrite, indented: true);
+        Write(stream, ovpaxPath, allowOverwrite);
     }
 
     private static void Deobfuscate(FileInfo vpaxFile, FileInfo dictionaryFile, FileInfo outputVpaxFile, bool allowOverwrite)
     {
         using var stream = Read(vpaxFile);
         var obfuscator = new VpaxObfuscator();
+        var ovpaxPath = outputVpaxFile?.FullName ?? Path.ChangeExtension(vpaxFile.FullName, ".vpax");
 
         obfuscator.Deobfuscate(stream, dictionary: ObfuscationDictionary.ReadFrom(dictionaryFile.FullName));
-        Write(stream, outputVpaxFile, allowOverwrite);
+        Write(stream, ovpaxPath, allowOverwrite);
     }
 
     private static MemoryStream Read(FileInfo file)
@@ -118,11 +122,11 @@ internal class Program
         return stream;
     }
 
-    private static void Write(MemoryStream stream, FileInfo file, bool allowOverwrite)
+    private static void Write(MemoryStream stream, string path, bool allowOverwrite)
     {
         var bytes = stream.ToArray();
         var mode = allowOverwrite ? FileMode.Create : FileMode.CreateNew;
-        using var fileStream = new FileStream(file.FullName, mode, FileAccess.Write, FileShare.Read);
+        using var fileStream = new FileStream(path, mode, FileAccess.Write, FileShare.Read);
         fileStream.Write(bytes, 0, bytes.Length);
     }
 
