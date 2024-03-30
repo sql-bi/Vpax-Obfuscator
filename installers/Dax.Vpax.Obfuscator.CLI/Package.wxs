@@ -1,0 +1,35 @@
+﻿
+<?if $(Platform) = x64 ?>
+    <?define Name = "Vpax Obfuscator (x64)" ?>
+    <?define UpgradeCode = "4B15DAE5-CA1B-4C6F-AD2C-693E4045C6BF" ?>
+<?elseif $(Platform) = x86 ?>
+    <?define Name = "Vpax Obfuscator (x86)" ?>
+    <?define UpgradeCode = "323E9268-AB1C-4BEF-9A3C-2433E924EDB1" ?>
+<?else?>
+    <?error Unsupported platform [$(Platform)] ?>
+<?endif?>
+
+<!--<?define Version = !(bind.fileVersion.AppExe) ?>-->
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+<Package Name="$(Name)" Manufacturer="SQLBI" Version="$(Version)" UpgradeCode="$(var.UpgradeCode)">
+    <MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" />
+    <Feature Id="Main">
+        <ComponentRef Id="AppExe" />
+    </Feature>
+</Package>
+
+<Fragment>
+    <StandardDirectory Id="ProgramFiles6432Folder">
+        <Directory Id="INSTALLFOLDER" Name="!(bind.Property.Manufacturer)">
+            <Directory Name="Vpax Obfuscator">
+                <Component Id="AppExe">
+                    <File Source="vpax-obfuscator.exe" />
+                </Component>
+            </Directory>
+        </Directory>
+    </StandardDirectory>
+</Fragment>
+
+</Wix>

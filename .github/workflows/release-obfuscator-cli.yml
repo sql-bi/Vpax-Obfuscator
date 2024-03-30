@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
 env:
   PROJECT: Dax.Vpax.Obfuscator.CLI
+  PROJECT_PATH: src/Dax.Vpax.Obfuscator.CLI
+  WIXPROJ: installers/Dax.Vpax.Obfuscator.CLI/Dax.Vpax.Obfuscator.CLI.wixproj
 jobs:
   publish-release:
     runs-on: windows-latest # windows is required for code signing (AzureSignTool)
@@ -13,27 +15,34 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: setup dotnet
-      uses: actions/setup-dotnet@v4
-      with:
-        global-json-file: global.json
+#    - name: setup dotnet
+#      uses: actions/setup-dotnet@v4
+#      with:
+#        global-json-file: global.json
     - name: nbgv
       uses: dotnet/nbgv@v0.4
       id: nbgv
       with:
-        path: src/${{ env.PROJECT }}
-    - name: dotnet publish
-      run: dotnet publish 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj' -o . -c Release -r win-x86 --sc -p:PublishSingleFile=true
-    - name: dotnet tool install AzureSignTool
-      run: dotnet tool install --no-cache --global AzureSignTool
-    - name: code signing
-      shell: cmd
-      run: azuresigntool sign -kvu "${{ secrets.CODESIGNING_VAULT_URL }}" -kvt "${{ secrets.CODESIGNING_TENANT_ID }}" -kvi "${{ secrets.CODESIGNING_CLIENT_ID }}" -kvs "${{ secrets.CODESIGNING_CLIENT_SECRET }}" -kvc "${{ secrets.CODESIGNING_CERTIFICATE }}" -tr "http://timestamp.digicert.com" -v "vpax-obfuscator.exe"
-    - name: gh release create
-      shell: bash
-      run: |
-        PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
-        gh release create ${{ env.RELEASE_TAG }} 'vpax-obfuscator.exe#Obfuscator CLI x86 net6.0' --title ${{ env.RELEASE_TAG }} --target $GITHUB_SHA --generate-notes --draft $PRERELEASE_FLAG
-      env:
-        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        path: ${{ env.PROJECT_PATH }}
+#    - name: dotnet publish
+#      run: dotnet publish ${{ env.PROJECT }}.csproj -o . -c Release -r win-x86 --sc -p:PublishSingleFile=true
+#      working-directory: ${{ env.PROJECT_PATH }}
+
+    - name: build msi
+      run:     dotnet build ${{ env.WIXPROJ }} -c Release -r win-x64 --sc false -v n -p:Platform=x64 -p:Version=${{ steps.nbgv.outputs.SemVer2 }}
+
+# dotnet build Dax.Vpax.Obfuscator.CLI.wixproj -c Release -r win-x64 --sc false -v n -p:Platform=x64 -p:Version=0.9.2
+
+#    - name: dotnet tool install AzureSignTool
+#      run: dotnet tool install --no-cache --global AzureSignTool
+#    - name: code signing
+#      shell: cmd
+#      run: azuresigntool sign -kvu "${{ secrets.CODESIGNING_VAULT_URL }}" -kvt "${{ secrets.CODESIGNING_TENANT_ID }}" -kvi "${{ secrets.CODESIGNING_CLIENT_ID }}" -kvs "${{ secrets.CODESIGNING_CLIENT_SECRET }}" -kvc "${{ secrets.CODESIGNING_CERTIFICATE }}" -tr "http://timestamp.digicert.com" -v "vpax-obfuscator.exe"
+#    - name: gh release create
+#      shell: bash
+#      run: |
+#        PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
+#        gh release create ${{ env.RELEASE_TAG }} 'vpax-obfuscator.exe#Obfuscator CLI x86 net6.0' --title ${{ env.RELEASE_TAG }} --target $GITHUB_SHA --generate-notes --draft $PRERELEASE_FLAG
+#      env:
+#        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
