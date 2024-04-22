@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageVersion Include="xunit" Version="2.7.1" />
     <!-- pinned dependencies required to test out-of-support target frameworks -->
