@@ -14,6 +14,7 @@ namespace Dax.Tokenizer
 
         private static List<IToken> TokenizeImpl(string dax, DaxLocale locale, bool includeHidden)
         {
+            dax ??= string.Empty;
             var input = new DaxCharStream(dax);
 
             var lexer = new DaxLexer(input, locale);
