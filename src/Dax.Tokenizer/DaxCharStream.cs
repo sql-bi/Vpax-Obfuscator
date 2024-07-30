@@ -24,8 +24,10 @@ namespace Dax.Tokenizer
             }
         }
 
-        public int Size {
-            get {
+        public int Size
+        {
+            get
+            {
                 return stream.Size;
             }
         }

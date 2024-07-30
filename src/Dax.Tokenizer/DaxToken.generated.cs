@@ -116,113 +116,131 @@
 	    public const int ABS=56;
 	    /// <summary>https://dax.guide/REL</summary>
 	    public const int REL=57;
+	    /// <summary>https://dax.guide/WITH</summary>
+	    public const int WITH=58;
+	    /// <summary>https://dax.guide/VISUAL</summary>
+	    public const int VISUAL=59;
+	    /// <summary>https://dax.guide/SHAPE</summary>
+	    public const int SHAPE=60;
+	    /// <summary>https://dax.guide/AXIS</summary>
+	    public const int AXIS=61;
+	    /// <summary>https://dax.guide/ROWS</summary>
+	    public const int ROWS=62;
+	    /// <summary>https://dax.guide/COLUMNS</summary>
+	    public const int COLUMNS=63;
+	    /// <summary>https://dax.guide/GROUP</summary>
+	    public const int GROUP=64;
+	    /// <summary>https://dax.guide/TOTAL</summary>
+	    public const int TOTAL=65;
+	    /// <summary>https://dax.guide/DENSIFY</summary>
+	    public const int DENSIFY=66;
 	    /// <summary>https://dax.guide/Z__LASTKEYWORD__</summary>
-	    public const int Z__LASTKEYWORD__=58;
+	    public const int Z__LASTKEYWORD__=67;
 	    /// <summary>https://dax.guide/Z__FIRSTPROPERTY__</summary>
-	    public const int Z__FIRSTPROPERTY__=59;
+	    public const int Z__FIRSTPROPERTY__=68;
 	    /// <summary>https://dax.guide/DISPLAYFOLDER</summary>
-	    public const int DISPLAYFOLDER=60;
+	    public const int DISPLAYFOLDER=69;
 	    /// <summary>https://dax.guide/FORMATSTRING</summary>
-	    public const int FORMATSTRING=61;
+	    public const int FORMATSTRING=70;
 	    /// <summary>https://dax.guide/DESCRIPTION</summary>
-	    public const int DESCRIPTION=62;
+	    public const int DESCRIPTION=71;
 	    /// <summary>https://dax.guide/VISIBLE</summary>
-	    public const int VISIBLE=63;
+	    public const int VISIBLE=72;
 	    /// <summary>https://dax.guide/DATATYPE</summary>
-	    public const int DATATYPE=64;
+	    public const int DATATYPE=73;
 	    /// <summary>https://dax.guide/KPISTATUSEXPRESSION</summary>
-	    public const int KPISTATUSEXPRESSION=65;
+	    public const int KPISTATUSEXPRESSION=74;
 	    /// <summary>https://dax.guide/KPISTATUSDESCRIPTION</summary>
-	    public const int KPISTATUSDESCRIPTION=66;
+	    public const int KPISTATUSDESCRIPTION=75;
 	    /// <summary>https://dax.guide/KPISTATUSGRAPHIC</summary>
-	    public const int KPISTATUSGRAPHIC=67;
+	    public const int KPISTATUSGRAPHIC=76;
 	    /// <summary>https://dax.guide/KPITRENDEXPRESSION</summary>
-	    public const int KPITRENDEXPRESSION=68;
+	    public const int KPITRENDEXPRESSION=77;
 	    /// <summary>https://dax.guide/KPITRENDDESCRIPTION</summary>
-	    public const int KPITRENDDESCRIPTION=69;
+	    public const int KPITRENDDESCRIPTION=78;
 	    /// <summary>https://dax.guide/KPITRENDGRAPHIC</summary>
-	    public const int KPITRENDGRAPHIC=70;
+	    public const int KPITRENDGRAPHIC=79;
 	    /// <summary>https://dax.guide/KPITARGETEXPRESSION</summary>
-	    public const int KPITARGETEXPRESSION=71;
+	    public const int KPITARGETEXPRESSION=80;
 	    /// <summary>https://dax.guide/KPITARGETDESCRIPTION</summary>
-	    public const int KPITARGETDESCRIPTION=72;
+	    public const int KPITARGETDESCRIPTION=81;
 	    /// <summary>https://dax.guide/KPITARGETFORMATSTRING</summary>
-	    public const int KPITARGETFORMATSTRING=73;
+	    public const int KPITARGETFORMATSTRING=82;
 	    /// <summary>https://dax.guide/PRECEDENCE</summary>
-	    public const int PRECEDENCE=74;
+	    public const int PRECEDENCE=83;
 	    /// <summary>https://dax.guide/ORDINAL</summary>
-	    public const int ORDINAL=75;
+	    public const int ORDINAL=84;
 	    /// <summary>https://dax.guide/Z__LASTPROPERTY__</summary>
-	    public const int Z__LASTPROPERTY__=76;
+	    public const int Z__LASTPROPERTY__=85;
 	    /// <summary>https://dax.guide/DATE_LITERAL</summary>
-	    public const int DATE_LITERAL=77;
+	    public const int DATE_LITERAL=86;
 	    /// <summary>https://dax.guide/INTEGER_LITERAL</summary>
-	    public const int INTEGER_LITERAL=78;
+	    public const int INTEGER_LITERAL=87;
 	    /// <summary>https://dax.guide/REAL_LITERAL</summary>
-	    public const int REAL_LITERAL=79;
+	    public const int REAL_LITERAL=88;
 	    /// <summary>https://dax.guide/STRING_LITERAL</summary>
-	    public const int STRING_LITERAL=80;
+	    public const int STRING_LITERAL=89;
 	    /// <summary>https://dax.guide/TABLE</summary>
-	    public const int TABLE=81;
+	    public const int TABLE=90;
 	    /// <summary>https://dax.guide/COLUMN_OR_MEASURE</summary>
-	    public const int COLUMN_OR_MEASURE=82;
+	    public const int COLUMN_OR_MEASURE=91;
 	    /// <summary>https://dax.guide/TABLE_OR_VARIABLE</summary>
-	    public const int TABLE_OR_VARIABLE=83;
+	    public const int TABLE_OR_VARIABLE=92;
 	    /// <summary>https://dax.guide/OTHER_IDENTIFIER</summary>
-	    public const int OTHER_IDENTIFIER=84;
+	    public const int OTHER_IDENTIFIER=93;
 	    /// <summary>https://dax.guide/OPEN_CURLY</summary>
-	    public const int OPEN_CURLY=85;
+	    public const int OPEN_CURLY=94;
 	    /// <summary>https://dax.guide/CLOSE_CURLY</summary>
-	    public const int CLOSE_CURLY=86;
+	    public const int CLOSE_CURLY=95;
 	    /// <summary>https://dax.guide/OPEN_PARENS</summary>
-	    public const int OPEN_PARENS=87;
+	    public const int OPEN_PARENS=96;
 	    /// <summary>https://dax.guide/CLOSE_PARENS</summary>
-	    public const int CLOSE_PARENS=88;
+	    public const int CLOSE_PARENS=97;
 	    /// <summary>https://dax.guide/COMMA</summary>
-	    public const int COMMA=89;
+	    public const int COMMA=98;
 	    /// <summary>https://dax.guide/Z__FIRSTOPERATOR__</summary>
-	    public const int Z__FIRSTOPERATOR__=90;
+	    public const int Z__FIRSTOPERATOR__=99;
 	    /// <summary>https://dax.guide/PLUS</summary>
-	    public const int PLUS=91;
+	    public const int PLUS=100;
 	    /// <summary>https://dax.guide/MINUS</summary>
-	    public const int MINUS=92;
+	    public const int MINUS=101;
 	    /// <summary>https://dax.guide/STAR</summary>
-	    public const int STAR=93;
+	    public const int STAR=102;
 	    /// <summary>https://dax.guide/DIV</summary>
-	    public const int DIV=94;
+	    public const int DIV=103;
 	    /// <summary>https://dax.guide/CARET</summary>
-	    public const int CARET=95;
+	    public const int CARET=104;
 	    /// <summary>https://dax.guide/AMP</summary>
-	    public const int AMP=96;
+	    public const int AMP=105;
 	    /// <summary>https://dax.guide/STRICTEQ</summary>
-	    public const int STRICTEQ=97;
+	    public const int STRICTEQ=106;
 	    /// <summary>https://dax.guide/EQ</summary>
-	    public const int EQ=98;
+	    public const int EQ=107;
 	    /// <summary>https://dax.guide/LT</summary>
-	    public const int LT=99;
+	    public const int LT=108;
 	    /// <summary>https://dax.guide/GT</summary>
-	    public const int GT=100;
+	    public const int GT=109;
 	    /// <summary>https://dax.guide/OP_AND</summary>
-	    public const int OP_AND=101;
+	    public const int OP_AND=110;
 	    /// <summary>https://dax.guide/OP_OR</summary>
-	    public const int OP_OR=102;
+	    public const int OP_OR=111;
 	    /// <summary>https://dax.guide/OP_NE</summary>
-	    public const int OP_NE=103;
+	    public const int OP_NE=112;
 	    /// <summary>https://dax.guide/OP_LE</summary>
-	    public const int OP_LE=104;
+	    public const int OP_LE=113;
 	    /// <summary>https://dax.guide/OP_GE</summary>
-	    public const int OP_GE=105;
+	    public const int OP_GE=114;
 	    /// <summary>https://dax.guide/Z__LASTOPERATOR__</summary>
-	    public const int Z__LASTOPERATOR__=106;
+	    public const int Z__LASTOPERATOR__=115;
 	    /// <summary>https://dax.guide/DOT</summary>
-	    public const int DOT=107;
+	    public const int DOT=116;
 	    /// <summary>https://dax.guide/UNTERMINATED_STRING</summary>
-	    public const int UNTERMINATED_STRING=108;
+	    public const int UNTERMINATED_STRING=117;
 	    /// <summary>https://dax.guide/UNTERMINATED_COLREF</summary>
-	    public const int UNTERMINATED_COLREF=109;
+	    public const int UNTERMINATED_COLREF=118;
 	    /// <summary>https://dax.guide/UNTERMINATED_TABLEREF</summary>
-	    public const int UNTERMINATED_TABLEREF=110;
+	    public const int UNTERMINATED_TABLEREF=119;
 	    /// <summary>https://dax.guide/UNKNOWN_CHAR</summary>
-	    public const int UNKNOWN_CHAR=111;
+	    public const int UNKNOWN_CHAR=120;
 	}
 }
