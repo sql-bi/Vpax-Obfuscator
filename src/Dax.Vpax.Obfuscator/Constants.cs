@@ -65,6 +65,7 @@ internal static class Constants
         "TEXT",
         "VARIANT",
         "WEEK",
-        "YEAR"
+        "YEAR",
+        "TOTAL",
     };
 }
