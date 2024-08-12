@@ -32,7 +32,7 @@
   
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
-    <PackageReference Include="Dax.Vpax" Version="1.6.0" />
+    <PackageReference Include="Dax.Vpax" Version="1.7.1" />
   </ItemGroup>
 
   <ItemGroup>
