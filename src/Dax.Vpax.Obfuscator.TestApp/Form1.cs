@@ -108,22 +108,22 @@ namespace Dax.Vpax.Obfuscator.TestApp
                 : obfuscator.Obfuscate(stream);
 
             var dictionaryPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".vpax.dict"));
-            var vpaxPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".obfuscated.vpax"));
+            var ovpaxPath = Path.Combine(outputPath, Path.ChangeExtension(vpaxFile.Name, ".ovpax"));
 
             dictionary.WriteTo(dictionaryPath, overwrite, indented: true);
-            File.WriteAllBytes(vpaxPath, stream.ToArray());
+            File.WriteAllBytes(ovpaxPath, stream.ToArray());
         }
 
-        private static void Deobfuscate(FileInfo vpaxFile, FileInfo dictionaryFile)
+        private static void Deobfuscate(FileInfo ovpaxFile, FileInfo dictionaryFile)
         {
-            var data = File.ReadAllBytes(vpaxFile.FullName);
+            var data = File.ReadAllBytes(ovpaxFile.FullName);
             using var stream = new MemoryStream();
             stream.Write(data, 0, data.Length);
 
             var obfuscator = new VpaxObfuscator();
             obfuscator.Deobfuscate(stream, ObfuscationDictionary.ReadFrom(dictionaryFile.FullName));
 
-            var vpaxPath = Path.Combine(vpaxFile.DirectoryName!, Path.ChangeExtension(vpaxFile.Name, ".deobfuscated.vpax"));
+            var vpaxPath = Path.Combine(ovpaxFile.DirectoryName!, Path.ChangeExtension(ovpaxFile.Name, ".deobfuscated.vpax"));
             File.WriteAllBytes(vpaxPath, stream.ToArray());
         }
     }

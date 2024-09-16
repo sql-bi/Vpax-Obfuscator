@@ -25,7 +25,9 @@ jobs:
     - name: dotnet pack
       run: dotnet pack -c Release 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj'
     - name: nuget push
-      run: echo "::warning::(TOFIX) enable nuget push."
+      run: dotnet nuget push '${{ env.NUPKG_PATH }}' -k '${{ secrets.NUGET_API_KEY }}' -s https://api.nuget.org/v3/index.json 
+      env:
+        NUPKG_PATH: 'src/artifacts/package/release/${{ env.PROJECT }}.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg'
     - name: create release
       run: |
         PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
