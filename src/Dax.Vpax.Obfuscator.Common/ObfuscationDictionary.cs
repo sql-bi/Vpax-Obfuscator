@@ -27,7 +27,7 @@ public sealed class ObfuscationDictionary
         Version = version;
         Texts = texts.OrderBy((t) => t.Value).ToArray();
 
-        // Create dictionaries to allow for fast lookups. This also ensures uniqueness of the keys by throwing if there are duplicates.
+        // Create dictionaries to enable fast lookups and ensure key uniqueness. An error will be thrown if duplicate keys are detected.
         _values = Texts.ToDictionary((text) => text.Value, StringComparer.OrdinalIgnoreCase);
         _obfuscated = Texts.ToDictionary((text) => text.Obfuscated, StringComparer.OrdinalIgnoreCase);
     }
@@ -45,12 +45,36 @@ public sealed class ObfuscationDictionary
         throw new KeyNotFoundException($"The obfuscated value was not found in the dictionary [{obfuscated}].");
     }
 
+    public bool TryGetValue(string obfuscated, [NotNullWhen(true)] out string? value)
+    {
+        if (_obfuscated.TryGetValue(obfuscated, out var text))
+        {
+            value = text.Value;
+            return true;
+        }
+
+        value = null;
+        return false;
+    }
+
     public string GetObfuscated(string value)
     {
         if (_values.TryGetValue(value, out var text))
             return text.Obfuscated;
 
         throw new KeyNotFoundException($"The value was not found in the dictionary [{value}].");
+    }
+
+    public bool TryGetObfuscated(string value, [NotNullWhen(true)] out string? obfuscated)
+    {
+        if (_values.TryGetValue(value, out var text))
+        {
+            obfuscated = text.Obfuscated;
+            return true;
+        }
+
+        obfuscated = null;
+        return false;
     }
 
     public void WriteTo(string path, bool overwrite = false, bool indented = true)
