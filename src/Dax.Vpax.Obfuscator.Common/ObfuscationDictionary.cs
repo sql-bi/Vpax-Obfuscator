@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace Dax.Vpax.Obfuscator.Common;
@@ -26,6 +27,7 @@ public sealed class ObfuscationDictionary
         Id = id;
         Version = version;
         Texts = texts.OrderBy((t) => t.Value).ToArray();
+        UnobfuscatedValues = Array.Empty<string>();
 
         // Create dictionaries to enable fast lookups and ensure key uniqueness. An error will be thrown if duplicate keys are detected.
         _values = Texts.ToDictionary((text) => text.Value, StringComparer.OrdinalIgnoreCase);
@@ -35,7 +37,7 @@ public sealed class ObfuscationDictionary
     public string Id { get; }
     public string Version { get; }
     public IReadOnlyList<ObfuscationText> Texts { get; }
-    public IReadOnlyList<string>? UnobfuscatedValues { get; }
+    public IReadOnlyList<string> UnobfuscatedValues { get; }
 
     public string GetValue(string obfuscated)
     {
