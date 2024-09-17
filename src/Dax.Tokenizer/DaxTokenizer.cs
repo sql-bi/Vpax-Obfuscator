@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 
+[assembly: CLSCompliant(false)]
 namespace Dax.Tokenizer
 {
     public static class DaxTokenizer

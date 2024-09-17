@@ -15,7 +15,7 @@ namespace Dax.Tokenizer
         /// <summary>
         /// Get the next token
         /// </summary>
-        public DaxToken Prev
+        public DaxToken? Prev
         {
             get
             {
@@ -30,7 +30,7 @@ namespace Dax.Tokenizer
             }
         }
 
-        public DaxToken Next
+        public DaxToken? Next
         {
             get
             {
