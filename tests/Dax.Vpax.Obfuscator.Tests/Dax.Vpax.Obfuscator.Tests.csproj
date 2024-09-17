@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Dax.Vpax.Obfuscator.Common\Dax.Vpax.Obfuscator.Common.csproj" />
     <ProjectReference Include="..\..\src\Dax.Vpax.Obfuscator\Dax.Vpax.Obfuscator.csproj" />
     <ProjectReference Include="..\..\src\Dax.Tokenizer\Dax.Tokenizer.csproj" />
   </ItemGroup>
