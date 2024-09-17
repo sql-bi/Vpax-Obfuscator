@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
     <Title>Vpax Obfuscator Common</Title>
-    <Description>A shared package used by VertiPaq Analyzer Obfuscator. Do not install this package manually, it will be added as a prerequisite by other packages that require it.</Description>
+    <Description>This package is a dependency for the VertiPaq Analyzer Obfuscator NuGet package and is automatically included as a prerequisite. It should not be installed manually.</Description>
   </PropertyGroup>
 
   <ItemGroup>

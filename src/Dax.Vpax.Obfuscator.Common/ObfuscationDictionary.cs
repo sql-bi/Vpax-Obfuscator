@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace Dax.Vpax.Obfuscator.Common;
@@ -8,16 +9,8 @@ public sealed class ObfuscationDictionary
     private readonly Dictionary<string, ObfuscationText> _values;
     private readonly Dictionary<string, ObfuscationText> _obfuscated;
 
-    public ObfuscationDictionary(string id, string version, IEnumerable<ObfuscationText> texts, IEnumerable<string> unobfuscatedValues)
-        : this(id, version, texts)
-    {
-        if (unobfuscatedValues == null) throw new ArgumentNullException(nameof(unobfuscatedValues));
-
-        UnobfuscatedValues = unobfuscatedValues.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-    }
-
     [JsonConstructor]
-    public ObfuscationDictionary(string id, string version, IEnumerable<ObfuscationText> texts)
+    public ObfuscationDictionary(string id, string version, IEnumerable<ObfuscationText> texts, IEnumerable<string> unobfuscatedValues)
     {
         if (id == null || !Guid.TryParseExact(id, "D", out var guid) || guid == Guid.Empty) throw new ArgumentException("The dictionary identifier is not valid.", nameof(id));
         if (version == null) throw new ArgumentNullException(nameof(version));
@@ -26,8 +19,9 @@ public sealed class ObfuscationDictionary
         Id = id;
         Version = version;
         Texts = texts.OrderBy((t) => t.Value).ToArray();
+        UnobfuscatedValues = unobfuscatedValues?.ToArray() ?? [];
 
-        // Create dictionaries to allow for fast lookups. This also ensures uniqueness of the keys by throwing if there are duplicates.
+        // Create dictionaries to enable fast lookups and ensure key uniqueness. An error will be thrown if duplicate keys are detected.
         _values = Texts.ToDictionary((text) => text.Value, StringComparer.OrdinalIgnoreCase);
         _obfuscated = Texts.ToDictionary((text) => text.Obfuscated, StringComparer.OrdinalIgnoreCase);
     }
@@ -35,7 +29,7 @@ public sealed class ObfuscationDictionary
     public string Id { get; }
     public string Version { get; }
     public IReadOnlyList<ObfuscationText> Texts { get; }
-    public IReadOnlyList<string>? UnobfuscatedValues { get; }
+    public IReadOnlyList<string> UnobfuscatedValues { get; }
 
     public string GetValue(string obfuscated)
     {
@@ -45,12 +39,36 @@ public sealed class ObfuscationDictionary
         throw new KeyNotFoundException($"The obfuscated value was not found in the dictionary [{obfuscated}].");
     }
 
+    public bool TryGetValue(string obfuscated, [NotNullWhen(true)] out string? value)
+    {
+        if (_obfuscated.TryGetValue(obfuscated, out var text))
+        {
+            value = text.Value;
+            return true;
+        }
+
+        value = null;
+        return false;
+    }
+
     public string GetObfuscated(string value)
     {
         if (_values.TryGetValue(value, out var text))
             return text.Obfuscated;
 
         throw new KeyNotFoundException($"The value was not found in the dictionary [{value}].");
+    }
+
+    public bool TryGetObfuscated(string value, [NotNullWhen(true)] out string? obfuscated)
+    {
+        if (_values.TryGetValue(value, out var text))
+        {
+            obfuscated = text.Obfuscated;
+            return true;
+        }
+
+        obfuscated = null;
+        return false;
     }
 
     public void WriteTo(string path, bool overwrite = false, bool indented = true)

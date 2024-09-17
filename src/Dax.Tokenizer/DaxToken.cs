@@ -15,10 +15,13 @@ namespace Dax.Tokenizer
         /// <summary>
         /// Get the next token
         /// </summary>
-        public DaxToken Prev {
-            get {
+        public DaxToken Prev
+        {
+            get
+            {
                 var ix = TokenIndex - 1;
-                while (ix >= 0) {
+                while (ix >= 0)
+                {
                     var token = Collection[ix];
                     if (!token.CommentOrWhitespace) return token;
                     ix--;
@@ -27,10 +30,13 @@ namespace Dax.Tokenizer
             }
         }
 
-        public DaxToken Next {
-            get {
+        public DaxToken Next
+        {
+            get
+            {
                 var ix = TokenIndex + 1;
-                while (ix < Collection.Count) {
+                while (ix < Collection.Count)
+                {
                     var token = Collection[ix];
                     if (!token.CommentOrWhitespace) return token;
                     ix++;
