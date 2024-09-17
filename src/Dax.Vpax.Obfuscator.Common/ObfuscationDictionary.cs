@@ -9,16 +9,8 @@ public sealed class ObfuscationDictionary
     private readonly Dictionary<string, ObfuscationText> _values;
     private readonly Dictionary<string, ObfuscationText> _obfuscated;
 
-    public ObfuscationDictionary(string id, string version, IEnumerable<ObfuscationText> texts, IEnumerable<string> unobfuscatedValues)
-        : this(id, version, texts)
-    {
-        if (unobfuscatedValues == null) throw new ArgumentNullException(nameof(unobfuscatedValues));
-
-        UnobfuscatedValues = unobfuscatedValues.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-    }
-
     [JsonConstructor]
-    public ObfuscationDictionary(string id, string version, IEnumerable<ObfuscationText> texts)
+    public ObfuscationDictionary(string id, string version, IEnumerable<ObfuscationText> texts, IEnumerable<string> unobfuscatedValues)
     {
         if (id == null || !Guid.TryParseExact(id, "D", out var guid) || guid == Guid.Empty) throw new ArgumentException("The dictionary identifier is not valid.", nameof(id));
         if (version == null) throw new ArgumentNullException(nameof(version));
@@ -27,7 +19,7 @@ public sealed class ObfuscationDictionary
         Id = id;
         Version = version;
         Texts = texts.OrderBy((t) => t.Value).ToArray();
-        UnobfuscatedValues = Array.Empty<string>();
+        UnobfuscatedValues = unobfuscatedValues?.ToArray() ?? [];
 
         // Create dictionaries to enable fast lookups and ensure key uniqueness. An error will be thrown if duplicate keys are detected.
         _values = Texts.ToDictionary((text) => text.Value, StringComparer.OrdinalIgnoreCase);

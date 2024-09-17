@@ -48,10 +48,9 @@ internal sealed partial class DaxModelObfuscator
         var id = Model.ObfuscatorDictionaryId;
         var version = VpaxObfuscator.Version;
         var texts = Texts.Select((t) => t.ToObfuscationText());
+        var unobfuscatedValues = Options.TrackUnobfuscated ? UnobfuscatedValues.Distinct(StringComparer.OrdinalIgnoreCase) : [];
 
-        return Options.TrackUnobfuscated
-            ? new ObfuscationDictionary(id, version, texts, UnobfuscatedValues)
-            : new ObfuscationDictionary(id, version, texts);
+        return new ObfuscationDictionary(id, version, texts, unobfuscatedValues);
     }
 
     private void ObfuscateIdentifiers(Table table)
