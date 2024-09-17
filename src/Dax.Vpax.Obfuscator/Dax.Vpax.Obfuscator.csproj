@@ -26,13 +26,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dax.Vpax.Obfuscator.Common\Dax.Vpax.Obfuscator.Common.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\Dax.Tokenizer\Dax.Tokenizer.csproj" PrivateAssets="all" />
   </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
     <PackageReference Include="Dax.Vpax" Version="1.6.0" />
+    <PackageReference Include="Dax.Vpax.Obfuscator.Common" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,37 +42,21 @@
   <!-- Include DLL from project reference in NuGet package -->
   <ItemGroup>
     <!-- net462 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net462\Dax.Vpax.Obfuscator.Common.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\net462\</PackagePath>
-    </_PackageFiles>
     <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net462\Dax.Tokenizer.dll">
       <BuildAction>None</BuildAction>
       <PackagePath>lib\net462\</PackagePath>
     </_PackageFiles>
     <!-- netcoreapp3.1 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_netcoreapp3.1\Dax.Vpax.Obfuscator.Common.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\netcoreapp3.1\</PackagePath>
-    </_PackageFiles>
     <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_netcoreapp3.1\Dax.Tokenizer.dll">
       <BuildAction>None</BuildAction>
       <PackagePath>lib\netcoreapp3.1\</PackagePath>
     </_PackageFiles>
     <!-- net6.0 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net6.0\Dax.Vpax.Obfuscator.Common.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\net6.0\</PackagePath>
-    </_PackageFiles>
     <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net6.0\Dax.Tokenizer.dll">
       <BuildAction>None</BuildAction>
       <PackagePath>lib\net6.0\</PackagePath>
     </_PackageFiles>
     <!-- net8.0 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net8.0\Dax.Vpax.Obfuscator.Common.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\net8.0\</PackagePath>
-    </_PackageFiles>
     <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net8.0\Dax.Tokenizer.dll">
       <BuildAction>None</BuildAction>
       <PackagePath>lib\net8.0\</PackagePath>
