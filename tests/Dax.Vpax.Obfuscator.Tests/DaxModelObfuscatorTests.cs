@@ -521,7 +521,7 @@ public class DaxModelObfuscatorTests
     private static DaxModelDeobfuscator CreateDeobfuscator(IEnumerable<DaxText> texts)
     {
         var obfuscationTexts = texts.Select((t) => t.ToObfuscationText()).ToArray();
-        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", obfuscationTexts);
+        var dictionary = new ObfuscationDictionary(id: Guid.NewGuid().ToString("D"), "0.0.0-test", obfuscationTexts, unobfuscatedValues: []);
         return CreateDeobfuscator(dictionary);
     }
 
