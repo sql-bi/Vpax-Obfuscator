@@ -96,6 +96,7 @@ internal sealed partial class DaxModelObfuscator
     private void Obfuscate(Table table)
     {
         Obfuscate(table.TableExpression);
+        Obfuscate(table.DefaultDetailRowsExpression);
         Obfuscate(table.CalculationGroup);
         Obfuscate(table.Description);
         table.Columns.ForEach(Obfuscate);
