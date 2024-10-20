@@ -31,6 +31,7 @@ internal partial class DaxModelDeobfuscator
     {
         DeobfuscateTableName(table.TableName);
         Deobfuscate(table.TableExpression);
+        Deobfuscate(table.DefaultDetailRowsExpression);
         Deobfuscate(table.CalculationGroup);
         Deobfuscate(table.Description);
         table.Columns.ForEach(Deobfuscate);
