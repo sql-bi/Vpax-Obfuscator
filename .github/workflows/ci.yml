@@ -1,4 +1,4 @@
-name: CI
+name: ci
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
@@ -14,10 +14,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            3.1.x
             6.0.x
-            8.0.x
-      - name: dotnet restore
+          global-json-file: global.json
+      - name: restore
         run: dotnet restore Dax.Vpax.Obfuscator.CI.slnf
       - name: dotnet build
         run: dotnet build Dax.Vpax.Obfuscator.CI.slnf --configuration Release --no-restore
