@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;netcoreapp3.1;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net472;net6.0;net8.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
@@ -41,15 +41,10 @@
 
   <!-- Include DLL from project reference in NuGet package -->
   <ItemGroup>
-    <!-- net462 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net462\Dax.Tokenizer.dll">
+    <!-- net472 -->
+    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net472\Dax.Tokenizer.dll">
       <BuildAction>None</BuildAction>
-      <PackagePath>lib\net462\</PackagePath>
-    </_PackageFiles>
-    <!-- netcoreapp3.1 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_netcoreapp3.1\Dax.Tokenizer.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\netcoreapp3.1\</PackagePath>
+      <PackagePath>lib\net472\</PackagePath>
     </_PackageFiles>
     <!-- net6.0 -->
     <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net6.0\Dax.Tokenizer.dll">
