@@ -13,9 +13,5 @@
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
     <None Include="..\..\assets\package-icon.png" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.146" PrivateAssets="All" />
-  </ItemGroup>
 
 </Project>
