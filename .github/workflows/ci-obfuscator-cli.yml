@@ -1,0 +1,28 @@
+name: ci-obfuscator-cli
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
+    branches: [ main ]
+    paths: [ 'src/Dax.Vpax.Obfuscator.CLI/**' ]
+env:
+  SOLUTION: Dax.Vpax.Obfuscator.CLI.slnf
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+          global-json-file: global.json
+      - name: restore
+        run: dotnet restore ${{ env.SOLUTION }}
+      - name: dotnet build
+        run: dotnet build ${{ env.SOLUTION }} --configuration Release --no-restore
+      - name: dotnet test
+        run: dotnet test ${{ env.SOLUTION }} --configuration Release --no-build
