@@ -1,10 +1,13 @@
-name: release-obfuscator
+name: publish-obfuscator
 on:
   workflow_dispatch:
 env:
-  PROJECT: Dax.Vpax.Obfuscator
+  PROJECT_NAME: Dax.Vpax.Obfuscator
+  PROJECT_PATH: src/Dax.Vpax.Obfuscator
+  PROJECT_FILE: Dax.Vpax.Obfuscator.csproj
 jobs:
-  publish-release:
+  publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -21,17 +24,15 @@ jobs:
       uses: dotnet/nbgv@v0.4
       id: nbgv
       with:
-        path: src/${{ env.PROJECT }}
+        path: ${{ env.PROJECT_PATH }}
     - name: dotnet pack
-      run: dotnet pack -c Release 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj'
+      run: dotnet pack -c Release -o . '${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }}'
     - name: nuget push
-      run: dotnet nuget push '${{ env.NUPKG_PATH }}' -k '${{ secrets.NUGET_API_KEY }}' -s https://api.nuget.org/v3/index.json 
-      env:
-        NUPKG_PATH: 'src/artifacts/package/release/${{ env.PROJECT }}.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg'
+      run: dotnet nuget push '${{ env.PROJECT_NAME }}.${{ steps.nbgv.outputs.NuGetPackageVersion }}.nupkg' -k '${{ secrets.NUGET_API_KEY }}' -s https://api.nuget.org/v3/index.json
     - name: create release
       run: |
+        RELEASE_TAG=${{ env.PROJECT_NAME }}_${{ steps.nbgv.outputs.NuGetPackageVersion }}
         PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
-        gh release create ${{ env.RELEASE_TAG }} --title ${{ env.RELEASE_TAG }} --target $GITHUB_SHA --generate-notes --draft $PRERELEASE_FLAG
+        gh release create $RELEASE_TAG --title $RELEASE_TAG --target $GITHUB_SHA --generate-notes --draft $PRERELEASE_FLAG
       env:
-        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.NuGetPackageVersion }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

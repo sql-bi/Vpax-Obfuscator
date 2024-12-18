@@ -8,7 +8,7 @@ env:
   SOLUTION: Dax.Vpax.Obfuscator.CLI.slnf
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: checkout
         uses: actions/checkout@v4
