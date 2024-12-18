@@ -14,3 +14,5 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "<Pending>", Scope = "member", Target = "~M:Dax.Vpax.Obfuscator.DaxModelObfuscator.#ctor(Dax.Metadata.Model,Dax.Vpax.Obfuscator.Common.ObfuscationDictionary)")]
 [assembly: SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "<Pending>", Scope = "member", Target = "~P:Dax.Vpax.Obfuscator.DaxModelObfuscator.UnobfuscatedValues")]
 [assembly: SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "<Pending>", Scope = "member", Target = "~P:Dax.Vpax.Obfuscator.DaxModelObfuscator.Texts")]
+[assembly: SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "<Pending>", Scope = "member", Target = "~M:Dax.Vpax.Obfuscator.DaxTextObfuscator.Obfuscate(Dax.Vpax.Obfuscator.DaxText,System.Int32)~Dax.Vpax.Obfuscator.DaxText")]
+[assembly: SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "<Pending>", Scope = "member", Target = "~M:Dax.Vpax.Obfuscator.DaxTextObfuscator.#ctor")]
