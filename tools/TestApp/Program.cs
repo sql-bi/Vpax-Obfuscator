@@ -1,4 +1,4 @@
-namespace Dax.Vpax.Obfuscator.TestApp
+namespace TestApp
 {
     internal static class Program
     {

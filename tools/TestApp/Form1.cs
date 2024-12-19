@@ -1,7 +1,8 @@
 using System.Reflection;
+using Dax.Vpax.Obfuscator;
 using Dax.Vpax.Obfuscator.Common;
 
-namespace Dax.Vpax.Obfuscator.TestApp
+namespace TestApp
 {
     public partial class Form1 : Form
     {

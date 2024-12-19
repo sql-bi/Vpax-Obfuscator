@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net472;net6.0;net8.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
+    <NoWarn>$(NoWarn);CA1510;CA1865;CA1866;CA1867</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
