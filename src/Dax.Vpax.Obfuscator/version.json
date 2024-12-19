@@ -6,10 +6,10 @@
   },
   "publicReleaseRefSpec": [
     "^refs/heads/main$",
-    "^refs/heads/releases/Dax.Vpax.Obfuscator_\\d+\\.\\d+$"
+    "^refs/heads/release/Dax.Vpax.Obfuscator_\\d+\\.\\d+$"
   ],
   "release": {
-    "branchName": "releases/Dax.Vpax.Obfuscator_{version}",
+    "branchName": "release/Dax.Vpax.Obfuscator_{version}",
     "firstUnstableTag": ""
   },
   "pathFilters": [
