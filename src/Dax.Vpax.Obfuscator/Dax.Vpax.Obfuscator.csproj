@@ -18,11 +18,11 @@
     <PackageTags>vpax dax vertipaq analyzer</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/sql-bi/Vpax-Obfuscator.git</RepositoryUrl>
-    <RepositoryBranch>main</RepositoryBranch>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <DebugType>embedded</DebugType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeProjectReferenceDlls</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,23 +39,14 @@
     <InternalsVisibleTo Include="Dax.Vpax.Obfuscator.Tests" />
   </ItemGroup>
 
-  <!-- Include DLL from project reference in NuGet package -->
   <ItemGroup>
-    <!-- net472 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net472\Dax.Tokenizer.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\net472\</PackagePath>
-    </_PackageFiles>
-    <!-- net6.0 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net6.0\Dax.Tokenizer.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\net6.0\</PackagePath>
-    </_PackageFiles>
-    <!-- net8.0 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net8.0\Dax.Tokenizer.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\net8.0\</PackagePath>
-    </_PackageFiles>
+    <None Remove="C:\Users\alberto\source\repos\github\sql-bi\Vpax-Obfuscator\src\artifacts\bin\Dax.Vpax.Obfuscator\debug_net472\Dax.Vpax.Obfuscator.dll" />
   </ItemGroup>
+
+  <Target Name="IncludeProjectReferenceDlls" DependsOnTargets="BuildOnlySettings;ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')-&gt;WithMetadataValue('PrivateAssets', 'All'))" />
+    </ItemGroup>
+  </Target>
 
 </Project>
