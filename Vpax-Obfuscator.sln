@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Vpax.Obfuscator", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Vpax.Obfuscator.Tests", "tests\Dax.Vpax.Obfuscator.Tests\Dax.Vpax.Obfuscator.Tests.csproj", "{4D99AE7D-8A59-41A2-A8C3-8054E57C1182}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dax.Vpax.Obfuscator.TestApp", "src\Dax.Vpax.Obfuscator.TestApp\Dax.Vpax.Obfuscator.TestApp.csproj", "{F20265D8-1301-4698-9D3A-A371F75CF87D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{3302F148-E215-4823-8929-45C8A12C7E7E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{3302F148-E215-4823-8929-45C8A12C7E7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "tools\TestApp\TestApp.csproj", "{D1B5488A-B89A-41D5-964F-D2F38B00376A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,16 +49,16 @@ Global
 		{4D99AE7D-8A59-41A2-A8C3-8054E57C1182}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D99AE7D-8A59-41A2-A8C3-8054E57C1182}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D99AE7D-8A59-41A2-A8C3-8054E57C1182}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F20265D8-1301-4698-9D3A-A371F75CF87D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F20265D8-1301-4698-9D3A-A371F75CF87D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F20265D8-1301-4698-9D3A-A371F75CF87D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F20265D8-1301-4698-9D3A-A371F75CF87D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1B5488A-B89A-41D5-964F-D2F38B00376A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1B5488A-B89A-41D5-964F-D2F38B00376A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1B5488A-B89A-41D5-964F-D2F38B00376A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1B5488A-B89A-41D5-964F-D2F38B00376A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F20265D8-1301-4698-9D3A-A371F75CF87D} = {3302F148-E215-4823-8929-45C8A12C7E7E}
+		{D1B5488A-B89A-41D5-964F-D2F38B00376A} = {3302F148-E215-4823-8929-45C8A12C7E7E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BF417AA2-7521-408B-A3F5-A20CC760AE6E}

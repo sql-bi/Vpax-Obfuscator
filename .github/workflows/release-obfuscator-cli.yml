@@ -2,9 +2,12 @@ name: release-obfuscator-cli
 on:
   workflow_dispatch:
 env:
-  PROJECT: Dax.Vpax.Obfuscator.CLI
+  PROJECT_NAME: Dax.Vpax.Obfuscator.CLI
+  PROJECT_PATH: src/Dax.Vpax.Obfuscator.CLI
+  PROJECT_FILE: Dax.Vpax.Obfuscator.CLI.csproj
 jobs:
-  publish-release:
+  publish:
+    #if: github.ref == 'refs/heads/main'
     runs-on: windows-latest # windows is required for code signing (AzureSignTool)
     permissions:
       contents: write
@@ -21,9 +24,9 @@ jobs:
       uses: dotnet/nbgv@v0.4
       id: nbgv
       with:
-        path: src/${{ env.PROJECT }}
+        path: ${{ env.PROJECT_PATH }}
     - name: dotnet publish
-      run: dotnet publish 'src/${{ env.PROJECT }}/${{ env.PROJECT }}.csproj' -o . -c Release -r win-x86 --sc -p:PublishSingleFile=true
+      run: dotnet publish -c Release -o . -r win-x86 --sc -p:PublishSingleFile=true '${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }}'
     - name: dotnet tool install AzureSignTool
       run: dotnet tool install --no-cache --global AzureSignTool
     - name: code signing
@@ -32,8 +35,8 @@ jobs:
     - name: gh release create
       shell: bash
       run: |
+        RELEASE_TAG=${{ env.PROJECT_NAME }}_${{ steps.nbgv.outputs.SemVer2 }}
         PRERELEASE_FLAG=$([[ "${{ steps.nbgv.outputs.PrereleaseVersion }}" != "" ]] && echo "--prerelease" || echo "")
-        gh release create ${{ env.RELEASE_TAG }} 'vpax-obfuscator.exe#Obfuscator CLI x86 net6.0' --title ${{ env.RELEASE_TAG }} --target $GITHUB_SHA --generate-notes --draft $PRERELEASE_FLAG
+        gh release create $RELEASE_TAG 'vpax-obfuscator.exe#Obfuscator CLI x86 net6.0' --title $RELEASE_TAG --target $GITHUB_SHA --generate-notes --draft $PRERELEASE_FLAG
       env:
-        RELEASE_TAG: ${{ env.PROJECT }}_${{ steps.nbgv.outputs.SemVer2 }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

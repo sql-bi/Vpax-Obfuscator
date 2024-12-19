@@ -1,0 +1,9 @@
+{
+  "solution": {
+    "path": "Vpax-Obfuscator.sln",
+    "projects": [
+      "src\\Dax.Vpax.Obfuscator.Common\\Dax.Vpax.Obfuscator.Common.csproj",
+      "tests\\Dax.Vpax.Obfuscator.Common.Tests\\Dax.Vpax.Obfuscator.Common.Tests.csproj"
+    ]
+  }
+}

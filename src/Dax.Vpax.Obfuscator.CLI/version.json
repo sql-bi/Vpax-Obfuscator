@@ -1,12 +1,17 @@
 {
-  "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
+  "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/main/src/NerdBank.GitVersioning/version.schema.json",
   "version": "1.0",
   "nugetPackageVersion": {
-    "semVer": 2.0
+    "semVer": 2
   },
   "publicReleaseRefSpec": [
-    "^refs/heads/main"
+    "^refs/heads/main$",
+    "^refs/heads/release/Dax.Vpax.Obfuscator.CLI_\\d+\\.\\d+$"
   ],
+  "release": {
+    "branchName": "release/Dax.Vpax.Obfuscator.CLI_{version}",
+    "firstUnstableTag": ""
+  },
   "pathFilters": [
     "./"
   ]

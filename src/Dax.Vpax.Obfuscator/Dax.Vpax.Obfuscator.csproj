@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net472;net6.0;net8.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
+    <NoWarn>$(NoWarn);CA1510;CA1865;CA1866;CA1867</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -18,11 +19,11 @@
     <PackageTags>vpax dax vertipaq analyzer</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/sql-bi/Vpax-Obfuscator.git</RepositoryUrl>
-    <RepositoryBranch>main</RepositoryBranch>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <DebugType>embedded</DebugType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeProjectReferenceDlls</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,32 +31,23 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
-    <PackageReference Include="Dax.Vpax" Version="1.9.0" />
-    <PackageReference Include="Dax.Vpax.Obfuscator.Common" Version="1.0.3" />
+    <PackageReference Include="Antlr4.Runtime.Standard" />
+    <PackageReference Include="Dax.Vpax" />
+    <PackageReference Include="Dax.Vpax.Obfuscator.Common" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Dax.Vpax.Obfuscator.Tests" />
   </ItemGroup>
 
-  <!-- Include DLL from project reference in NuGet package -->
   <ItemGroup>
-    <!-- net472 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net472\Dax.Tokenizer.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\net472\</PackagePath>
-    </_PackageFiles>
-    <!-- net6.0 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net6.0\Dax.Tokenizer.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\net6.0\</PackagePath>
-    </_PackageFiles>
-    <!-- net8.0 -->
-    <_PackageFiles Include="$(OutputPath.TrimEnd('\').TrimEnd('/'))_net8.0\Dax.Tokenizer.dll">
-      <BuildAction>None</BuildAction>
-      <PackagePath>lib\net8.0\</PackagePath>
-    </_PackageFiles>
+    <None Remove="C:\Users\alberto\source\repos\github\sql-bi\Vpax-Obfuscator\src\artifacts\bin\Dax.Vpax.Obfuscator\debug_net472\Dax.Vpax.Obfuscator.dll" />
   </ItemGroup>
+
+  <Target Name="IncludeProjectReferenceDlls" DependsOnTargets="BuildOnlySettings;ResolveReferences">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')-&gt;WithMetadataValue('PrivateAssets', 'All'))" />
+    </ItemGroup>
+  </Target>
 
 </Project>

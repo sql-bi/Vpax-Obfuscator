@@ -4,10 +4,12 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dax.Vpax.Obfuscator\Dax.Vpax.Obfuscator.csproj" />
+    <ProjectReference Include="..\..\src\Dax.Vpax.Obfuscator\Dax.Vpax.Obfuscator.csproj" />
   </ItemGroup>
 
 </Project>

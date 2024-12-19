@@ -1,7 +1,11 @@
-name: ci
+name: ci-obfuscator-cli
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [ opened, synchronize, reopened, ready_for_review ]
+    branches: [ main ]
+    paths: [ 'src/Dax.Vpax.Obfuscator.CLI/**' ]
+env:
+  SOLUTION: Dax.Vpax.Obfuscator.CLI.slnf
 jobs:
   build-and-test:
     runs-on: windows-latest
@@ -17,8 +21,8 @@ jobs:
             6.0.x
           global-json-file: global.json
       - name: restore
-        run: dotnet restore Dax.Vpax.Obfuscator.CI.slnf
+        run: dotnet restore ${{ env.SOLUTION }}
       - name: dotnet build
-        run: dotnet build Dax.Vpax.Obfuscator.CI.slnf --configuration Release --no-restore
+        run: dotnet build ${{ env.SOLUTION }} --configuration Release --no-restore
       - name: dotnet test
-        run: dotnet test Dax.Vpax.Obfuscator.CI.slnf --configuration Release --no-build
+        run: dotnet test ${{ env.SOLUTION }} --configuration Release --no-build
