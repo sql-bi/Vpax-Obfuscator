@@ -11,3 +11,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Design", "CA1019:Define accessors for attribute arguments", Justification = "<Pending>", Scope = "member", Target = "~M:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.#ctor(System.String)")]
 [assembly: SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "<Pending>", Scope = "type", Target = "~T:Dax.Vpax.Obfuscator.Common.ObfuscationDictionary")]
 [assembly: SuppressMessage("Style", "IDE0130:Namespace does not match folder structure", Justification = "<Pending>", Scope = "namespace", Target = "~N:System.Diagnostics.CodeAnalysis")]
+[assembly: SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "<Pending>", Scope = "member", Target = "~M:Dax.Vpax.Obfuscator.Common.ObfuscationDictionary.WriteTo(System.IO.Stream,System.Boolean,System.Boolean)")]

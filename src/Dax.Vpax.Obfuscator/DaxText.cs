@@ -21,7 +21,7 @@ internal sealed class DaxText
     public DaxText(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
-        if (value == string.Empty) throw new ArgumentException("Value cannot be empty.", nameof(value));
+        if (value.Length == 0) throw new ArgumentException("Value cannot be empty.", nameof(value));
 
         Value = value;
     }
@@ -37,7 +37,7 @@ internal sealed class DaxText
         set
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
-            if (value == string.Empty) throw new ArgumentException("Value cannot be empty.", nameof(value));
+            if (value.Length == 0) throw new ArgumentException("Value cannot be empty.", nameof(value));
             if (value.Length < Value.Length) throw new InvalidOperationException($"{nameof(ObfuscatedValue)} cannot be shorter than the {nameof(Value)}.");
 
             _obfuscatedValue = value;

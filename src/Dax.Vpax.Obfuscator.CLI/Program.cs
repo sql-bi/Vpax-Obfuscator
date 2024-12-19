@@ -3,7 +3,7 @@ using Dax.Vpax.Obfuscator.Common;
 
 namespace Dax.Vpax.Obfuscator.CLI;
 
-internal class Program
+internal sealed class Program
 {
     public static int Main(string[] args) => BuildCommand().Invoke(args);
 
