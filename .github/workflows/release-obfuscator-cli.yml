@@ -1,4 +1,4 @@
-name: publish-obfuscator-cli
+name: release-obfuscator-cli
 on:
   workflow_dispatch:
 env:
@@ -7,7 +7,7 @@ env:
   PROJECT_FILE: Dax.Vpax.Obfuscator.CLI.csproj
 jobs:
   publish:
-    if: github.ref == 'refs/heads/main'
+    #if: github.ref == 'refs/heads/main'
     runs-on: windows-latest # windows is required for code signing (AzureSignTool)
     permissions:
       contents: write

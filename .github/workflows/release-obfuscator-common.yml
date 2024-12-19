@@ -1,13 +1,13 @@
-name: publish-obfuscator
+name: release-obfuscator-common
 on:
   workflow_dispatch:
 env:
-  PROJECT_NAME: Dax.Vpax.Obfuscator
-  PROJECT_PATH: src/Dax.Vpax.Obfuscator
-  PROJECT_FILE: Dax.Vpax.Obfuscator.csproj
+  PROJECT_NAME: Dax.Vpax.Obfuscator.Common
+  PROJECT_PATH: src/Dax.Vpax.Obfuscator.Common
+  PROJECT_FILE: Dax.Vpax.Obfuscator.Common.csproj
 jobs:
   publish:
-    if: github.ref == 'refs/heads/main'
+    #if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
