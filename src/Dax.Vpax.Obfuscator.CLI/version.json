@@ -9,9 +9,8 @@
     "^refs/heads/releases/Dax.Vpax.Obfuscator.CLI_\\d+\\.\\d+$"
   ],
   "release": {
-    "tagName": "Dax.Vpax.Obfuscator.CLI_{version}",
     "branchName": "releases/Dax.Vpax.Obfuscator.CLI_{version}",
-    "firstUnstableTag": "beta"
+    "firstUnstableTag": ""
   },
   "pathFilters": [
     "./"
