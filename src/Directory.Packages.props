@@ -8,9 +8,9 @@
     <PackageVersion Include="Dax.Vpax.Obfuscator" Version="1.1.3" />
     <PackageVersion Include="Dax.Vpax.Obfuscator.Common" Version="1.0.3" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta5.25306.1" />
   </ItemGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.6.146" />
+    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.7.115" />
   </ItemGroup>
 </Project>
