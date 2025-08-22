@@ -103,6 +103,7 @@ internal partial class DaxModelDeobfuscator
         {
             Deobfuscate(calculationItem.ItemName);
             Deobfuscate(calculationItem.ItemExpression);
+            Deobfuscate(calculationItem.FormatStringDefinition);
             Deobfuscate(calculationItem.Description);
         }
     }

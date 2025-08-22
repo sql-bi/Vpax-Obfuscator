@@ -163,6 +163,7 @@ internal sealed partial class DaxModelObfuscator
         {
             Obfuscate(calculationItem.ItemName);
             Obfuscate(calculationItem.ItemExpression);
+            Obfuscate(calculationItem.FormatStringDefinition);
             Obfuscate(calculationItem.Description);
         }
     }
