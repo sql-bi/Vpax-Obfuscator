@@ -427,7 +427,18 @@ public class DaxModelObfuscatorTests
     [InlineData(nameof(DaxToken.DESCRIPTION))] // <- not a valid variable name but it's fine for the test
     [InlineData(nameof(DaxToken.VISIBLE))] // <----- not a valid variable name but it's fine for the test
     [InlineData(nameof(DaxToken.DATATYPE))]
-    public void ObfuscateExpression_DDLDaxKeyword_IsNotObfuscated(string name)
+    [InlineData(nameof(DaxToken.KPISTATUSEXPRESSION))]
+    [InlineData(nameof(DaxToken.KPISTATUSDESCRIPTION))]
+    [InlineData(nameof(DaxToken.KPISTATUSGRAPHIC))]
+    [InlineData(nameof(DaxToken.KPITRENDEXPRESSION))]
+    [InlineData(nameof(DaxToken.KPITRENDDESCRIPTION))]
+    [InlineData(nameof(DaxToken.KPITRENDGRAPHIC))]
+    [InlineData(nameof(DaxToken.KPITARGETEXPRESSION))]
+    [InlineData(nameof(DaxToken.KPITARGETDESCRIPTION))]
+    [InlineData(nameof(DaxToken.KPITARGETFORMATSTRING))]
+    [InlineData(nameof(DaxToken.PRECEDENCE))]
+    [InlineData(nameof(DaxToken.ORDINAL))]
+    public void ObfuscateExpression_DDLProperty_IsNotObfuscated(string name)
     {
         var expression = $""" VAR {name} = 0 RETURN {name} """;
         var actual = CreateObfuscator().ObfuscateExpression(expression);
