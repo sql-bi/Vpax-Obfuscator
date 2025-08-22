@@ -4,6 +4,17 @@ namespace Dax.Vpax.Obfuscator.Tests.TestUtils;
 
 internal static class DaxModelExtensions
 {
+    public static Function AddFunction(this Model model, string name, string expression)
+    {
+        var function = new Function()
+        {
+            FunctionName = new DaxName(name),
+            FunctionExpression = new DaxExpression(expression)
+        };
+        model.Functions.Add(function);
+        return function;
+    }
+
     public static Table AddTable(this Model model, string name, string? description = null, string? expression = null)
     {
         var table = new Table(model)

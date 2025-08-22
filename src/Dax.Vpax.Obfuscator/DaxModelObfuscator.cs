@@ -8,6 +8,7 @@ namespace Dax.Vpax.Obfuscator;
 internal sealed partial class DaxModelObfuscator
 {
     private readonly DaxTextObfuscator _obfuscator = new();
+    private readonly NamedObjectIdentifierCollection _identifiers = new();
 
     public DaxModelObfuscator(ObfuscationOptions options, Model model, ObfuscationDictionary dictionary)
         : this(options, model)
@@ -28,7 +29,7 @@ internal sealed partial class DaxModelObfuscator
         Model.ObfuscatorLibVersion = VpaxObfuscator.Version;
     }
 
-    public Model Model { get; } // test only
+    public Model Model { get; }
     public ObfuscationMode Mode { get; }
     public ObfuscationOptions Options { get; }
     public DaxTextCollection Texts { get; } = new();
@@ -36,14 +37,16 @@ internal sealed partial class DaxModelObfuscator
 
     public ObfuscationDictionary Obfuscate()
     {
-        // Obfuscate and map identifiers first
+        // Obfuscate names first to ensure that all identifiers are mapped before obfuscating expressions
         Model.Tables.ForEach(ObfuscateIdentifiers);
+        Model.Functions.ForEach(ObfuscateIdentifiers);
 
         Obfuscate(Model.ModelName);
         Obfuscate(Model.ServerName);
         Model.Tables.ForEach(Obfuscate);
         Model.Relationships.ForEach(Obfuscate);
         Model.Roles.ForEach(Obfuscate);
+        Model.Functions.ForEach(Obfuscate);
 
         var id = Model.ObfuscatorDictionaryId;
         var version = VpaxObfuscator.Version;
@@ -91,6 +94,12 @@ internal sealed partial class DaxModelObfuscator
 
             Texts.Add(text);
         }
+    }
+
+    private void ObfuscateIdentifiers(Function function)
+    {
+        _identifiers.Map(function);
+        ObfuscateFunctionName(function.FunctionName);
     }
 
     private void Obfuscate(Table table)
@@ -179,9 +188,16 @@ internal sealed partial class DaxModelObfuscator
         Obfuscate(tablePermission.FilterExpression);
     }
 
+    private void Obfuscate(Function function)
+    {
+        Obfuscate(function.Description);
+        Obfuscate(function.FunctionExpression);
+    }
+
     private void ObfuscateTableName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void ObfuscateColumnName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
     private string? ObfuscateMeasureName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
+    private void ObfuscateFunctionName(DaxName name) => Obfuscate(name, ObfuscationRule.None);
 
     private string? Obfuscate(DaxName name, ObfuscationRule rule = ObfuscationRule.None)
     {

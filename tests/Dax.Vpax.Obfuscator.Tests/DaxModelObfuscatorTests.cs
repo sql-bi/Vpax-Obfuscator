@@ -79,6 +79,31 @@ public class DaxModelObfuscatorTests
         Assert.Equal(name, measure.MeasureName.Name);
     }
 
+    [Fact]
+    public void Obfuscate_UserDefinedFunction_Invocation_IsObfuscated()
+    {
+        var expression = """ MyFunc1(1) + DIVIDE(1, 1) + My.Func2(1) + EXPON.DIST(1, 0.1, TRUE) """;
+        var expected_o = """ XXXXXXX(1) + DIVIDE(1, 1) + YYYYYYYY(1) + EXPON.DIST(1, 0.1, TRUE) """;
+        var expected_d = expression;
+
+        var model = new Model();
+        _ = model.AddFunction("MyFunc1", expression: "() => 1");
+        _ = model.AddFunction("My.Func2", expression: "() => 1"); // to test dot in the name
+        var measure = model.AddTable("T").AddMeasure("M", expression: expression);
+
+        DaxText[] texts =
+        [
+            new("MyFunc1", "XXXXXXX"),
+            new("My.Func2", "YYYYYYYY"),
+        ];
+
+        var dictionary = CreateObfuscator(texts, model).Obfuscate();
+        Assert.Equal(expected_o, measure.MeasureExpression.Expression);
+
+        CreateDeobfuscator(dictionary, model).Deobfuscate();
+        Assert.Equal(expected_d, measure.MeasureExpression.Expression);
+    }
+
     [Theory]
     [MemberData(nameof(GetDaxKeywordData))]
     public void ObfuscateExpression_VariableAndTableReferenceNameMatchingDaxKeyword_IsNotObfuscated(string keyword)

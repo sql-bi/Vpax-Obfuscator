@@ -8,6 +8,7 @@ internal partial class DaxModelDeobfuscator
 {
     private readonly Model _model;
     private readonly ObfuscationDictionary _dictionary;
+    private readonly NamedObjectIdentifierCollection _identifiers = new();
 
     public DaxModelDeobfuscator(Model model, ObfuscationDictionary dictionary)
     {
@@ -20,11 +21,15 @@ internal partial class DaxModelDeobfuscator
 
     public void Deobfuscate()
     {
+        // Deobfuscate names first to ensure that all identifiers are mapped; only applies to UDFs here
+        _model.Functions.ForEach(DeobfuscateIdentifiers);
+
         Deobfuscate(_model.ModelName);
         Deobfuscate(_model.ServerName);
         _model.Tables.ForEach(Deobfuscate);
         _model.Relationships.ForEach(Deobfuscate);
         _model.Roles.ForEach(Deobfuscate);
+        _model.Functions.ForEach(Deobfuscate);
     }
 
     private void Deobfuscate(Table table)
@@ -38,6 +43,12 @@ internal partial class DaxModelDeobfuscator
         table.Measures.ForEach(Deobfuscate);
         table.UserHierarchies.ForEach(Deobfuscate);
         table.Partitions.ForEach(Deobfuscate);
+    }
+
+    private void DeobfuscateIdentifiers(Function function)
+    {
+        _identifiers.Map(function);
+        DeobfuscateFunctionName(function.FunctionName);
     }
 
     private void Deobfuscate(Column column)
@@ -119,9 +130,16 @@ internal partial class DaxModelDeobfuscator
         Deobfuscate(tablePermission.FilterExpression);
     }
 
+    private void Deobfuscate(Function function)
+    {
+        Deobfuscate(function.Description);
+        Deobfuscate(function.FunctionExpression);
+    }
+
     private void DeobfuscateTableName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void DeobfuscateColumnName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
     private void DeobfuscateMeasureName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
+    private void DeobfuscateFunctionName(DaxName name) => Deobfuscate(name, ObfuscationRule.None);
 
     private void Deobfuscate(DaxName name, ObfuscationRule rule = ObfuscationRule.None)
     {
