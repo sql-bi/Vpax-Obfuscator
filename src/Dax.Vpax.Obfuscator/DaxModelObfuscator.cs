@@ -151,6 +151,14 @@ internal sealed partial class DaxModelObfuscator
         if (calculationGroup == null)
             return;
 
+        Obfuscate(calculationGroup.Description);
+        Obfuscate(calculationGroup.MultipleOrEmptySelectionExpression);
+        Obfuscate(calculationGroup.MultipleOrEmptySelectionExpressionDescription);
+        Obfuscate(calculationGroup.MultipleOrEmptySelectionFormatStringExpression);
+        Obfuscate(calculationGroup.NoSelectionExpression);
+        Obfuscate(calculationGroup.NoSelectionExpressionDescription);
+        Obfuscate(calculationGroup.NoSelectionFormatStringExpression);
+
         foreach (var calculationItem in calculationGroup.CalculationItems)
         {
             Obfuscate(calculationItem.ItemName);

@@ -91,6 +91,14 @@ internal partial class DaxModelDeobfuscator
         if (calculationGroup == null)
             return;
 
+        Deobfuscate(calculationGroup.Description);
+        Deobfuscate(calculationGroup.MultipleOrEmptySelectionExpression);
+        Deobfuscate(calculationGroup.MultipleOrEmptySelectionExpressionDescription);
+        Deobfuscate(calculationGroup.MultipleOrEmptySelectionFormatStringExpression);
+        Deobfuscate(calculationGroup.NoSelectionExpression);
+        Deobfuscate(calculationGroup.NoSelectionExpressionDescription);
+        Deobfuscate(calculationGroup.NoSelectionFormatStringExpression);
+
         foreach (var calculationItem in calculationGroup.CalculationItems)
         {
             Deobfuscate(calculationItem.ItemName);
