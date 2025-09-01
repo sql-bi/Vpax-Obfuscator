@@ -39,6 +39,7 @@ internal partial class DaxModelDeobfuscator
         Deobfuscate(table.DefaultDetailRowsExpression);
         Deobfuscate(table.CalculationGroup);
         Deobfuscate(table.Description);
+        table.Calendars.ForEach(Deobfuscate);
         table.Columns.ForEach(Deobfuscate);
         table.Measures.ForEach(Deobfuscate);
         table.UserHierarchies.ForEach(Deobfuscate);
@@ -49,6 +50,28 @@ internal partial class DaxModelDeobfuscator
     {
         _identifiers.Map(function);
         DeobfuscateFunctionName(function.FunctionName);
+    }
+
+    private void Deobfuscate(Calendar calendar)
+    {
+        DeobfuscateCalendarName(calendar.CalendarName);
+        Deobfuscate(calendar.Description);
+
+        foreach (var columnGroup in calendar.CalendarColumnGroups)
+        {
+            switch (columnGroup)
+            {
+                case TimeRelatedColumnGroup:
+                    // Columns reference table columns - no obfuscation needed
+                    break;
+                case TimeUnitColumnAssociation:
+                    // PrimaryColumn and AssociatedColumns reference table columns - no obfuscation needed  
+                    break;
+                default:
+                    // Ensure an exception is thrown when new CalendarColumnGroup types are added and not handled here
+                    throw new NotSupportedException($"Unknown calendar column group type '{columnGroup.GetType().FullName}'.");
+            }
+        }
     }
 
     private void Deobfuscate(Column column)
@@ -136,6 +159,7 @@ internal partial class DaxModelDeobfuscator
         Deobfuscate(function.FunctionExpression);
     }
 
+    private void DeobfuscateCalendarName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void DeobfuscateTableName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void DeobfuscateColumnName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
     private void DeobfuscateMeasureName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxReservedNames);

@@ -59,8 +59,14 @@ internal sealed partial class DaxModelObfuscator
     private void ObfuscateIdentifiers(Table table)
     {
         ObfuscateTableName(table.TableName);
+        table.Calendars.ForEach(ObfuscateIdentifiers);
         table.Columns.ForEach(ObfuscateIdentifiers);
         table.Measures.ForEach(ObfuscateIdentifiers);
+    }
+
+    private void ObfuscateIdentifiers(Calendar calendar)
+    {
+        ObfuscateCalendarName(calendar.CalendarName);
     }
 
     private void ObfuscateIdentifiers(Column column)
@@ -108,10 +114,32 @@ internal sealed partial class DaxModelObfuscator
         Obfuscate(table.DefaultDetailRowsExpression);
         Obfuscate(table.CalculationGroup);
         Obfuscate(table.Description);
+        table.Calendars.ForEach(Obfuscate);
         table.Columns.ForEach(Obfuscate);
         table.Measures.ForEach(Obfuscate);
         table.UserHierarchies.ForEach(Obfuscate);
         table.Partitions.ForEach(Obfuscate);
+    }
+
+    private void Obfuscate(Calendar calendar)
+    {
+        Obfuscate(calendar.Description);
+
+        foreach (var columnGroup in calendar.CalendarColumnGroups)
+        {
+            switch (columnGroup)
+            {
+                case TimeRelatedColumnGroup:
+                    // Columns reference table columns - no obfuscation needed
+                    break;
+                case TimeUnitColumnAssociation:
+                    // PrimaryColumn and AssociatedColumns reference table columns - no obfuscation needed  
+                    break;
+                default:
+                    // Ensure an exception is thrown when new CalendarColumnGroup types are added and not handled here
+                    throw new NotSupportedException($"Unknown calendar column group type '{columnGroup.GetType().FullName}'.");
+            }
+        }
     }
 
     private void Obfuscate(Column column)
@@ -194,6 +222,7 @@ internal sealed partial class DaxModelObfuscator
         Obfuscate(function.FunctionExpression);
     }
 
+    private void ObfuscateCalendarName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void ObfuscateTableName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void ObfuscateColumnName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
     private string? ObfuscateMeasureName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxReservedNames);

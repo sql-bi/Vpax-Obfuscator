@@ -4,6 +4,45 @@ namespace Dax.Vpax.Obfuscator.Tests.TestUtils;
 
 internal static class DaxModelExtensions
 {
+    public static TimeUnitColumnAssociation AddTimeUnitColumnAssociation(this Calendar calendar, TimeUnit timeUnit, Column primaryColumn)
+        => calendar.AddTimeUnitColumnAssociation(timeUnit, primaryColumn, associatedColumns: Enumerable.Empty<Column>());
+
+    public static TimeUnitColumnAssociation AddTimeUnitColumnAssociation(this Calendar calendar, TimeUnit timeUnit, Column primaryColumn, IEnumerable<Column> associatedColumns)
+    {
+        var columnGroup = new TimeUnitColumnAssociation
+        {
+            Calendar = calendar,
+            TimeUnit = timeUnit,
+            PrimaryColumn = primaryColumn,
+            AssociatedColumns = associatedColumns.ToList(),
+        };
+        calendar.CalendarColumnGroups.Add(columnGroup);
+        return columnGroup;
+    }
+
+    public static TimeRelatedColumnGroup AddTimeRelatedColumnGroup(this Calendar calendar, IEnumerable<Column> columns)
+    {
+        var columnGroup = new TimeRelatedColumnGroup
+        {
+            Calendar = calendar,
+            Columns = columns.ToList(),
+        };
+        calendar.CalendarColumnGroups.Add(columnGroup);
+        return columnGroup;
+    }
+
+    public static Calendar AddCalendar(this Table table, string name, string? description = null)
+    {
+        var calendar = new Calendar()
+        {
+            Table = table,
+            CalendarName = new DaxName(name),
+            Description = new DaxNote(description),
+        };
+        table.Calendars.Add(calendar);
+        return calendar;
+    }
+
     public static Function AddFunction(this Model model, string name, string expression)
     {
         var function = new Function()
