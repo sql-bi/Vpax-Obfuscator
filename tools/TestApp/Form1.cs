@@ -14,6 +14,8 @@ namespace TestApp
 
         private void buttonObfuscate_Click(object sender, EventArgs e)
         {
+            openVpaxFileDialog.Filter = "VPAX files (*.vpax)|*.vpax|All files (*.*)|*.*";
+
             if (openVpaxFileDialog.ShowDialog() != DialogResult.OK) return;
             if (checkBoxIncrementalFileObfuscation.Checked && openDictionaryFileDialog.ShowDialog() != DialogResult.OK) return;
 
@@ -74,6 +76,8 @@ namespace TestApp
 
         private void buttonDeobfuscate_Click(object sender, EventArgs e)
         {
+            openVpaxFileDialog.Filter = "OVPAX files (*.ovpax)|*.ovpax|All files (*.*)|*.*";
+
             if (openVpaxFileDialog.ShowDialog() != DialogResult.OK) return;
             if (openDictionaryFileDialog.ShowDialog() != DialogResult.OK) return;
 
@@ -126,6 +130,23 @@ namespace TestApp
 
             var vpaxPath = Path.Combine(ovpaxFile.DirectoryName!, Path.ChangeExtension(ovpaxFile.Name, ".deobfuscated.vpax"));
             File.WriteAllBytes(vpaxPath, stream.ToArray());
+        }
+
+        private void buttonExtractVpax_Click(object sender, EventArgs e)
+        {
+            var connectionString = textBoxConnectionString.Text;
+
+            var model = Dax.Model.Extractor.TomExtractor.GetDaxModel(connectionString, applicationName: "ObfuscatorTest", applicationVersion: "0.0.0");
+
+            //var database = Dax.Model.Extractor.TomExtractor.GetDatabase(serverName, databaseName);
+            //var viewVpa = new Dax.ViewVpaExport.Model(model);
+
+            saveFileDialog1.Title = "Select the output VPAX file.";
+            saveFileDialog1.Filter = "VPAX files (*.vpax)|*.vpax|All files (*.*)|*.*";
+            if (saveFileDialog1.ShowDialog() != DialogResult.OK) return;
+
+            var path = saveFileDialog1.FileName;
+            Dax.Vpax.Tools.VpaxTools.ExportVpax(path, model, viewVpa: null, database: null);
         }
     }
 }

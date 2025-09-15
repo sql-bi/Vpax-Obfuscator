@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dax.Model.Extractor" Version="1.11.0-preview7" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Dax.Vpax.Obfuscator\Dax.Vpax.Obfuscator.csproj" />
   </ItemGroup>
 
