@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dax.Model.Extractor" Version="1.11.0-preview7" />
+    <PackageReference Include="Dax.Model.Extractor" Version="1.11.0" />
   </ItemGroup>
 
   <ItemGroup>
