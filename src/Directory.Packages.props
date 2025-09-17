@@ -11,6 +11,6 @@
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.6.146" />
+    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.7.115" />
   </ItemGroup>
 </Project>
