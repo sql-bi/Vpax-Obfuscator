@@ -35,7 +35,11 @@ internal sealed partial class DaxModelObfuscator
             {
                 case DaxToken.SINGLE_LINE_COMMENT:
                 case DaxToken.DELIMITED_COMMENT:
-                    tokenText = ObfuscateText(new DaxText(tokenText));
+                case DaxToken.TABLE_OR_VARIABLE when token.IsFunction() && _identifiers.IsKnownUserDefinedFunction(tokenText):
+                case DaxToken.OTHER_IDENTIFIER when token.IsFunction() && _identifiers.IsKnownUserDefinedFunction(tokenText):
+                    {
+                        tokenText = ObfuscateText(new DaxText(tokenText), ObfuscationRule.None);
+                    }
                     break;
                 case DaxToken.TABLE:
                 case DaxToken.TABLE_OR_VARIABLE when token.IsVariable():

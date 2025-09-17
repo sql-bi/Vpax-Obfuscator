@@ -8,6 +8,7 @@ namespace Dax.Vpax.Obfuscator;
 internal sealed partial class DaxModelObfuscator
 {
     private readonly DaxTextObfuscator _obfuscator = new();
+    private readonly NamedObjectIdentifierCollection _identifiers = new();
 
     public DaxModelObfuscator(ObfuscationOptions options, Model model, ObfuscationDictionary dictionary)
         : this(options, model)
@@ -28,7 +29,7 @@ internal sealed partial class DaxModelObfuscator
         Model.ObfuscatorLibVersion = VpaxObfuscator.Version;
     }
 
-    public Model Model { get; } // test only
+    public Model Model { get; }
     public ObfuscationMode Mode { get; }
     public ObfuscationOptions Options { get; }
     public DaxTextCollection Texts { get; } = new();
@@ -36,14 +37,16 @@ internal sealed partial class DaxModelObfuscator
 
     public ObfuscationDictionary Obfuscate()
     {
-        // Obfuscate and map identifiers first
+        // Obfuscate names first to ensure that all identifiers are mapped before obfuscating expressions
         Model.Tables.ForEach(ObfuscateIdentifiers);
+        Model.Functions.ForEach(ObfuscateIdentifiers);
 
         Obfuscate(Model.ModelName);
         Obfuscate(Model.ServerName);
         Model.Tables.ForEach(Obfuscate);
         Model.Relationships.ForEach(Obfuscate);
         Model.Roles.ForEach(Obfuscate);
+        Model.Functions.ForEach(Obfuscate);
 
         var id = Model.ObfuscatorDictionaryId;
         var version = VpaxObfuscator.Version;
@@ -56,8 +59,14 @@ internal sealed partial class DaxModelObfuscator
     private void ObfuscateIdentifiers(Table table)
     {
         ObfuscateTableName(table.TableName);
+        table.Calendars.ForEach(ObfuscateIdentifiers);
         table.Columns.ForEach(ObfuscateIdentifiers);
         table.Measures.ForEach(ObfuscateIdentifiers);
+    }
+
+    private void ObfuscateIdentifiers(Calendar calendar)
+    {
+        ObfuscateCalendarName(calendar.CalendarName);
     }
 
     private void ObfuscateIdentifiers(Column column)
@@ -93,16 +102,44 @@ internal sealed partial class DaxModelObfuscator
         }
     }
 
+    private void ObfuscateIdentifiers(Function function)
+    {
+        _identifiers.Map(function);
+        ObfuscateFunctionName(function.FunctionName);
+    }
+
     private void Obfuscate(Table table)
     {
         Obfuscate(table.TableExpression);
         Obfuscate(table.DefaultDetailRowsExpression);
         Obfuscate(table.CalculationGroup);
         Obfuscate(table.Description);
+        table.Calendars.ForEach(Obfuscate);
         table.Columns.ForEach(Obfuscate);
         table.Measures.ForEach(Obfuscate);
         table.UserHierarchies.ForEach(Obfuscate);
         table.Partitions.ForEach(Obfuscate);
+    }
+
+    private void Obfuscate(Calendar calendar)
+    {
+        Obfuscate(calendar.Description);
+
+        foreach (var columnGroup in calendar.CalendarColumnGroups)
+        {
+            switch (columnGroup)
+            {
+                case TimeRelatedColumnGroup:
+                    // Columns reference table columns - no obfuscation needed
+                    break;
+                case TimeUnitColumnAssociation:
+                    // PrimaryColumn and AssociatedColumns reference table columns - no obfuscation needed  
+                    break;
+                default:
+                    // Ensure an exception is thrown when new CalendarColumnGroup types are added and not handled here
+                    throw new NotSupportedException($"Unknown calendar column group type '{columnGroup.GetType().FullName}'.");
+            }
+        }
     }
 
     private void Obfuscate(Column column)
@@ -151,10 +188,19 @@ internal sealed partial class DaxModelObfuscator
         if (calculationGroup == null)
             return;
 
+        Obfuscate(calculationGroup.Description);
+        Obfuscate(calculationGroup.MultipleOrEmptySelectionExpression);
+        Obfuscate(calculationGroup.MultipleOrEmptySelectionExpressionDescription);
+        Obfuscate(calculationGroup.MultipleOrEmptySelectionFormatStringExpression);
+        Obfuscate(calculationGroup.NoSelectionExpression);
+        Obfuscate(calculationGroup.NoSelectionExpressionDescription);
+        Obfuscate(calculationGroup.NoSelectionFormatStringExpression);
+
         foreach (var calculationItem in calculationGroup.CalculationItems)
         {
             Obfuscate(calculationItem.ItemName);
             Obfuscate(calculationItem.ItemExpression);
+            Obfuscate(calculationItem.FormatStringDefinition);
             Obfuscate(calculationItem.Description);
         }
     }
@@ -170,9 +216,17 @@ internal sealed partial class DaxModelObfuscator
         Obfuscate(tablePermission.FilterExpression);
     }
 
+    private void Obfuscate(Function function)
+    {
+        Obfuscate(function.Description);
+        Obfuscate(function.FunctionExpression);
+    }
+
+    private void ObfuscateCalendarName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void ObfuscateTableName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void ObfuscateColumnName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
     private string? ObfuscateMeasureName(DaxName name) => Obfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
+    private void ObfuscateFunctionName(DaxName name) => Obfuscate(name, ObfuscationRule.None);
 
     private string? Obfuscate(DaxName name, ObfuscationRule rule = ObfuscationRule.None)
     {

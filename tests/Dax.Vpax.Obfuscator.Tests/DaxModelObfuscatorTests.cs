@@ -12,6 +12,58 @@ namespace Dax.Vpax.Obfuscator.Tests;
 public class DaxModelObfuscatorTests
 {
     [Fact]
+    public void Obfuscate_Calendar()
+    {
+        var model = new Model();
+
+        var table = model.AddTable("Date");
+        var day = table.AddColumn("Day");
+        var month = table.AddColumn("Month");
+        var year = table.AddColumn("Year");
+        var relatedCol = table.AddColumn("RelatedCol");
+
+        var calendar = table.AddCalendar("Calendar1");
+        var group1 = calendar.AddTimeUnitColumnAssociation(TimeUnit.Year, year, associatedColumns: [month, day]);
+        var group2 = calendar.AddTimeRelatedColumnGroup([relatedCol]);
+
+        var measure = table.AddMeasure("Measure1", expression: "DATESYTD('Calendar1')");
+
+        DaxText[] texts =
+        [
+            new("Day", "DDD"),
+            new("Month", "MMMMM"),
+            new("Year", "YYYY"),
+            new("RelatedCol", "RRRRRRRRRR"),
+            new("Calendar1", "CCCCCCCCC"),
+            new("CalFunc1", "FFFFFFFF"),
+        ];
+
+        var dictionary = CreateObfuscator(texts, model).Obfuscate();
+
+        Assert.Equal("CCCCCCCCC", calendar.CalendarName.Name);
+        // group1
+        Assert.Equal("YYYY", group1.PrimaryColumn.ColumnName.Name);
+        Assert.Equal("MMMMM", group1.AssociatedColumns[0].ColumnName.Name);
+        Assert.Equal("DDD", group1.AssociatedColumns[1].ColumnName.Name);
+        // group2
+        Assert.Equal("RRRRRRRRRR", group2.Columns[0].ColumnName.Name);
+        // measure
+        Assert.Equal("DATESYTD('CCCCCCCCC')", measure.MeasureExpression.Expression);
+
+        CreateDeobfuscator(dictionary, model).Deobfuscate();
+
+        Assert.Equal("Calendar1", calendar.CalendarName.Name);
+        // group1
+        Assert.Equal("Year", group1.PrimaryColumn.ColumnName.Name);
+        Assert.Equal("Month", group1.AssociatedColumns[0].ColumnName.Name);
+        Assert.Equal("Day", group1.AssociatedColumns[1].ColumnName.Name);
+        // group2
+        Assert.Equal("RelatedCol", group2.Columns[0].ColumnName.Name);
+        // measure
+        Assert.Equal("DATESYTD('Calendar1')", measure.MeasureExpression.Expression);
+    }
+
+    [Fact]
     public void Obfuscate_KpiMeasureReference_IsObfuscatedPreservingNamePrefixAndSuffix()
     {
         var expression = "[_Amount Goal] + [_Amount Trend] + [_Amount Status]";
@@ -77,6 +129,37 @@ public class DaxModelObfuscatorTests
         CreateDeobfuscator(dictionary, model).Deobfuscate();
         Assert.Equal(name, column.ColumnName.Name);
         Assert.Equal(name, measure.MeasureName.Name);
+    }
+
+    [Fact]
+    public void Obfuscate_UserDefinedFunction()
+    {
+        var measure_expression = """ MyFunc1(1) + DIVIDE(1, 1) + My.Func2(1) + EXPON.DIST(1, 0.1, TRUE) """;
+        var measure_expected_o = """ XXXXXXX(1) + DIVIDE(1, 1) + YYYYYYYY(1) + EXPON.DIST(1, 0.1, TRUE) """;
+        var measure_expected_d = measure_expression;
+
+        var udf1_expression = """ () => My.Func2(1) + EXPON.DIST(1, 0.1, TRUE) """;
+        var udf1_expected_o = """ () => YYYYYYYY(1) + EXPON.DIST(1, 0.1, TRUE) """;
+        var udf1_expected_d = udf1_expression;
+
+        var model = new Model();
+        var udf1 = model.AddFunction("MyFunc1", expression: udf1_expression);
+        _ = model.AddFunction("My.Func2", expression: "() => 1"); // to test dot in the name
+        var measure = model.AddTable("T").AddMeasure("M", expression: measure_expression);
+
+        DaxText[] texts =
+        [
+            new("MyFunc1", "XXXXXXX"),
+            new("My.Func2", "YYYYYYYY"),
+        ];
+
+        var dictionary = CreateObfuscator(texts, model).Obfuscate();
+        Assert.Equal(measure_expected_o, measure.MeasureExpression.Expression);
+        Assert.Equal(udf1_expected_o, udf1.FunctionExpression.Expression);
+
+        CreateDeobfuscator(dictionary, model).Deobfuscate();
+        Assert.Equal(measure_expected_d, measure.MeasureExpression.Expression);
+        Assert.Equal(udf1_expected_d, udf1.FunctionExpression.Expression);
     }
 
     [Theory]
@@ -427,7 +510,18 @@ public class DaxModelObfuscatorTests
     [InlineData(nameof(DaxToken.DESCRIPTION))] // <- not a valid variable name but it's fine for the test
     [InlineData(nameof(DaxToken.VISIBLE))] // <----- not a valid variable name but it's fine for the test
     [InlineData(nameof(DaxToken.DATATYPE))]
-    public void ObfuscateExpression_DDLDaxKeyword_IsNotObfuscated(string name)
+    [InlineData(nameof(DaxToken.KPISTATUSEXPRESSION))]
+    [InlineData(nameof(DaxToken.KPISTATUSDESCRIPTION))]
+    [InlineData(nameof(DaxToken.KPISTATUSGRAPHIC))]
+    [InlineData(nameof(DaxToken.KPITRENDEXPRESSION))]
+    [InlineData(nameof(DaxToken.KPITRENDDESCRIPTION))]
+    [InlineData(nameof(DaxToken.KPITRENDGRAPHIC))]
+    [InlineData(nameof(DaxToken.KPITARGETEXPRESSION))]
+    [InlineData(nameof(DaxToken.KPITARGETDESCRIPTION))]
+    [InlineData(nameof(DaxToken.KPITARGETFORMATSTRING))]
+    [InlineData(nameof(DaxToken.PRECEDENCE))]
+    [InlineData(nameof(DaxToken.ORDINAL))]
+    public void ObfuscateExpression_DDLProperty_IsNotObfuscated(string name)
     {
         var expression = $""" VAR {name} = 0 RETURN {name} """;
         var actual = CreateObfuscator().ObfuscateExpression(expression);

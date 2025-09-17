@@ -8,6 +8,7 @@ internal partial class DaxModelDeobfuscator
 {
     private readonly Model _model;
     private readonly ObfuscationDictionary _dictionary;
+    private readonly NamedObjectIdentifierCollection _identifiers = new();
 
     public DaxModelDeobfuscator(Model model, ObfuscationDictionary dictionary)
     {
@@ -20,11 +21,15 @@ internal partial class DaxModelDeobfuscator
 
     public void Deobfuscate()
     {
+        // Deobfuscate names first to ensure that all identifiers are mapped; only applies to UDFs here
+        _model.Functions.ForEach(DeobfuscateIdentifiers);
+
         Deobfuscate(_model.ModelName);
         Deobfuscate(_model.ServerName);
         _model.Tables.ForEach(Deobfuscate);
         _model.Relationships.ForEach(Deobfuscate);
         _model.Roles.ForEach(Deobfuscate);
+        _model.Functions.ForEach(Deobfuscate);
     }
 
     private void Deobfuscate(Table table)
@@ -34,10 +39,39 @@ internal partial class DaxModelDeobfuscator
         Deobfuscate(table.DefaultDetailRowsExpression);
         Deobfuscate(table.CalculationGroup);
         Deobfuscate(table.Description);
+        table.Calendars.ForEach(Deobfuscate);
         table.Columns.ForEach(Deobfuscate);
         table.Measures.ForEach(Deobfuscate);
         table.UserHierarchies.ForEach(Deobfuscate);
         table.Partitions.ForEach(Deobfuscate);
+    }
+
+    private void DeobfuscateIdentifiers(Function function)
+    {
+        _identifiers.Map(function);
+        DeobfuscateFunctionName(function.FunctionName);
+    }
+
+    private void Deobfuscate(Calendar calendar)
+    {
+        DeobfuscateCalendarName(calendar.CalendarName);
+        Deobfuscate(calendar.Description);
+
+        foreach (var columnGroup in calendar.CalendarColumnGroups)
+        {
+            switch (columnGroup)
+            {
+                case TimeRelatedColumnGroup:
+                    // Columns reference table columns - no obfuscation needed
+                    break;
+                case TimeUnitColumnAssociation:
+                    // PrimaryColumn and AssociatedColumns reference table columns - no obfuscation needed  
+                    break;
+                default:
+                    // Ensure an exception is thrown when new CalendarColumnGroup types are added and not handled here
+                    throw new NotSupportedException($"Unknown calendar column group type '{columnGroup.GetType().FullName}'.");
+            }
+        }
     }
 
     private void Deobfuscate(Column column)
@@ -91,10 +125,19 @@ internal partial class DaxModelDeobfuscator
         if (calculationGroup == null)
             return;
 
+        Deobfuscate(calculationGroup.Description);
+        Deobfuscate(calculationGroup.MultipleOrEmptySelectionExpression);
+        Deobfuscate(calculationGroup.MultipleOrEmptySelectionExpressionDescription);
+        Deobfuscate(calculationGroup.MultipleOrEmptySelectionFormatStringExpression);
+        Deobfuscate(calculationGroup.NoSelectionExpression);
+        Deobfuscate(calculationGroup.NoSelectionExpressionDescription);
+        Deobfuscate(calculationGroup.NoSelectionFormatStringExpression);
+
         foreach (var calculationItem in calculationGroup.CalculationItems)
         {
             Deobfuscate(calculationItem.ItemName);
             Deobfuscate(calculationItem.ItemExpression);
+            Deobfuscate(calculationItem.FormatStringDefinition);
             Deobfuscate(calculationItem.Description);
         }
     }
@@ -110,9 +153,17 @@ internal partial class DaxModelDeobfuscator
         Deobfuscate(tablePermission.FilterExpression);
     }
 
+    private void Deobfuscate(Function function)
+    {
+        Deobfuscate(function.Description);
+        Deobfuscate(function.FunctionExpression);
+    }
+
+    private void DeobfuscateCalendarName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void DeobfuscateTableName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxKeywords);
     private void DeobfuscateColumnName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
     private void DeobfuscateMeasureName(DaxName name) => Deobfuscate(name, ObfuscationRule.PreserveDaxReservedNames);
+    private void DeobfuscateFunctionName(DaxName name) => Deobfuscate(name, ObfuscationRule.None);
 
     private void Deobfuscate(DaxName name, ObfuscationRule rule = ObfuscationRule.None)
     {

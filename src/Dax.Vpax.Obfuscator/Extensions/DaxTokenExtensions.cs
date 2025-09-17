@@ -6,9 +6,16 @@ internal static class DaxTokenExtensions
 {
     public static bool IsVariable(this DaxToken token) => !IsFunction(token);
 
+    /// <summary>
+    /// Determines whether the specified token represents a DAX function call.
+    /// </summary>
+    /// <remarks>
+    /// This applies to both built-in and user-defined functions.
+    /// </remarks>
     public static bool IsFunction(this DaxToken token)
     {
-        if (token.Type != DaxToken.TABLE_OR_VARIABLE) throw new ArgumentException($"Token must be of type {nameof(DaxToken.TABLE_OR_VARIABLE)}", nameof(token));
+        if (token.Type is not (DaxToken.TABLE_OR_VARIABLE or DaxToken.OTHER_IDENTIFIER))
+            throw new InvalidOperationException($"Invalid token for function detection. Token value: '{token.Text}', type: {token.Type}.");
 
         var current = token.Next;
         while (current != null && current.CommentOrWhitespace)
