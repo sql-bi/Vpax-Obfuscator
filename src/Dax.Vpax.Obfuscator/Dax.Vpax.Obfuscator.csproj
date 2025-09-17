@@ -31,9 +31,10 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Antlr4.Runtime.Standard" />
-    <PackageReference Include="Dax.Vpax" />
-    <PackageReference Include="Dax.Vpax.Obfuscator.Common" />
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Dax.Vpax" Version="1.11.0" />
+    <PackageReference Include="Dax.Vpax.Obfuscator.Common" Version="1.0.3" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.146" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
